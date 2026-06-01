@@ -1,0 +1,500 @@
+openapi: 3.1.0
+info:
+  title: Ax402 Control Plane API
+  version: 1.0.0
+  description: Admin API for ax402-backend. Gateway payment flows use standard x402, not this API.
+servers:
+  - url: http://api.localhost:8090
+    description: Local default (ADMIN_HOST)
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Scoped key ax402_live_...
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: JWT from signup/login or ax402_live_ API key
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string }
+        onboarding_completed: { type: boolean }
+        email_verified: { type: boolean }
+    AuthResponse:
+      type: object
+      properties:
+        token: { type: string }
+        user: { $ref: '#/components/schemas/User' }
+    APIKey:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        key_prefix: { type: string }
+        scopes: { type: array, items: { type: string } }
+        created_at: { type: string, format: date-time }
+        last_used_at: { type: string, format: date-time }
+    CreatedAPIKey:
+      allOf:
+        - { $ref: '#/components/schemas/APIKey' }
+        - type: object
+          properties:
+            key: { type: string, description: Shown once on create }
+    PlatformConfig:
+      type: object
+      properties:
+        platform_domain: { type: string }
+        gateway_cname_target: { type: string }
+        gateway_port: { type: integer }
+        admin_host: { type: string }
+    AcceptOption:
+      type: object
+      required: [scheme, network, asset, amount]
+      properties:
+        scheme: { type: string }
+        network: { type: string }
+        asset: { type: string }
+        amount: { type: string }
+        max_timeout_seconds: { type: integer }
+        extra: { type: object }
+    API:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        slug: { type: string }
+        upstream_base_url: { type: string }
+        pay_to_mode: { type: string, enum: [user_wallet, platform_wallet] }
+        pay_to_address: { type: string }
+        domains: { type: array, items: { type: object } }
+    Endpoint:
+      type: object
+      properties:
+        id: { type: string }
+        api_id: { type: string }
+        method: { type: string }
+        path_pattern: { type: string }
+        enabled: { type: boolean }
+        accepts: { type: array, items: { $ref: '#/components/schemas/AcceptOption' } }
+paths:
+  /auth/signup:
+    post:
+      summary: Register account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string, minLength: 8 }
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+  /auth/login:
+    post:
+      summary: Login
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+  /auth/logout:
+    post:
+      summary: Logout
+      security: []
+      responses:
+        '200':
+          description: OK
+  /auth/verify-email:
+    post:
+      summary: Verify email
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
+      responses:
+        '200':
+          description: verified
+  /auth/me:
+    get:
+      summary: Current user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+  /auth/resend-verification:
+    post:
+      summary: Resend email verification
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+  /auth/password:
+    put:
+      summary: Change password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password: { type: string }
+                new_password: { type: string, minLength: 8 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+  /auth/onboarding/complete:
+    post:
+      summary: Mark onboarding complete
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+  /auth/scopes:
+    get:
+      summary: List available API key scopes (JWT only)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scopes: { type: array, items: { type: string } }
+  /auth/api-keys:
+    get:
+      summary: List API keys (JWT only)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/APIKey' }
+    post:
+      summary: Create API key (JWT only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, scopes]
+              properties:
+                name: { type: string }
+                scopes: { type: array, items: { type: string } }
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreatedAPIKey' }
+  /auth/api-keys/{keyID}:
+    delete:
+      summary: Revoke API key (JWT only)
+      parameters:
+        - name: keyID
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: revoked
+  /config/platform:
+    get:
+      summary: Platform configuration
+      security: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlatformConfig' }
+  /domains/suggest:
+    get:
+      summary: Suggest gateway domain plan
+      x-required-scope: domains:read
+      parameters:
+        - name: hostname
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: domain plan
+  /apis:
+    get:
+      summary: List APIs
+      x-required-scope: apis:read
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/API' }
+    post:
+      summary: Create API
+      x-required-scope: apis:write
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug, upstream_base_url]
+              properties:
+                name: { type: string }
+                slug: { type: string }
+                upstream_base_url: { type: string }
+                pay_to_mode: { type: string }
+                pay_to_address: { type: string }
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/API' }
+  /apis/{apiID}:
+    get:
+      summary: Get API
+      x-required-scope: apis:read
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/API' }
+    put:
+      summary: Update API
+      x-required-scope: apis:write
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/API' }
+    delete:
+      summary: Delete API
+      x-required-scope: apis:write
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      responses:
+        '204':
+          description: deleted
+  /apis/{apiID}/endpoints:
+    get:
+      summary: List endpoints
+      x-required-scope: endpoints:read
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Endpoint' }
+    post:
+      summary: Create endpoint
+      x-required-scope: endpoints:write
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [method, path_pattern, accepts]
+              properties:
+                method: { type: string }
+                path_pattern: { type: string }
+                accepts: { type: array, items: { $ref: '#/components/schemas/AcceptOption' } }
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Endpoint' }
+  /apis/{apiID}/endpoints/{endpointID}:
+    put:
+      summary: Update endpoint
+      x-required-scope: endpoints:write
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+        - { name: endpointID, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                method: { type: string }
+                path_pattern: { type: string }
+                enabled: { type: boolean }
+                accepts: { type: array, items: { $ref: '#/components/schemas/AcceptOption' } }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Endpoint' }
+    delete:
+      summary: Delete endpoint
+      x-required-scope: endpoints:write
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+        - { name: endpointID, in: path, required: true, schema: { type: string } }
+      responses:
+        '204':
+          description: deleted
+  /apis/{apiID}/domains:
+    get:
+      summary: List domains
+      x-required-scope: domains:read
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: domain list
+    post:
+      summary: Add domain
+      x-required-scope: domains:write
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hostname]
+              properties:
+                hostname: { type: string }
+      responses:
+        '201':
+          description: domain setup instructions
+  /apis/{apiID}/domains/{domainID}/verify:
+    post:
+      summary: Verify domain DNS
+      x-required-scope: domains:write
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+        - { name: domainID, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: verified
+  /openapi/parse:
+    post:
+      summary: Parse OpenAPI spec
+      x-required-scope: openapi:read
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                spec: { type: string }
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '200':
+          description: parsed operations
+  /apis/{apiID}/openapi/import:
+    post:
+      summary: Import OpenAPI operations as endpoints
+      x-required-scope: openapi:read
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: import result
+  /stats/overview:
+    get:
+      summary: Account stats overview
+      x-required-scope: stats:read
+      parameters:
+        - name: days
+          in: query
+          schema: { type: integer, default: 30 }
+      responses:
+        '200':
+          description: stats
+  /apis/{apiID}/stats:
+    get:
+      summary: Per-API stats
+      x-required-scope: stats:read
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+        - name: days
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: api stats
+  /apis/{apiID}/settlements:
+    get:
+      summary: List settlements
+      x-required-scope: settlements:read
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: settlements
+  /apis/{apiID}/batch-settlements:
+    get:
+      summary: List batch settlements
+      x-required-scope: settlements:read
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: batch settlements
+  /supported-networks:
+    get:
+      summary: Facilitator supported networks
+      responses:
+        '200':
+          description: passthrough from facilitator /supported

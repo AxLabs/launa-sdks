@@ -1,0 +1,23 @@
+{
+  "name": "ax402-shopify",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "remix vite:dev",
+    "build": "remix vite:build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@axlabs/ax402-sdk": "file:../../packages/typescript",
+    "@remix-run/node": "^2.15.0",
+    "@remix-run/react": "^2.15.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.15.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.0",
+    "vitest": "^3.0.0"
+  }
+}

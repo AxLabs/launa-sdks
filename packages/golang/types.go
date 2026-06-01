@@ -1,0 +1,132 @@
+package ax402
+
+import "encoding/json"
+
+type User struct {
+	ID                  string `json:"id"`
+	Email               string `json:"email"`
+	OnboardingCompleted bool   `json:"onboarding_completed"`
+	EmailVerified       bool   `json:"email_verified"`
+}
+
+type AuthResponse struct {
+	Token string `json:"token"`
+	User  User   `json:"user"`
+}
+
+type PlatformConfig struct {
+	PlatformDomain     string `json:"platform_domain"`
+	GatewayCNAMETarget string `json:"gateway_cname_target"`
+	GatewayPort        int    `json:"gateway_port"`
+	AdminHost          string `json:"admin_host"`
+}
+
+type AcceptOption struct {
+	Scheme            string         `json:"scheme"`
+	Network           string         `json:"network"`
+	Asset             string         `json:"asset"`
+	Amount            string         `json:"amount"`
+	MaxTimeoutSeconds int            `json:"max_timeout_seconds,omitempty"`
+	Extra             map[string]any `json:"extra,omitempty"`
+}
+
+type API struct {
+	ID              string      `json:"id"`
+	Name            string      `json:"name"`
+	Slug            string      `json:"slug"`
+	UpstreamBaseURL string      `json:"upstream_base_url"`
+	PayToMode       string      `json:"pay_to_mode"`
+	PayToAddress    string      `json:"pay_to_address,omitempty"`
+	Domains         []APIDomain `json:"domains"`
+}
+
+type APIDomain struct {
+	ID       string `json:"id,omitempty"`
+	Hostname string `json:"hostname"`
+}
+
+type CreateAPIInput struct {
+	Name            string `json:"name"`
+	Slug            string `json:"slug"`
+	UpstreamBaseURL string `json:"upstream_base_url"`
+	PayToMode       string `json:"pay_to_mode,omitempty"`
+	PayToAddress    string `json:"pay_to_address,omitempty"`
+}
+
+type Endpoint struct {
+	ID          string         `json:"id"`
+	APIID       string         `json:"api_id"`
+	Method      string         `json:"method"`
+	PathPattern string         `json:"path_pattern"`
+	Enabled     bool           `json:"enabled"`
+	Accepts     []AcceptOption `json:"accepts"`
+	Description string         `json:"description,omitempty"`
+}
+
+type CreateEndpointInput struct {
+	Method      string         `json:"method"`
+	PathPattern string         `json:"path_pattern"`
+	Accepts     []AcceptOption `json:"accepts"`
+	Description string         `json:"description,omitempty"`
+	Enabled     *bool          `json:"enabled,omitempty"`
+}
+
+type UpdateEndpointInput struct {
+	Method      string         `json:"method,omitempty"`
+	PathPattern string         `json:"path_pattern,omitempty"`
+	Accepts     []AcceptOption `json:"accepts,omitempty"`
+	Description string         `json:"description,omitempty"`
+	Enabled     *bool          `json:"enabled,omitempty"`
+}
+
+type DomainSetup struct {
+	ID                 string   `json:"id,omitempty"`
+	Hostname           string   `json:"hostname"`
+	VerificationToken  string   `json:"verification_token"`
+	VerificationRecord string   `json:"verification_record"`
+	CNAMERecord        string   `json:"cname_record"`
+	CNAMETarget        string   `json:"cname_target"`
+	Instructions       []string `json:"instructions,omitempty"`
+}
+
+type DomainPlan struct {
+	GatewayHostname string `json:"gateway_hostname"`
+	UpstreamBaseURL string `json:"upstream_base_url"`
+	CNAMERecord     string `json:"cname_record"`
+	CNAMETarget     string `json:"cname_target"`
+	TXTRecord       string `json:"txt_record"`
+}
+
+type ParsedOpenAPI struct {
+	Title             string                   `json:"title,omitempty"`
+	SuggestedUpstream string                   `json:"suggested_upstream,omitempty"`
+	Operations        []ParsedOpenAPIOperation `json:"operations"`
+}
+
+type ParsedOpenAPIOperation struct {
+	Method      string `json:"method"`
+	PathPattern string `json:"path_pattern"`
+	Summary     string `json:"summary,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
+type APIKey struct {
+	ID        string   `json:"id"`
+	Name      string   `json:"name"`
+	KeyPrefix string   `json:"key_prefix"`
+	Scopes    []string `json:"scopes"`
+	CreatedAt string   `json:"created_at,omitempty"`
+}
+
+type CreatedAPIKey struct {
+	APIKey
+	Key string `json:"key"`
+}
+
+type StatsOverview map[string]any
+
+type Settlement map[string]any
+
+type BatchSettlement map[string]any
+
+type SupportedNetworks = json.RawMessage
