@@ -19,9 +19,10 @@
       "import": "./dist/platform/index.js"
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "src", "tsconfig.json"],
   "scripts": {
     "build": "tsc",
+    "prepare": "pnpm run build",
     "test": "vitest run",
     "prepublishOnly": "pnpm run build"
   },

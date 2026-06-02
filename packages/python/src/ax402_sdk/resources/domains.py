@@ -27,3 +27,6 @@ class DomainsResource:
 
     def verify(self, api_id: str, domain_id: str) -> dict[str, str]:
         return self._http.request("POST", f"/apis/{api_id}/domains/{domain_id}/verify")
+
+    def delete(self, api_id: str, domain_id: str) -> None:
+        self._http.request("DELETE", f"/apis/{api_id}/domains/{domain_id}")

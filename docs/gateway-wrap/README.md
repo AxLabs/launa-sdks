@@ -14,7 +14,7 @@ Buyer (x402 client) → gateway hostname → 402 + payment requirements
 1. Sign up and verify email in the dashboard
 2. Register an API with upstream base URL and pay-to wallet
 3. Add endpoints (method, path pattern, x402 accept options)
-4. Publish default subdomain or verify custom domain (CNAME + TXT)
+4. Publish default subdomain or verify custom domain (CNAME to your assigned gateway server + TXT)
 5. Test with a buyer client against the gateway hostname
 
 ## When to use

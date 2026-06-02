@@ -45,6 +45,7 @@ describe("Ax402Client integration", () => {
     await client.domains.list("api1");
     await client.domains.add("api1", "api.example.com");
     await client.domains.verify("api1", "dom1");
+    await client.domains.delete("api1", "dom1");
     await client.stats.forApi("api1");
     await client.settlements.list("api1");
     await client.settlements.listBatch("api1");

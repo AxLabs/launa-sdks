@@ -30,14 +30,26 @@ type AcceptOption struct {
 	Extra             map[string]any `json:"extra,omitempty"`
 }
 
+type GatewayServerSummary struct {
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	Region         string `json:"region,omitempty"`
+	PublicHostname string `json:"public_hostname"`
+	CNAMETarget    string `json:"cname_target"`
+	Status         string `json:"status"`
+}
+
 type API struct {
-	ID              string      `json:"id"`
-	Name            string      `json:"name"`
-	Slug            string      `json:"slug"`
-	UpstreamBaseURL string      `json:"upstream_base_url"`
-	PayToMode       string      `json:"pay_to_mode"`
-	PayToAddress    string      `json:"pay_to_address,omitempty"`
-	Domains         []APIDomain `json:"domains"`
+	ID                  string                 `json:"id"`
+	Name                string                 `json:"name"`
+	Slug                string                 `json:"slug"`
+	UpstreamBaseURL     string                 `json:"upstream_base_url"`
+	PayToMode           string                 `json:"pay_to_mode"`
+	PayToAddress        string                 `json:"pay_to_address,omitempty"`
+	GatewayServerID     string                 `json:"gateway_server_id,omitempty"`
+	GatewayServer       *GatewayServerSummary  `json:"gateway_server,omitempty"`
+	GatewayCNAMETarget  string                 `json:"gateway_cname_target,omitempty"`
+	Domains             []APIDomain            `json:"domains"`
 }
 
 type APIDomain struct {

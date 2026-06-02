@@ -212,6 +212,10 @@ class DomainsResource {
       method: "POST",
     });
   }
+
+  delete(apiId: string, domainId: string) {
+    return this.http.request<void>(`/apis/${apiId}/domains/${domainId}`, { method: "DELETE" });
+  }
 }
 
 class OpenAPIResource {

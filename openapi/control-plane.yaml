@@ -413,6 +413,16 @@ paths:
       responses:
         '201':
           description: domain setup instructions
+  /apis/{apiID}/domains/{domainID}:
+    delete:
+      summary: Remove custom domain
+      x-required-scope: domains:write
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+        - { name: domainID, in: path, required: true, schema: { type: string } }
+      responses:
+        '204':
+          description: removed
   /apis/{apiID}/domains/{domainID}/verify:
     post:
       summary: Verify domain DNS

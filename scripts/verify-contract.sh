@@ -40,6 +40,7 @@ EXPECTED=(
   "DELETE /apis/{apiID}/endpoints/{endpointID}"
   "GET /apis/{apiID}/domains"
   "POST /apis/{apiID}/domains"
+  "DELETE /apis/{apiID}/domains/{domainID}"
   "POST /apis/{apiID}/domains/{domainID}/verify"
   "GET /apis/{apiID}/settlements"
   "GET /apis/{apiID}/batch-settlements"

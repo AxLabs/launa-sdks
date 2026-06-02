@@ -31,6 +31,7 @@ export type PlatformConfig = {
   gateway_cname_target: string;
   gateway_port: number;
   admin_host: string;
+  custom_domain_tls?: boolean;
 };
 
 export type DomainPlan = {
@@ -51,11 +52,17 @@ export type DomainSetup = {
   instructions?: string[];
 };
 
+export type DomainTLSStatus = "ready" | "pending" | "unavailable";
+
 export type APIDomain = {
   id?: string;
   hostname: string;
   verification_token?: string;
+  verification_record?: string;
+  cname_record?: string;
+  cname_target?: string;
   verified_at?: string | null;
+  tls_status?: DomainTLSStatus;
   is_primary?: boolean;
   is_default_subdomain?: boolean;
 };
@@ -72,6 +79,15 @@ export type UpstreamAuthInput = {
   value?: string;
 };
 
+export type GatewayServerSummary = {
+  id: string;
+  name: string;
+  region?: string;
+  public_hostname: string;
+  cname_target: string;
+  status: "active" | "draining" | "offline";
+};
+
 export type API = {
   id: string;
   name: string;
@@ -82,6 +98,9 @@ export type API = {
   pay_to_address?: string;
   receiver_authorizer_address?: string;
   batch_withdraw_delay?: number;
+  gateway_server_id?: string;
+  gateway_server?: GatewayServerSummary;
+  gateway_cname_target?: string;
   domains: APIDomain[];
 };
 

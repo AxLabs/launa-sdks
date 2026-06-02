@@ -48,6 +48,7 @@ export const MOCK_ROUTES: MockRoute[] = [
   { method: "GET", path: "/apis/api1/domains", body: [fixtures.domainSetup] },
   { method: "POST", path: "/apis/api1/domains", status: 201, body: fixtures.domainSetup },
   { method: "POST", path: "/apis/api1/domains/dom1/verify", body: { status: "verified" } },
+  { method: "DELETE", path: "/apis/api1/domains/dom1", status: 204, empty: true },
   { method: "GET", path: "/apis/api1/stats", body: fixtures.statsOverview },
   { method: "GET", path: "/apis/api1/settlements", body: fixtures.settlements },
   { method: "GET", path: "/apis/api1/batch-settlements", body: fixtures.batchSettlements },

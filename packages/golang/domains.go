@@ -28,3 +28,7 @@ func (c *Client) VerifyDomain(ctx context.Context, apiID, domainID string) (map[
 	}
 	return out, nil
 }
+
+func (c *Client) DeleteDomain(ctx context.Context, apiID, domainID string) error {
+	return c.do(ctx, http.MethodDelete, "/apis/"+apiID+"/domains/"+domainID, nil, nil)
+}
