@@ -1,6 +1,8 @@
 # MCP tools and CLI recipes
 
-Agent automation combines the [CLI](../cli/README.md) and [MCP server](../mcp/README.md). The ax402-frontend site documents this at `/docs/agents`.
+Agent automation combines the [CLI](../cli/README.md) and [MCP server](../mcp/README.md).
+
+Platform guide (dashboard, gateway, MCP setup): [ax402-frontend `/docs/agents`](https://github.com/AxLabs/ax402-frontend).
 
 Run pnpm commands below from the **ax402-sdk** repository root.
 

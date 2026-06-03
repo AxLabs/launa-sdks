@@ -26,5 +26,5 @@ Buyer (x402 client) → gateway hostname → 402 + payment requirements
 ## Related
 
 - [Buyer clients](../buyers/README.md)
-- [E-commerce plugins](../ecommerce/README.md)
-- OpenAPI import in dashboard for bulk endpoint creation
+- Platform: [ax402-frontend `/docs/gateway-wrap`](https://github.com/AxLabs/ax402-frontend) (dashboard, DNS, OpenAPI import)
+- E-commerce: [ecommerce](../ecommerce/README.md) (repo) · [/docs/plugins](https://github.com/AxLabs/ax402-frontend) (site)
