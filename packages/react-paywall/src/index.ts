@@ -48,11 +48,25 @@ export {
 } from './wallet.js'
 export {
   ensurePermit2ForRequirements,
+  ensurePaymentPrerequisites,
   requiresPermit2,
   rpcUrlForNetwork,
   chainForNetwork,
   type Eip1193Provider,
+  type PaymentPrerequisiteOptions,
 } from './permit2.js'
+export {
+  createBatchSettlementScheme,
+  createLocalStorageChannelStorage,
+  createRecoveringChannelStorage,
+  primeBatchChannelFromChain,
+  resolveBatchChannelStorage,
+  withReadContractSigner,
+  isBatchSettlementScheme,
+  batchDepositAmount,
+  type BatchPaywallOptions,
+  type BatchChannelStorage,
+} from './batch.js'
 export type {
   PaywallPolicy,
   SelectionResult,

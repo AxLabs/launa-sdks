@@ -16,7 +16,16 @@ import {
   type DiscoveredWallet,
 } from './discoverWallets.js'
 import { createSelectionResult } from './policy.js'
-import { ensurePermit2ForRequirements } from './permit2.js'
+import {
+  createBatchSettlementScheme,
+  isBatchSettlementScheme,
+  primeBatchChannelFromChain,
+  resolveBatchChannelStorage,
+  withReadContractSigner,
+  type BatchChannelStorage,
+  type BatchPaywallOptions,
+} from './batch.js'
+import { ensurePaymentPrerequisites } from './permit2.js'
 import {
   wrapFetchWithPayment,
   x402Client,
@@ -37,6 +46,8 @@ import {
 export type PaywallProviderProps = {
   children: ReactNode
   policy?: PaywallPolicy
+  /** Batch-settlement channel options (registers BatchSettlementEvmScheme on eip155). */
+  batch?: BatchPaywallOptions
   privateKey?: string
   rpc?: RpcConfig
   fetch?: typeof fetch
@@ -61,9 +72,19 @@ export type PaywallContextValue = {
 
 const PaywallContext = createContext<PaywallContextValue | null>(null)
 
+function policyAllowsBatch(policy: PaywallPolicy): boolean {
+  const raw = policy.allowedSchemes ?? 'exact,batch-settlement'
+  return raw
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+    .includes('batch-settlement')
+}
+
 export function PaywallProvider({
   children,
   policy: policyProp = {},
+  batch: batchOptions = {},
   privateKey: privateKeyInput,
   rpc,
   fetch: fetchOverride,
@@ -84,6 +105,14 @@ export function PaywallProvider({
   const [wallets, setWallets] = useState<DiscoveredWallet[]>([])
   const [walletsReady, setWalletsReady] = useState(false)
   const selectedNetworkRef = useRef<string | undefined>(undefined)
+  const batchStorageRef = useRef<BatchChannelStorage | undefined>(undefined)
+  const batchSalt = (batchOptions.channelSalt ??
+    '0x0000000000000000000000000000000000000000000000000000000000000000') as `0x${string}`
+  if (batchStorageRef.current === undefined && policyAllowsBatch(policy)) {
+    batchStorageRef.current = resolveBatchChannelStorage(batchOptions, true)
+  }
+  const batchSchemeRef = useRef<ReturnType<typeof createBatchSettlementScheme> | null>(null)
+  const batchSchemeWalletRef = useRef<string | null>(null)
 
   const parserClient = useMemo(() => new x402HTTPClient(new x402Client()), [])
 
@@ -211,12 +240,25 @@ export function PaywallProvider({
       const client = new x402Client(selector)
       const signer = buildSigner()
 
+      const batchDepositMultiplier = batchOptions.depositMultiplier ?? 5
+
       client.onBeforePaymentCreation(async (context) => {
-        await ensurePermit2ForRequirements(context.selectedRequirements, {
+        const req = context.selectedRequirements
+        if (
+          isBatchSettlementScheme(req.scheme) &&
+          batchStorageRef.current &&
+          policyAllowsBatch(policy)
+        ) {
+          const batchNetwork = req.network
+          const batchSigner = withReadContractSigner(signer, batchNetwork, rpc)
+          await primeBatchChannelFromChain(batchSigner, req, batchStorageRef.current, batchSalt)
+        }
+        await ensurePaymentPrerequisites(req, {
           walletAddress: walletAddress ?? undefined,
           provider: provider ?? undefined,
           privateKey,
           rpc,
+          batchDepositMultiplier,
           switchNetwork: provider
             ? (network) => switchWalletToNetwork(provider, network)
             : undefined,
@@ -224,6 +266,23 @@ export function PaywallProvider({
       })
 
       client.register('eip155:*', new ExactEvmScheme(signer))
+      if (policyAllowsBatch(policy) && batchStorageRef.current) {
+        const batchNetwork =
+          selectedNetworkRef.current ??
+          policy.preferredNetworks?.split(',')[0]?.trim() ??
+          'eip155:84532'
+        const batchSigner = withReadContractSigner(signer, batchNetwork, rpc)
+        const walletKey = walletAddress ?? privateKey ?? ''
+        if (batchSchemeRef.current === null || batchSchemeWalletRef.current !== walletKey) {
+          batchSchemeRef.current = createBatchSettlementScheme(batchSigner, {
+            ...batchOptions,
+            storage: batchOptions.storage ?? batchStorageRef.current,
+            persistChannels: true,
+          })
+          batchSchemeWalletRef.current = walletKey
+        }
+        client.register('eip155:*', batchSchemeRef.current)
+      }
       const paymentHttpClient = new x402HTTPClient(client)
       const paymentFetch = wrapFetchWithPayment(baseFetch, paymentHttpClient)
 
@@ -263,6 +322,7 @@ export function PaywallProvider({
       rpc,
       walletAddress,
       selectedNetworkRef,
+      batchOptions,
     ],
   )
 

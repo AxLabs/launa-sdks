@@ -50,8 +50,7 @@ export class HttpClient {
       const body = await res.text();
       throw new Ax402Error(res.status, parseApiError(body || res.statusText));
     }
-    if (res.status === 204) return undefined as T;
-    return res.json() as Promise<T>;
+    return parseJsonResponse<T>(res);
   }
 
   async requestMultipart<T>(path: string, form: FormData): Promise<T> {
@@ -70,6 +69,13 @@ export class HttpClient {
       const body = await res.text();
       throw new Ax402Error(res.status, parseApiError(body || res.statusText));
     }
-    return res.json() as Promise<T>;
+    return parseJsonResponse<T>(res);
   }
+}
+
+async function parseJsonResponse<T>(res: Response): Promise<T> {
+  if (res.status === 204 || res.status === 205) return undefined as T;
+  const text = await res.text();
+  if (!text.trim()) return undefined as T;
+  return JSON.parse(text) as T;
 }

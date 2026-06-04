@@ -13,6 +13,7 @@ import {
   type Transport,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
+import { batchDepositAmount, isBatchSettlementScheme } from './batch.js'
 import type { RpcConfig } from './types.js'
 
 export type Eip1193Provider = {
@@ -159,6 +160,10 @@ export interface Permit2SignerOptions {
   switchNetwork?: (network: string) => Promise<void>
 }
 
+export type PaymentPrerequisiteOptions = Permit2SignerOptions & {
+  batchDepositMultiplier?: number
+}
+
 export async function ensurePermit2ForRequirements(
   requirements: PaymentRequirements,
   options: Permit2SignerOptions,
@@ -168,6 +173,48 @@ export async function ensurePermit2ForRequirements(
   }
   const token = requirements.asset as `0x${string}`
   const amount = BigInt(requirements.amount)
+
+  if (options.walletAddress && options.provider) {
+    if (options.switchNetwork) {
+      await options.switchNetwork(requirements.network)
+    }
+    await ensurePermit2Allowance(
+      options.provider,
+      options.walletAddress,
+      token,
+      amount,
+      requirements.network,
+      options.rpc,
+    )
+    return
+  }
+
+  if (options.privateKey) {
+    await ensurePermit2AllowanceWithPrivateKey(
+      options.privateKey,
+      token,
+      amount,
+      requirements.network,
+      options.rpc,
+    )
+    return
+  }
+
+  throw new Error('Permit2 approval requires a connected wallet or privateKey')
+}
+
+export async function ensurePaymentPrerequisites(
+  requirements: PaymentRequirements,
+  options: PaymentPrerequisiteOptions,
+): Promise<void> {
+  const extra = requirements.extra as Record<string, unknown> | undefined
+  if (!requiresPermit2(extra)) {
+    return
+  }
+  const token = requirements.asset as `0x${string}`
+  const amount = isBatchSettlementScheme(requirements.scheme)
+    ? batchDepositAmount(requirements.amount, options.batchDepositMultiplier ?? 5)
+    : BigInt(requirements.amount)
 
   if (options.walletAddress && options.provider) {
     if (options.switchNetwork) {

@@ -11,6 +11,8 @@ type FetchModule = {
 
 type EvmModule = {
   ExactEvmScheme: new (signer: unknown) => unknown;
+  BatchSettlementEvmScheme?: new (signer: unknown, options?: unknown) => unknown;
+  toClientEvmSigner?: (signer: unknown, publicClient?: unknown) => unknown;
   registerExactEvmScheme?: (client: unknown, cfg: { signer: unknown }) => void;
 };
 
@@ -26,20 +28,39 @@ async function loadDeps(): Promise<{ fetchMod: FetchModule; evmMod: EvmModule }>
   }
 }
 
-function registerEvmScheme(
+function registerEvmSchemes(
   client: { register: (pattern: string, scheme: unknown) => void },
   evmMod: EvmModule,
   signer: BuyerSigner,
+  opts: BuyerClientOptions = {},
 ): void {
-  if (evmMod.ExactEvmScheme) {
-    client.register("eip155:*", new evmMod.ExactEvmScheme(signer));
-    return;
-  }
   if (evmMod.registerExactEvmScheme) {
     evmMod.registerExactEvmScheme(client, { signer });
+  } else if (evmMod.ExactEvmScheme) {
+    client.register("eip155:*", new evmMod.ExactEvmScheme(signer));
+  } else {
+    throw new BuyerDepsError("No EVM scheme registration available in @x402/evm");
+  }
+
+  const batch = opts.batch;
+  if (!batch || !evmMod.BatchSettlementEvmScheme) {
     return;
   }
-  throw new BuyerDepsError("No EVM scheme registration available in @x402/evm");
+
+  const batchSigner =
+    evmMod.toClientEvmSigner && typeof evmMod.toClientEvmSigner === "function"
+      ? evmMod.toClientEvmSigner(signer)
+      : signer;
+  const salt =
+    batch.channelSalt ??
+    ("0x0000000000000000000000000000000000000000000000000000000000000000" as const);
+  client.register(
+    "eip155:*",
+    new evmMod.BatchSettlementEvmScheme(batchSigner, {
+      salt,
+      depositPolicy: { depositMultiplier: batch.depositMultiplier ?? 5 },
+    }),
+  );
 }
 
 export class BuyerClient {
@@ -60,7 +81,7 @@ export class BuyerClient {
     const { fetchMod, evmMod } = await loadDeps();
     const baseFetch = opts.fetch ?? globalThis.fetch;
     const client = new fetchMod.x402Client();
-    registerEvmScheme(client, evmMod, signer);
+    registerEvmSchemes(client, evmMod, signer, opts);
     const paymentHttpClient = new fetchMod.x402HTTPClient(client);
     const paymentFetch = fetchMod.wrapFetchWithPayment(baseFetch, paymentHttpClient);
     return new BuyerClient(paymentFetch, paymentHttpClient);
@@ -113,6 +134,7 @@ export async function payAndFetch(signer: BuyerSigner, opts: PayOptions): Promis
 
 export { gatewayURL, gatewayBaseURL } from "../platform/helpers.js";
 export type {
+  BatchBuyerOptions,
   BuyerClientOptions,
   BuyerSigner,
   PayOptions,

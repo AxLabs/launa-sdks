@@ -16,6 +16,10 @@ export function createSelectionResult(
     policy.maxAmount?.trim() && policy.maxAmount.trim().length > 0
       ? BigInt(policy.maxAmount.trim())
       : null
+  const allowedSchemes = parseCsv(policy.allowedSchemes ?? 'exact,batch-settlement').map((s) =>
+    s.toLowerCase(),
+  )
+  const preferredSchemes = parseCsv(policy.preferredSchemes ?? '').map((s) => s.toLowerCase())
   const allowedChains = parseCsv(policy.allowedChains ?? '').map((c) => c.toLowerCase())
   const allowedAssets = parseCsv(policy.allowedAssets ?? '').map((a) => a.toLowerCase())
   const allowedPayTo = parseCsv(policy.allowedPayTo ?? '').map((a) => a.toLowerCase())
@@ -28,8 +32,9 @@ export function createSelectionResult(
 
   const evaluated = accepts.map((requirement, index) => {
     const rejectionReasons: string[] = []
-    if (requirement.scheme.toLowerCase() !== 'exact') {
-      rejectionReasons.push(`unsupported scheme "${requirement.scheme}"`)
+    const scheme = requirement.scheme.toLowerCase()
+    if (allowedSchemes.length > 0 && !allowedSchemes.includes(scheme)) {
+      rejectionReasons.push(`scheme "${requirement.scheme}" not in allowed list`)
     }
     if (maxAmount !== null) {
       try {
@@ -58,6 +63,10 @@ export function createSelectionResult(
         : 'eip3009'
 
     let score = 0
+    const schemeRank = preferredSchemes.indexOf(scheme)
+    if (schemeRank >= 0) {
+      score += (preferredSchemes.length - schemeRank) * 10_000
+    }
     const networkRank = preferredNetworks.indexOf(requirement.network.toLowerCase())
     if (networkRank >= 0) {
       score += (preferredNetworks.length - networkRank) * 1000

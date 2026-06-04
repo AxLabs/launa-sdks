@@ -1,7 +1,14 @@
 export type BuyerSigner = unknown;
 
+export type BatchBuyerOptions = {
+  channelSalt?: `0x${string}`;
+  depositMultiplier?: number;
+};
+
 export type BuyerClientOptions = {
   fetch?: typeof fetch;
+  /** Register BatchSettlementEvmScheme alongside ExactEvmScheme. */
+  batch?: BatchBuyerOptions;
 };
 
 export type PayOptions = {

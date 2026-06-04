@@ -18,6 +18,8 @@ vi.mock("@x402/fetch", () => ({
 
 vi.mock("@x402/evm", () => ({
   ExactEvmScheme: vi.fn().mockImplementation((signer) => ({ signer, kind: "exact" })),
+  BatchSettlementEvmScheme: vi.fn().mockImplementation((signer) => ({ signer, kind: "batch" })),
+  toClientEvmSigner: vi.fn((signer) => signer),
 }));
 
 describe("BuyerClient", () => {
@@ -49,6 +51,16 @@ describe("BuyerClient", () => {
   it("payAndFetch convenience wrapper", async () => {
     const res = await payAndFetch({ address: "0x1" }, { url: "https://gateway.test" });
     expect(res.status).toBe(200);
+  });
+
+  it("registers BatchSettlementEvmScheme when batch options are set", async () => {
+    const { x402Client } = await import("@x402/fetch");
+    const { BatchSettlementEvmScheme } = await import("@x402/evm");
+    const signer = { address: "0x1" };
+    await BuyerClient.create(signer, { batch: { depositMultiplier: 5 } });
+    const x402 = vi.mocked(x402Client).mock.results.at(-1)?.value;
+    expect(x402.register).toHaveBeenCalledWith("eip155:*", expect.objectContaining({ kind: "batch" }));
+    expect(BatchSettlementEvmScheme).toHaveBeenCalled();
   });
 });
 

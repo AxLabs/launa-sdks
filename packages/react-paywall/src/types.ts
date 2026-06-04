@@ -4,6 +4,9 @@ export type SelectionStrategy = 'server-order' | 'preference-first'
 
 export type PaywallPolicy = {
   maxAmount?: string
+  /** Comma-separated schemes, e.g. `exact,batch-settlement`. Default: both. */
+  allowedSchemes?: string
+  preferredSchemes?: string
   allowedChains?: string
   allowedAssets?: string
   allowedPayTo?: string
