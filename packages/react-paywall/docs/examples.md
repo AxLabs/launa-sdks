@@ -6,7 +6,7 @@
 <PaywallGate resourceUrl="/echo/get?test=1" title="Unlock response" />
 ```
 
-Proxy `/echo` → `https://echo.staging.ax402.io` in Vite (see `x402-react-paywall` demo).
+Proxy `/echo` → `https://echo.staging.ax402.io` in Vite (see `ax402-paywall-demo` demo).
 
 ## Branded publisher
 

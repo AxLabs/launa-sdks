@@ -60,7 +60,7 @@ See [Theming & branding](./docs/theming.md).
 ## Local demo
 
 ```bash
-cd x402-react-paywall && make demo
+cd ax402-paywall-demo && make demo
 ```
 
 ## Server paywall alternative

@@ -33,6 +33,13 @@ export const DEFAULT_USDC_ACCEPT = {
   extra: { name: "USDC", version: "2", assetTransferMethod: "eip3009" },
 } as const;
 
+/** x402 batch-settlement minimum (15 minutes). */
+export const MIN_BATCH_WITHDRAW_DELAY = 900;
+/** x402 batch-settlement maximum (30 days). */
+export const MAX_BATCH_WITHDRAW_DELAY = 2_592_000;
+/** Default channel withdraw delay for new batch endpoints (3 days). */
+export const DEFAULT_BATCH_WITHDRAW_DELAY = 259_200;
+
 export const DEFAULT_BATCH_USDC_ACCEPT = {
   scheme: "batch-settlement",
   network: "eip155:84532",
@@ -42,9 +49,23 @@ export const DEFAULT_BATCH_USDC_ACCEPT = {
     name: "USDC",
     version: "2",
     assetTransferMethod: "eip3009",
-    withdrawDelay: 900,
+    withdrawDelay: DEFAULT_BATCH_WITHDRAW_DELAY,
   },
 } as const;
+
+export function formatWithdrawDelay(seconds: number): string {
+  if (seconds < 60) return `${seconds} seconds`;
+  if (seconds < 3600) {
+    const m = Math.round(seconds / 60);
+    return m === 1 ? "1 minute" : `${m} minutes`;
+  }
+  if (seconds < 86_400) {
+    const h = Math.round(seconds / 3600);
+    return h === 1 ? "1 hour" : `${h} hours`;
+  }
+  const d = Math.round(seconds / 86_400);
+  return d === 1 ? "1 day" : `${d} days`;
+}
 
 export type PaymentScheme = "exact" | "batch-settlement";
 
@@ -56,7 +77,7 @@ export function buildUsdcAccept(
   const base = scheme === "batch-settlement" ? DEFAULT_BATCH_USDC_ACCEPT : DEFAULT_USDC_ACCEPT;
   const extra =
     scheme === "batch-settlement"
-      ? { ...base.extra, withdrawDelay: withdrawDelay ?? 900 }
+      ? { ...base.extra, withdrawDelay: withdrawDelay ?? DEFAULT_BATCH_WITHDRAW_DELAY }
       : base.extra;
   return { ...base, amount: amountAtomic, extra };
 }

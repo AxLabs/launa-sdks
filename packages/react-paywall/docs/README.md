@@ -3,7 +3,7 @@
 End-user documentation is published on the Ax402 site:
 
 - **[/docs/react-paywall](https://github.com/AxLabs/ax402-frontend)** — overview and guides (theming, components, examples)
-- Repo demo: [x402-react-paywall](../../../../x402-react-paywall/README.md)
+- Repo demo: [ax402-paywall-demo](../../../../ax402-paywall-demo/README.md)
 
 This folder mirrors topics for package development; keep in sync when changing the public API.
 

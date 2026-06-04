@@ -59,7 +59,7 @@ export function ArticleRoute() {
 
 Browsers block cross-origin **402** responses without `Access-Control-Allow-Origin`. Options:
 
-- Proxy the seller through your dev server (see `x402-react-paywall/demo/vite.config.ts`).
+- Proxy the seller through your dev server (see `ax402-paywall-demo/demo/vite.config.ts`).
 - Or host the SPA on the same origin as the gateway.
 
 ## Headless / testing
