@@ -145,6 +145,7 @@ export type {
 export { BuyerDepsError } from "./types.js";
 export {
   createEvmSignerFromPrivateKey,
+  createEvmSignerFromBrowserProvider,
   buyerClientFromPrivateKey,
   buyerClientFromEnv,
 } from "./signer.js";
