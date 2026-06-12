@@ -1,6 +1,6 @@
 # ax402-sdk
 
-Platform kit for [ax402-backend](../ax402-backend/) — control-plane clients, AI-agent tools, and e-commerce plugin starters.
+Platform kit for [ax402-backend](https://github.com/AxLabs/ax402-backend) — control-plane clients, AI-agent tools, and e-commerce plugin starters.
 
 **Payment protocol (402, signing, facilitator)** lives in [x402-foundation/x402](https://github.com/x402-foundation/x402). Use `@x402/fetch` or `github.com/x402-foundation/x402/go` to pay gateway URLs. This repo wraps the AxLabs **control plane** only.
 
