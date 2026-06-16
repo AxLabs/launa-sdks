@@ -24,3 +24,9 @@ class APIsResource:
 
     def delete(self, api_id: str) -> None:
         self._http.request("DELETE", f"/apis/{api_id}")
+
+    def batch_overview(self, api_id: str) -> dict[str, Any]:
+        return self._http.request("GET", f"/apis/{api_id}/batch")
+
+    def update_batch_settings(self, api_id: str, settings: dict[str, int]) -> dict[str, Any]:
+        return self._http.request("PUT", f"/apis/{api_id}/batch/settings", json_body=settings)

@@ -6,7 +6,7 @@ Package: `ax402-sdk` in `packages/python/`.
 
 ```bash
 pip install ax402-sdk
-pip install "ax402-sdk[buyer]"
+pip install "ax402-sdk[buyer]"  # x402 signing + eth-account
 ```
 
 ## Control plane
@@ -14,20 +14,52 @@ pip install "ax402-sdk[buyer]"
 ```python
 from ax402_sdk import Ax402Client
 
-client = Ax402Client.from_env()
-apis = client.list_apis()
+client = Ax402Client.from_env()  # AX402_BASE_URL, AX402_API_KEY or AX402_JWT
+
+apis = client.apis.list()
+api = client.apis.create(name="My API", slug="myapi", upstream_base_url="https://api.example.com")
 ```
 
+Resource-style API: `client.auth`, `client.apis`, `client.endpoints`, `client.domains`, `client.openapi`, `client.stats`, `client.settlements`, `client.config`.
+
+Flat back-compat aliases (`list_apis`, `stats_overview`, etc.) remain on `Ax402Client`.
+
+Python matches Go for core seller automation. JWT-only routes (MFA, billing, income) are TypeScript-only today.
+
+Helpers: `gateway_url`, `wrap_openapi`, `SCOPE_PRESETS`, `usdc_to_atomic`, `build_usdc_accept`.
+
 ## Buyer
+
+Pay gateway URLs with EVM `exact` scheme. Full guide: [buyers](../buyers/README.md).
 
 ```python
 from ax402_sdk.buyer import BuyerClient
 
-result = BuyerClient.from_env().get("https://myapi.localhost:8090/v1/foo")
+result = BuyerClient.from_env().get("https://echo.staging.ax402.io/echo/get?test=1")
+print(result.status_code, result.settlement)
+```
+
+Async:
+
+```python
+from ax402_sdk.buyer import AsyncBuyerClient, evm_signer_from_private_key
+
+async with AsyncBuyerClient(evm_signer_from_private_key(key)) as client:
+    result = await client.get("https://echo.staging.ax402.io/echo/get?test=1")
+```
+
+Batch-settlement gateways:
+
+```python
+from ax402_sdk.buyer import BuyerClient, BatchBuyerOptions
+
+result = BuyerClient.from_env(batch=BatchBuyerOptions(deposit_multiplier=5)).get(
+    "https://echo.staging.ax402.io/echo/get?test=1"
+)
 ```
 
 ## Tests
 
 ```bash
-pip install -e ".[dev]" && pytest
+cd packages/python && pip install -e ".[dev]" && pytest
 ```

@@ -39,6 +39,16 @@ class AuthResource:
             json_body={"current_password": current_password, "new_password": new_password},
         )
 
+    def forgot_password(self, email: str) -> dict[str, str]:
+        return self._http.request("POST", "/auth/forgot-password", json_body={"email": email})
+
+    def reset_password(self, token: str, new_password: str) -> dict[str, str]:
+        return self._http.request(
+            "POST",
+            "/auth/reset-password",
+            json_body={"token": token, "new_password": new_password},
+        )
+
     def complete_onboarding(self) -> User:
         return User.model_validate(self._http.request("POST", "/auth/onboarding/complete"))
 

@@ -10,3 +10,6 @@ class ConfigResource:
 
     def platform(self) -> PlatformConfig:
         return PlatformConfig.model_validate(self._http.request("GET", "/config/platform"))
+
+    def billing(self) -> dict:
+        return self._http.request("GET", "/config/billing")

@@ -139,6 +139,8 @@ SCOPE_PRESETS: dict[str, list[str]] = {
         "stats:read",
         "settlements:read",
         "openapi:read",
+        "billing:read",
+        "income:read",
     ],
     "apiManager": [
         "apis:read",
@@ -149,7 +151,7 @@ SCOPE_PRESETS: dict[str, list[str]] = {
         "domains:write",
         "openapi:read",
     ],
-    "analytics": ["stats:read", "settlements:read"],
+    "analytics": ["stats:read", "settlements:read", "billing:read", "income:read"],
 }
 
 USDC_DECIMALS = 6

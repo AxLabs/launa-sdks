@@ -7,9 +7,11 @@ import httpx
 from .http import HttpTransport
 from .resources.apis import APIsResource
 from .resources.auth import AuthResource
+from .resources.billing import BillingResource
 from .resources.config import ConfigResource
 from .resources.domains import DomainsResource
 from .resources.endpoints import EndpointsResource
+from .resources.income import IncomeResource
 from .resources.keys import KeysResource
 from .resources.openapi import OpenAPIResource
 from .resources.settlements import SettlementsResource
@@ -43,6 +45,8 @@ class Ax402Client:
         self.openapi = OpenAPIResource(self._http)
         self.stats = StatsResource(self._http)
         self.settlements = SettlementsResource(self._http)
+        self.billing = BillingResource(self._http)
+        self.income = IncomeResource(self._http)
         self.config = ConfigResource(self._http)
 
     def set_api_key(self, api_key: str) -> None:
