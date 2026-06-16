@@ -76,10 +76,18 @@ ax402 keys list --json
 ax402 keys create --name ci --scopes apis:read,apis:write --json
 ax402 keys revoke --id KEY --json
 ax402 auth login --email you@example.com --password secret --json
+ax402 openapi parse --file spec.yaml --json
+ax402 openapi import --api-id ID --file spec.yaml --price-usdc 0.10 --json
+ax402 stats overview --days 30 --json
+ax402 config platform --json
+ax402 networks supported --json
+ax402 scopes presets --json
 ax402 pay url --url https://gateway.example/v1/foo --json
 ```
 
 Exit codes: 0 success, 1 API error, 2 usage error.
+
+MCP uses `AX402_API_KEY` only (no JWT). Build from repo — not published to npm.
 
 ## Errors
 

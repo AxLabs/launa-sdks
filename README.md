@@ -1,6 +1,6 @@
 # ax402-sdk
 
-Platform kit for [ax402-backend](https://github.com/AxLabs/ax402-backend) — control-plane clients, AI-agent tools, and e-commerce plugin starters.
+Platform kit for [ax402-backend](https://github.com/AxLabs/ax402-backend) — control-plane clients, AI-agent tools, and e-commerce plugins.
 
 **Payment protocol (402, signing, facilitator)** lives in [x402-foundation/x402](https://github.com/x402-foundation/x402). Use `@x402/fetch` or `github.com/x402-foundation/x402/go` to pay gateway URLs. This repo wraps the AxLabs **control plane** only.
 
@@ -13,7 +13,7 @@ Platform kit for [ax402-backend](https://github.com/AxLabs/ax402-backend) — co
 | AI agents (Python) | `ax402-sdk` on PyPI |
 | CLI / shell scripts | `ax402` CLI in `tools/cli` |
 | Cursor / Claude MCP tools | `tools/mcp-server` |
-| WordPress / WooCommerce | `plugins/wordpress`, `plugins/woocommerce` |
+| WordPress / WooCommerce | `plugins/wordpress`, `plugins/woocommerce` (`composer test` in `plugins/`) |
 | Shopify app | `plugins/shopify` |
 | Pay a wrapped API (buyer) | `@axlabs/ax402-sdk/buyer` (`BuyerClient`, `payAndFetch`) |
 

@@ -38,8 +38,8 @@ Gateway-wrap requires buyers to use x402 clients (`@x402/fetch`, `x402-go-client
 
 ## Plugin starters
 
-- [`plugins/wordpress/`](../plugins/wordpress/) — PHP settings + endpoint sync skeleton
-- [`plugins/woocommerce/`](../plugins/woocommerce/) — WC hooks extension
+- [`plugins/wordpress/`](../plugins/wordpress/) — settings, onboard, endpoint upsert, encrypted keys
+- [`plugins/woocommerce/`](../plugins/woocommerce/) — product metabox + WC REST path mapping
 - [`plugins/shopify/`](../plugins/shopify/) — Remix app starter
 
 ## Required scopes (API keys)

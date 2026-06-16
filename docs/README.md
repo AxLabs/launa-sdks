@@ -10,13 +10,25 @@ Payment protocol (402, signing, facilitator) is defined by [x402-foundation/x402
 
 | Language / tool | Guide | Package |
 |-----------------|-------|---------|
-| TypeScript | [sdks/typescript](./sdks/typescript/README.md) | `@axlabs/ax402-sdk` |
+| **Buyers** | **[buyers](./buyers/README.md)** | Pay gateway URLs (start here for consumers) |
+| TypeScript | [sdks/typescript](./sdks/typescript/README.md) | `@axlabs/ax402-sdk` + `/buyer` |
 | Go | [sdks/go](./sdks/go/README.md) | `github.com/AxLabs/ax402-sdk/go` |
 | Python | [sdks/python](./sdks/python/README.md) | `ax402-sdk` (PyPI) |
-| Buyers | [buyers](./buyers/README.md) | Pay wrapped gateway URLs |
 | CLI | [cli](./cli/README.md) | `@axlabs/ax402-cli` |
 | MCP | [mcp](./mcp/README.md) | `@axlabs/ax402-mcp-server` |
 | Agents | [agents](./agents/README.md) | CLI + MCP recipes |
+| React paywall | [packages/react-paywall/docs](../packages/react-paywall/docs/README.md) | `@axlabs/x402-react-paywall` |
+
+## Platform (hosted docs)
+
+| Guide | Path on ax402-frontend |
+|-------|------------------------|
+| Full stack | `/docs/platform` |
+| Gateway wrap | `/docs/gateway-wrap` |
+| E-commerce plugins | `/docs/plugins` |
+| Agent guide + `/llms.txt` | `/docs/agents` |
+
+OpenAPI contract: [openapi/control-plane.yaml](../openapi/control-plane.yaml).
 
 ## Integration (SDK-centric)
 
