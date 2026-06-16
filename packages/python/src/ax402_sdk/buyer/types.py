@@ -9,6 +9,12 @@ class BuyerDepsError(ImportError):
 
 
 @dataclass
+class BatchBuyerOptions:
+    channel_salt: str | None = None
+    deposit_multiplier: int = 5
+
+
+@dataclass
 class PayResult:
     status_code: int
     body: bytes

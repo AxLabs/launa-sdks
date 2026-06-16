@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from .types import BuyerDepsError, PayResult
+from .types import BatchBuyerOptions, BuyerDepsError, PayResult
+from .client import DEFAULT_BATCH_SALT
 
 
 def _load_x402_async():
@@ -24,13 +25,34 @@ def _load_x402_async():
     }
 
 
+def _register_batch_async(client: Any, signer: Any, batch: BatchBuyerOptions | None) -> None:
+    if batch is None:
+        return
+    from x402.mechanisms.evm.batch_settlement.client import (
+        BatchSettlementDepositPolicy,
+        BatchSettlementEvmScheme,
+        BatchSettlementEvmSchemeOptions,
+    )
+
+    salt = batch.channel_salt or DEFAULT_BATCH_SALT
+    scheme = BatchSettlementEvmScheme(
+        signer,
+        BatchSettlementEvmSchemeOptions(
+            salt=salt,
+            deposit_policy=BatchSettlementDepositPolicy(deposit_multiplier=batch.deposit_multiplier),
+        ),
+    )
+    client.register("eip155:*", scheme)
+
+
 class AsyncBuyerClient:
     """Async HTTP client that pays x402 gateway URLs automatically."""
 
-    def __init__(self, signer: Any) -> None:
+    def __init__(self, signer: Any, *, batch: BatchBuyerOptions | None = None) -> None:
         mods = _load_x402_async()
         client = mods["x402Client"]()
         mods["register_exact_evm_client"](client, signer)
+        _register_batch_async(client, signer, batch)
         self._client = client
         self._http = mods["x402HttpxClient"](client)
         self._x402_http = mods["x402HTTPClient"](client)

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from .types import BuyerDepsError, PayResult
+from .types import BatchBuyerOptions, BuyerDepsError, PayResult
+
+DEFAULT_BATCH_SALT = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 
 def _load_x402_sync():
@@ -28,6 +30,26 @@ def _load_x402_sync():
     }
 
 
+def _register_batch_sync(client: Any, signer: Any, batch: BatchBuyerOptions | None) -> None:
+    if batch is None:
+        return
+    from x402.mechanisms.evm.batch_settlement.client import (
+        BatchSettlementDepositPolicy,
+        BatchSettlementEvmScheme,
+        BatchSettlementEvmSchemeOptions,
+    )
+
+    salt = batch.channel_salt or DEFAULT_BATCH_SALT
+    scheme = BatchSettlementEvmScheme(
+        signer,
+        BatchSettlementEvmSchemeOptions(
+            salt=salt,
+            deposit_policy=BatchSettlementDepositPolicy(deposit_multiplier=batch.deposit_multiplier),
+        ),
+    )
+    client.register("eip155:*", scheme)
+
+
 def evm_signer_from_private_key(private_key: str) -> Any:
     mods = _load_x402_sync()
     key = private_key.strip()
@@ -40,10 +62,11 @@ def evm_signer_from_private_key(private_key: str) -> Any:
 class BuyerClient:
     """Sync HTTP client that pays x402 gateway URLs automatically."""
 
-    def __init__(self, signer: Any) -> None:
+    def __init__(self, signer: Any, *, batch: BatchBuyerOptions | None = None) -> None:
         mods = _load_x402_sync()
         client = mods["x402ClientSync"]()
         mods["register_exact_evm_client"](client, signer)
+        _register_batch_sync(client, signer, batch)
         self._http = mods["x402_requests"](client)
         self._x402_http = mods["x402HTTPClientSync"](client)
 
@@ -86,14 +109,14 @@ class BuyerClient:
         return self.request("POST", url, **kwargs)
 
     @classmethod
-    def from_private_key(cls, private_key: str) -> BuyerClient:
-        return cls(evm_signer_from_private_key(private_key))
+    def from_private_key(cls, private_key: str, *, batch: BatchBuyerOptions | None = None) -> BuyerClient:
+        return cls(evm_signer_from_private_key(private_key), batch=batch)
 
     @classmethod
-    def from_env(cls) -> BuyerClient:
+    def from_env(cls, *, batch: BatchBuyerOptions | None = None) -> BuyerClient:
         import os
 
         key = os.environ.get("AX402_EVM_PRIVATE_KEY") or os.environ.get("EVM_PRIVATE_KEY")
         if not key:
             raise BuyerDepsError("AX402_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required")
-        return cls.from_private_key(key)
+        return cls.from_private_key(key, batch=batch)

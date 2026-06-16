@@ -26,6 +26,13 @@ func TestPayURLFreeEndpoint(t *testing.T) {
 	}
 }
 
+func TestNewWithBatchOptions(t *testing.T) {
+	cl := New(nil, Options{Batch: &BatchOptions{DepositMultiplier: 5}})
+	if cl == nil || cl.http == nil {
+		t.Fatal("expected client")
+	}
+}
+
 func TestNewFromPrivateKeyInvalid(t *testing.T) {
 	_, err := NewFromPrivateKey("not-a-key")
 	if err == nil {

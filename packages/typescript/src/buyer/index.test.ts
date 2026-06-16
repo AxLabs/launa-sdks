@@ -20,6 +20,7 @@ vi.mock("@x402/evm", () => ({
   ExactEvmScheme: vi.fn().mockImplementation((signer) => ({ signer, kind: "exact" })),
   BatchSettlementEvmScheme: vi.fn().mockImplementation((signer) => ({ signer, kind: "batch" })),
   toClientEvmSigner: vi.fn((signer) => signer),
+  registerExactEvmScheme: undefined,
 }));
 
 describe("BuyerClient", () => {

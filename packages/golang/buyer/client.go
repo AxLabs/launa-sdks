@@ -11,6 +11,7 @@ import (
 	x402 "github.com/x402-foundation/x402/go"
 	x402http "github.com/x402-foundation/x402/go/http"
 	x402evm "github.com/x402-foundation/x402/go/mechanisms/evm"
+	batchevm "github.com/x402-foundation/x402/go/mechanisms/evm/batch-settlement/client"
 	exactevm "github.com/x402-foundation/x402/go/mechanisms/evm/exact/client"
 	evmsigners "github.com/x402-foundation/x402/go/signers/evm"
 )
@@ -24,11 +25,20 @@ type Client struct {
 	x402 *x402http.HTTPClient
 }
 
+// BatchOptions configures batch-settlement scheme registration alongside exact.
+type BatchOptions struct {
+	ChannelSalt       string
+	DepositMultiplier int
+}
+
 // Options configures a buyer Client.
 type Options struct {
 	HTTPClient *http.Client
 	Timeout    time.Duration
+	Batch      *BatchOptions
 }
+
+const defaultBatchSalt = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 // New builds a payment-enabled HTTP client for EVM exact scheme on any eip155 network.
 func New(signer EVMSigner, opts ...Options) *Client {
@@ -46,6 +56,20 @@ func New(signer EVMSigner, opts ...Options) *Client {
 
 	x402Client := x402.Newx402Client()
 	x402Client.Register("eip155:*", exactevm.NewExactEvmScheme(signer, nil))
+	if o.Batch != nil {
+		salt := o.Batch.ChannelSalt
+		if salt == "" {
+			salt = defaultBatchSalt
+		}
+		mult := o.Batch.DepositMultiplier
+		if mult == 0 {
+			mult = batchevm.DefaultDepositMultiplier
+		}
+		x402Client.Register("eip155:*", batchevm.NewBatchSettlementEvmScheme(signer, &batchevm.BatchSettlementEvmSchemeOptions{
+			Salt:              salt,
+			DepositMultiplier: mult,
+		}))
+	}
 	httpHelper := x402http.Newx402HTTPClient(x402Client)
 	return &Client{
 		http: x402http.WrapHTTPClientWithPayment(base, httpHelper),

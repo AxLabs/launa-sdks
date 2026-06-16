@@ -21,3 +21,13 @@ def test_buyer_client_constructs() -> None:
 def test_buyer_deps_error_message() -> None:
     err = BuyerDepsError("missing")
     assert "missing" in str(err)
+
+
+def test_buyer_client_with_batch() -> None:
+    from ax402_sdk.buyer import BatchBuyerOptions
+
+    signer = evm_signer_from_private_key(
+        "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    )
+    client = BuyerClient(signer, batch=BatchBuyerOptions(deposit_multiplier=5))
+    assert client is not None

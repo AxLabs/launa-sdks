@@ -34,8 +34,9 @@ function registerEvmSchemes(
   signer: BuyerSigner,
   opts: BuyerClientOptions = {},
 ): void {
-  if (evmMod.registerExactEvmScheme) {
-    evmMod.registerExactEvmScheme(client, { signer });
+  const registerExact = evmMod.registerExactEvmScheme;
+  if (typeof registerExact === "function") {
+    registerExact(client, { signer });
   } else if (evmMod.ExactEvmScheme) {
     client.register("eip155:*", new evmMod.ExactEvmScheme(signer));
   } else {
