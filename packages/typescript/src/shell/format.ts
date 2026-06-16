@@ -26,7 +26,7 @@ export function shellErrorFromUnknown(err: unknown): ShellResult {
     return {
       ok: false,
       error:
-        "Network error: could not reach the API. Check that the backend is running and the dashboard proxy (/api/backend) is reachable.",
+        "Network error: cross-origin fetch blocked (CORS) or host unreachable. For browser inspect/pay, the gateway must allow your dashboard origin via Access-Control-Allow-Origin.",
     };
   }
   return { ok: false, error: String(err) };

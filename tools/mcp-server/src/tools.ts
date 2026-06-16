@@ -1,30 +1,38 @@
 import type { Ax402Client } from "@axlabs/ax402-sdk";
-import { buildUsdcAccept, usdcToAtomic, wrapOpenAPI } from "@axlabs/ax402-sdk";
+import { buildUsdcAccept, usdcToAtomic, wrapOpenAPI, type PaymentScheme } from "@axlabs/ax402-sdk";
+import { inspectGatewayUrl } from "@axlabs/ax402-sdk/shell";
 
 export function createToolHandlers(getClient: () => Ax402Client) {
   return {
     listApis: async () => getClient().apis.list(),
+    getApi: async (api_id: string) => getClient().apis.get(api_id),
     createApi: async (body: Parameters<Ax402Client["apis"]["create"]>[0]) => getClient().apis.create(body),
     addEndpoint: async (
       api_id: string,
       method: string,
       path_pattern: string,
       price_usdc: string,
+      scheme: PaymentScheme = "exact",
     ) =>
       getClient().endpoints.create(api_id, {
         method,
         path_pattern,
-        accepts: [buildUsdcAccept("exact", usdcToAtomic(price_usdc))],
+        accepts: [buildUsdcAccept(scheme, usdcToAtomic(price_usdc))],
       }),
+    listEndpoints: async (api_id: string) => getClient().endpoints.list(api_id),
     importOpenapi: async (api_id: string, spec: string, price_usdc: string) =>
       wrapOpenAPI(getClient(), api_id, spec, [buildUsdcAccept("exact", usdcToAtomic(price_usdc))]),
     addDomain: async (api_id: string, hostname: string) => getClient().domains.add(api_id, hostname),
+    listDomains: async (api_id: string) => getClient().domains.list(api_id),
     verifyDomain: async (api_id: string, domain_id: string) =>
       getClient().domains.verify(api_id, domain_id),
     domainSuggest: async (apex: string) => getClient().domains.suggest(apex),
     statsOverview: async (days: number) => getClient().stats.overview(days),
+    statsApi: async (api_id: string, days: number) => getClient().stats.forApi(api_id, days),
+    settlementsList: async (api_id: string) => getClient().settlements.list(api_id),
     supportedNetworks: async () => getClient().auth.supportedNetworks(),
     platformConfig: async () => getClient().config.platform(),
+    inspectUrl: async (url: string, method = "GET") => inspectGatewayUrl(url, method),
     payUrl: async (url: string, method = "GET") => {
       const pk = process.env.AX402_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
       if (!pk) {

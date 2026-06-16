@@ -1,6 +1,6 @@
 import { Ax402Client } from "../client.js";
 import { SCOPE_PRESETS } from "../scopes.js";
-import { buildUsdcAccept, usdcToAtomic } from "../platform/helpers.js";
+import { buildUsdcAccept, usdcToAtomic, type PaymentScheme } from "../platform/helpers.js";
 import { flag } from "./parse.js";
 import { shellUsageText } from "./registry.js";
 import { shellErrorFromUnknown } from "./format.js";
@@ -75,6 +75,23 @@ export async function runShellCommand(
       await c.apis.delete(id);
       return { ok: true, data: { status: "deleted" } };
     }
+    if (cmd === "apis" && sub === "update") {
+      const id = flag(parsed, "--id");
+      if (!id) return usage("--id required");
+      const body: Record<string, unknown> = {};
+      const name = flag(parsed, "--name");
+      const slug = flag(parsed, "--slug");
+      const upstream = flag(parsed, "--upstream");
+      const payTo = flag(parsed, "--pay-to");
+      if (name) body.name = name;
+      if (slug) body.slug = slug;
+      if (upstream) body.upstream_base_url = upstream;
+      if (payTo) {
+        body.pay_to_mode = "user_wallet";
+        body.pay_to_address = payTo;
+      }
+      return { ok: true, data: await c.apis.update(id, body) };
+    }
 
     if (cmd === "endpoints" && sub === "list") {
       const apiId = flag(parsed, "--api-id");
@@ -86,8 +103,9 @@ export async function runShellCommand(
       const method = flag(parsed, "--method") ?? "GET";
       const path = flag(parsed, "--path");
       const price = flag(parsed, "--price-usdc") ?? "0.10";
+      const scheme = (flag(parsed, "--scheme") ?? "exact") as PaymentScheme;
       if (!apiId || !path) return usage("--api-id and --path required");
-      const accepts = [buildUsdcAccept("exact", usdcToAtomic(price))];
+      const accepts = [buildUsdcAccept(scheme, usdcToAtomic(price))];
       return { ok: true, data: await c.endpoints.create(apiId, { method, path_pattern: path, accepts }) };
     }
     if (cmd === "endpoints" && sub === "update") {
@@ -123,6 +141,18 @@ export async function runShellCommand(
       const domainId = flag(parsed, "--domain-id");
       if (!apiId || !domainId) return usage("--api-id and --domain-id required");
       return { ok: true, data: await c.domains.verify(apiId, domainId) };
+    }
+    if (cmd === "domains" && sub === "list") {
+      const apiId = flag(parsed, "--api-id");
+      if (!apiId) return usage("--api-id required");
+      return { ok: true, data: await c.domains.list(apiId) };
+    }
+    if (cmd === "domains" && sub === "delete") {
+      const apiId = flag(parsed, "--api-id");
+      const domainId = flag(parsed, "--domain-id");
+      if (!apiId || !domainId) return usage("--api-id and --domain-id required");
+      await c.domains.delete(apiId, domainId);
+      return { ok: true, data: { status: "deleted" } };
     }
 
     if (cmd === "keys" && sub === "list") {
@@ -196,6 +226,60 @@ export async function runShellCommand(
     if (cmd === "stats" && sub === "overview") {
       const days = parseInt(flag(parsed, "--days") ?? "30", 10);
       return { ok: true, data: await c.stats.overview(days) };
+    }
+    if (cmd === "stats" && sub === "api") {
+      const apiId = flag(parsed, "--api-id");
+      if (!apiId) return usage("--api-id required");
+      const days = parseInt(flag(parsed, "--days") ?? "30", 10);
+      return { ok: true, data: await c.stats.forApi(apiId, days) };
+    }
+    if (cmd === "settlements" && sub === "list") {
+      const apiId = flag(parsed, "--api-id");
+      if (!apiId) return usage("--api-id required");
+      return { ok: true, data: await c.settlements.list(apiId) };
+    }
+    if (cmd === "settlements" && sub === "batch") {
+      const apiId = flag(parsed, "--api-id");
+      if (!apiId) return usage("--api-id required");
+      return { ok: true, data: await c.settlements.listBatch(apiId) };
+    }
+    if (cmd === "settlements" && sub === "history") {
+      const days = parseInt(flag(parsed, "--days") ?? "30", 10);
+      const limit = flag(parsed, "--limit");
+      const offset = flag(parsed, "--offset");
+      const apiId = flag(parsed, "--api-id");
+      return {
+        ok: true,
+        data: await c.settlements.listHistory({
+          days,
+          limit: limit ? parseInt(limit, 10) : undefined,
+          offset: offset ? parseInt(offset, 10) : undefined,
+          apiId,
+        }),
+      };
+    }
+    if (cmd === "batch" && sub === "overview") {
+      const apiId = flag(parsed, "--api-id");
+      if (!apiId) return usage("--api-id required");
+      return { ok: true, data: await c.apis.batchOverview(apiId) };
+    }
+    if (cmd === "batch" && sub === "settings") {
+      const apiId = flag(parsed, "--api-id");
+      if (!apiId) return usage("--api-id required");
+      const claim = flag(parsed, "--claim-interval-secs");
+      const settle = flag(parsed, "--settle-interval-secs");
+      const refund = flag(parsed, "--refund-interval-secs");
+      if (!claim || !settle || !refund) {
+        return usage("--claim-interval-secs, --settle-interval-secs, --refund-interval-secs required");
+      }
+      return {
+        ok: true,
+        data: await c.apis.updateBatchSettings(apiId, {
+          claim_interval_secs: parseInt(claim, 10),
+          settle_interval_secs: parseInt(settle, 10),
+          refund_interval_secs: parseInt(refund, 10),
+        }),
+      };
     }
     if (cmd === "config" && sub === "platform") {
       return { ok: true, data: await c.config.platform() };

@@ -33,6 +33,18 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
         flags: [{ name: "--id", required: true, type: "string" }],
         sdkSnippet: 'await client.apis.delete("API_ID")',
       },
+      {
+        id: "update",
+        label: "Update",
+        flags: [
+          { name: "--id", required: true, type: "string" },
+          { name: "--name", required: false, type: "string" },
+          { name: "--slug", required: false, type: "string" },
+          { name: "--upstream", required: false, type: "url" },
+          { name: "--pay-to", required: false, type: "address" },
+        ],
+        sdkSnippet: 'await client.apis.update("API_ID", { name: "New name" })',
+      },
     ],
   },
   {
@@ -53,6 +65,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--method", required: false, type: "string", defaultValue: "GET" },
           { name: "--path", required: true, type: "string", placeholder: "/v1/*" },
           { name: "--price-usdc", required: false, type: "number", defaultValue: "0.10" },
+          { name: "--scheme", required: false, type: "string", defaultValue: "exact" },
         ],
         sdkSnippet: `await client.endpoints.create("API_ID", {
   method: "GET",
@@ -111,6 +124,21 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--domain-id", required: true, type: "string" },
         ],
         sdkSnippet: 'await client.domains.verify("API_ID", "DOMAIN_ID")',
+      },
+      {
+        id: "list",
+        label: "List",
+        flags: [{ name: "--api-id", required: true, type: "string" }],
+        sdkSnippet: 'await client.domains.list("API_ID")',
+      },
+      {
+        id: "delete",
+        label: "Delete",
+        flags: [
+          { name: "--api-id", required: true, type: "string" },
+          { name: "--domain-id", required: true, type: "string" },
+        ],
+        sdkSnippet: 'await client.domains.delete("API_ID", "DOMAIN_ID")',
       },
     ],
   },
@@ -192,6 +220,67 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
         label: "Overview",
         flags: [{ name: "--days", required: false, type: "number", defaultValue: "30" }],
         sdkSnippet: "await client.stats.overview(30)",
+      },
+      {
+        id: "api",
+        label: "API",
+        flags: [
+          { name: "--api-id", required: true, type: "string" },
+          { name: "--days", required: false, type: "number", defaultValue: "30" },
+        ],
+        sdkSnippet: 'await client.stats.forApi("API_ID", 30)',
+      },
+    ],
+  },
+  {
+    id: "settlements",
+    label: "Settlements",
+    methods: [
+      {
+        id: "list",
+        label: "List",
+        flags: [{ name: "--api-id", required: true, type: "string" }],
+        sdkSnippet: 'await client.settlements.list("API_ID")',
+      },
+      {
+        id: "batch",
+        label: "Batch",
+        flags: [{ name: "--api-id", required: true, type: "string" }],
+        sdkSnippet: 'await client.settlements.listBatch("API_ID")',
+      },
+      {
+        id: "history",
+        label: "History",
+        flags: [
+          { name: "--days", required: false, type: "number", defaultValue: "30" },
+          { name: "--api-id", required: false, type: "string" },
+          { name: "--limit", required: false, type: "number" },
+          { name: "--offset", required: false, type: "number" },
+        ],
+        sdkSnippet: "await client.settlements.listHistory({ days: 30 })",
+      },
+    ],
+  },
+  {
+    id: "batch",
+    label: "Batch",
+    methods: [
+      {
+        id: "overview",
+        label: "Overview",
+        flags: [{ name: "--api-id", required: true, type: "string" }],
+        sdkSnippet: 'await client.apis.batchOverview("API_ID")',
+      },
+      {
+        id: "settings",
+        label: "Settings",
+        flags: [
+          { name: "--api-id", required: true, type: "string" },
+          { name: "--claim-interval-secs", required: true, type: "number" },
+          { name: "--settle-interval-secs", required: true, type: "number" },
+          { name: "--refund-interval-secs", required: true, type: "number" },
+        ],
+        sdkSnippet: 'await client.apis.updateBatchSettings("API_ID", { claim_interval_secs: 900, settle_interval_secs: 3600, refund_interval_secs: 86400 })',
       },
     ],
   },

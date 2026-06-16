@@ -24,6 +24,20 @@ server.tool("ax402_list_apis", "List wrapped APIs. Requires apis:read scope.", {
 );
 
 server.tool(
+  "ax402_get_api",
+  "Get API by id. Requires apis:read.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.getApi(api_id)),
+);
+
+server.tool(
+  "ax402_list_endpoints",
+  "List endpoints for an API. Requires endpoints:read.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.listEndpoints(api_id)),
+);
+
+server.tool(
   "ax402_create_api",
   "Create API with default subdomain. Requires apis:write and verified email.",
   {
@@ -52,8 +66,18 @@ server.tool(
     method: z.string(),
     path_pattern: z.string(),
     price_usdc: z.string().default("0.10"),
+    scheme: z.enum(["exact", "batch-settlement"]).optional(),
   },
-  async (args) => text(await handlers.addEndpoint(args.api_id, args.method, args.path_pattern, args.price_usdc)),
+  async (args) =>
+    text(
+      await handlers.addEndpoint(
+        args.api_id,
+        args.method,
+        args.path_pattern,
+        args.price_usdc,
+        args.scheme ?? "exact",
+      ),
+    ),
 );
 
 server.tool(
@@ -72,6 +96,13 @@ server.tool(
   "Add custom domain and return DNS instructions. Requires domains:write.",
   { api_id: z.string(), hostname: z.string() },
   async (args) => text(await handlers.addDomain(args.api_id, args.hostname)),
+);
+
+server.tool(
+  "ax402_list_domains",
+  "List custom domains for an API. Requires domains:read.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.listDomains(api_id)),
 );
 
 server.tool(
@@ -95,6 +126,27 @@ server.tool(
   async ({ days }) => text(await handlers.statsOverview(days ?? 30)),
 );
 
+server.tool(
+  "ax402_stats_api",
+  "Per-API analytics. Requires stats:read.",
+  { api_id: z.string(), days: z.number().optional() },
+  async ({ api_id, days }) => text(await handlers.statsApi(api_id, days ?? 30)),
+);
+
+server.tool(
+  "ax402_settlements_list",
+  "List settlements for an API. Requires settlements:read.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.settlementsList(api_id)),
+);
+
+server.tool(
+  "ax402_inspect_url",
+  "Fetch a gateway URL and parse HTTP 402 payment requirements (no wallet).",
+  { url: z.string().url(), method: z.string().optional() },
+  async ({ url, method }) => text(await handlers.inspectUrl(url, method)),
+);
+
 server.tool("ax402_supported_networks", "Facilitator supported payment networks.", {}, async () =>
   text(await handlers.supportedNetworks()),
 );
@@ -105,9 +157,9 @@ server.tool("ax402_platform_config", "Platform domain and gateway settings (publ
 
 server.tool(
   "ax402_pay_url",
-  "Pay for a gateway URL via x402. Wallet/signer must be configured externally; returns instructions.",
-  { url: z.string().url() },
-  async ({ url }) => text(await handlers.payUrl(url)),
+  "Pay for a gateway URL via x402. Requires AX402_EVM_PRIVATE_KEY; signs and retries on HTTP 402.",
+  { url: z.string().url(), method: z.string().optional() },
+  async ({ url, method }) => text(await handlers.payUrl(url, method)),
 );
 
 async function main() {
