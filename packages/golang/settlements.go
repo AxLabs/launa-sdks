@@ -20,3 +20,12 @@ func (c *Client) ListBatchSettlements(ctx context.Context, apiID string) ([]Batc
 	}
 	return out, nil
 }
+
+func (c *Client) ListPaymentHistory(ctx context.Context, query PaymentHistoryQuery) (*PaymentHistoryPage, error) {
+	q := paymentHistoryQueryString(query)
+	var out PaymentHistoryPage
+	if err := c.do(ctx, http.MethodGet, "/settlements?"+q, nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}

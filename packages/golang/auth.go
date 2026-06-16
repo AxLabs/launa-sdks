@@ -62,6 +62,23 @@ func (c *Client) ChangePassword(ctx context.Context, current, newPassword string
 	return out, nil
 }
 
+func (c *Client) ForgotPassword(ctx context.Context, email string) (map[string]string, error) {
+	var out map[string]string
+	if err := c.do(ctx, http.MethodPost, "/auth/forgot-password", map[string]string{"email": email}, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *Client) ResetPassword(ctx context.Context, token, newPassword string) (map[string]string, error) {
+	var out map[string]string
+	body := map[string]string{"token": token, "new_password": newPassword}
+	if err := c.do(ctx, http.MethodPost, "/auth/reset-password", body, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *Client) CompleteOnboarding(ctx context.Context) (*User, error) {
 	var u User
 	if err := c.do(ctx, http.MethodPost, "/auth/onboarding/complete", nil, &u); err != nil {

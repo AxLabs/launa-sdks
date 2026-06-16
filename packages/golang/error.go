@@ -34,16 +34,21 @@ const (
 	ScopeStatsRead       = "stats:read"
 	ScopeSettlementsRead = "settlements:read"
 	ScopeOpenAPIRead     = "openapi:read"
+	ScopeBillingRead     = "billing:read"
+	ScopeBillingWrite    = "billing:write"
+	ScopeIncomeRead      = "income:read"
+	ScopeIncomePayout    = "income:payout"
 )
 
 var ScopePresets = map[string][]string{
 	"readonly": {
 		ScopeAPIsRead, ScopeEndpointsRead, ScopeDomainsRead,
 		ScopeStatsRead, ScopeSettlementsRead, ScopeOpenAPIRead,
+		ScopeBillingRead, ScopeIncomeRead,
 	},
 	"apiManager": {
 		ScopeAPIsRead, ScopeAPIsWrite, ScopeEndpointsRead, ScopeEndpointsWrite,
 		ScopeDomainsRead, ScopeDomainsWrite, ScopeOpenAPIRead,
 	},
-	"analytics": {ScopeStatsRead, ScopeSettlementsRead},
+	"analytics": {ScopeStatsRead, ScopeSettlementsRead, ScopeBillingRead, ScopeIncomeRead},
 }
