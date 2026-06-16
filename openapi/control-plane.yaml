@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Ax402 Control Plane API
   version: 1.0.0
-  description: Admin API for ax402-backend. Gateway payment flows use standard x402, not this API.
+  description: Admin API for ax402-backend. Gateway payment flows use standard x402, not this API. Operator routes under /internal are omitted.
 servers:
   - url: http://api.localhost:8090
     description: Local default (ADMIN_HOST)
@@ -60,6 +60,25 @@ components:
         gateway_cname_target: { type: string }
         gateway_port: { type: integer }
         admin_host: { type: string }
+        access:
+          type: object
+          properties:
+            mode: { type: string, enum: [open, waitlist_only] }
+            waitlist_headline: { type: string }
+            waitlist_subhead: { type: string }
+    WaitlistJoinRequest:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email }
+        name: { type: string }
+        company: { type: string }
+        source: { type: string }
+    WaitlistJoinResponse:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
     AcceptOption:
       type: object
       required: [scheme, network, asset, amount]
@@ -89,6 +108,38 @@ components:
         path_pattern: { type: string }
         enabled: { type: boolean }
         accepts: { type: array, items: { $ref: '#/components/schemas/AcceptOption' } }
+    SupportedKind:
+      type: object
+      properties:
+        scheme: { type: string }
+        network: { type: string }
+        asset: { type: string }
+        x402Version: { type: integer }
+        extra: { type: object, additionalProperties: true }
+    SupportedResponse:
+      type: object
+      properties:
+        kinds: { type: array, items: { $ref: '#/components/schemas/SupportedKind' } }
+        signers: { type: object, additionalProperties: { type: array, items: { type: string } } }
+    FacilitatorEndpoint:
+      type: object
+      properties:
+        base_url: { type: string }
+        hostname: { type: string }
+        slug: { type: string }
+        provision_pending: { type: boolean }
+        environment: { type: string, enum: [production, development] }
+        uses_dev_facilitator: { type: boolean }
+        supported: { $ref: '#/components/schemas/SupportedResponse' }
+        supported_error: { type: string }
+    FacilitatorStats:
+      type: object
+      properties:
+        verify_count: { type: integer }
+        settle_count: { type: integer }
+        verify_ok: { type: integer }
+        settle_ok: { type: integer }
+        success_rate: { type: number }
 paths:
   /auth/signup:
     post:
@@ -168,6 +219,47 @@ paths:
                 type: object
                 properties:
                   status: { type: string }
+  /auth/forgot-password:
+    post:
+      summary: Request password reset email
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+  /auth/reset-password:
+    post:
+      summary: Reset password with email token
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token: { type: string }
+                password: { type: string, minLength: 8 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
   /auth/password:
     put:
       summary: Change password
@@ -191,11 +283,47 @@ paths:
   /auth/onboarding/complete:
     post:
       summary: Mark onboarding complete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skipped: { type: boolean }
       responses:
         '200':
           content:
             application/json:
               schema: { $ref: '#/components/schemas/User' }
+  /auth/facilitator:
+    get:
+      summary: Dedicated facilitator endpoint for the user account
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FacilitatorEndpoint' }
+  /auth/facilitator/supported:
+    get:
+      summary: Refresh facilitator /supported capabilities
+      responses:
+        '200':
+          description: x402 SupportedResponse JSON
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SupportedResponse' }
+  /auth/facilitator/stats:
+    get:
+      summary: Facilitator verify/settle stats
+      parameters:
+        - name: days
+          in: query
+          schema: { type: integer, default: 30 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FacilitatorStats' }
   /auth/scopes:
     get:
       summary: List available API key scopes (JWT only)
@@ -253,14 +381,37 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/PlatformConfig' }
+  /waitlist:
+    post:
+      summary: Join the seller waitlist
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WaitlistJoinRequest' }
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WaitlistJoinResponse' }
+        '409':
+          description: Already on waitlist
   /domains/suggest:
     get:
       summary: Suggest gateway domain plan
       x-required-scope: domains:read
       parameters:
-        - name: hostname
+        - name: apex
           in: query
+          required: true
           schema: { type: string }
+        - name: prefix
+          in: query
+          schema: { type: string, default: x402 }
+        - name: upstream_path
+          in: query
+          schema: { type: string, default: /api }
       responses:
         '200':
           description: domain plan
@@ -502,6 +653,96 @@ paths:
       responses:
         '200':
           description: batch settlements
+  /apis/{apiID}/batch:
+    get:
+      summary: Batch channel overview
+      x-required-scope: settlements:read
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: batch overview
+  /apis/{apiID}/batch/settings:
+    put:
+      summary: Update batch worker intervals
+      x-required-scope: apis:write
+      parameters:
+        - { name: apiID, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [claim_interval_secs, settle_interval_secs, refund_interval_secs]
+              properties:
+                claim_interval_secs: { type: integer }
+                settle_interval_secs: { type: integer }
+                refund_interval_secs: { type: integer }
+      responses:
+        '200':
+          description: updated batch overview
+  /settlements:
+    get:
+      summary: Account payment history
+      x-required-scope: settlements:read
+      parameters:
+        - name: days
+          in: query
+          schema: { type: integer, default: 30 }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: offset
+          in: query
+          schema: { type: integer }
+        - name: api_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: payment history page
+  /billing:
+    get:
+      summary: Billing overview
+      x-required-scope: billing:read
+      responses:
+        '200':
+          description: billing overview
+  /billing/packages:
+    get:
+      summary: Billing packages
+      x-required-scope: billing:read
+      responses:
+        '200':
+          description: packages
+  /billing/invoices:
+    get:
+      summary: Billing invoices
+      x-required-scope: billing:read
+      responses:
+        '200':
+          description: invoices
+  /income/summary:
+    get:
+      summary: Income summary
+      x-required-scope: income:read
+      responses:
+        '200':
+          description: income summary
+  /income/ledger:
+    get:
+      summary: Income ledger
+      x-required-scope: income:read
+      responses:
+        '200':
+          description: ledger page
+  /income/payout-requests:
+    get:
+      summary: List payout requests
+      x-required-scope: income:read
+      responses:
+        '200':
+          description: payout requests
   /supported-networks:
     get:
       summary: Facilitator supported networks
