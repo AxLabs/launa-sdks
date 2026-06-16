@@ -1,4 +1,4 @@
-import type { AcceptOption } from "../types.js";
+import type { AcceptOption, PaymentToken } from "../types.js";
 import type { Ax402Client } from "../client.js";
 
 export const USDC_DECIMALS = 6;
@@ -80,6 +80,61 @@ export function buildUsdcAccept(
       ? { ...base.extra, withdrawDelay: withdrawDelay ?? DEFAULT_BATCH_WITHDRAW_DELAY }
       : base.extra;
   return { ...base, amount: amountAtomic, extra };
+}
+
+export function amountToAtomic(amount: string, decimals: number): string {
+  const trimmed = amount.trim();
+  if (!trimmed) throw new Error("Price is required");
+  if (!/^\d+(\.\d+)?$/.test(trimmed)) throw new Error("Enter a valid amount");
+  const [whole, frac = ""] = trimmed.split(".");
+  if (frac.length > decimals) {
+    throw new Error(`Supports at most ${decimals} decimal places`);
+  }
+  const padded = frac.padEnd(decimals, "0");
+  const atomic = BigInt(whole + padded);
+  if (atomic <= BigInt(0)) throw new Error("Price must be greater than 0");
+  return atomic.toString();
+}
+
+export function atomicToDisplay(atomic: string, decimals: number): string {
+  if (!atomic || !/^\d+$/.test(atomic)) return "0";
+  const s = atomic.padStart(decimals + 1, "0");
+  const whole = s.slice(0, -decimals).replace(/^0+/, "") || "0";
+  const frac = s.slice(-decimals).replace(/0+$/, "");
+  return frac ? `${whole}.${frac}` : whole;
+}
+
+export function buildTokenAccept(
+  token: PaymentToken,
+  scheme: PaymentScheme,
+  amountAtomic: string,
+  withdrawDelay?: number,
+): AcceptOption {
+  if (!token.schemes.includes(scheme)) {
+    throw new Error(`${token.symbol} does not support ${scheme}`);
+  }
+  const extra = { ...(token.extra ?? {}) };
+  if (scheme === "batch-settlement") {
+    extra.withdrawDelay = withdrawDelay ?? DEFAULT_BATCH_WITHDRAW_DELAY;
+  }
+  return {
+    scheme,
+    network: token.network,
+    asset: token.asset,
+    amount: amountAtomic,
+    max_timeout_seconds: 300,
+    extra,
+  };
+}
+
+export function apiAvailableTokens(tokens: PaymentToken[], api: {
+  accept_all_tokens?: boolean;
+  accepted_token_ids?: string[];
+}): PaymentToken[] {
+  if (!tokens.length) return tokens;
+  if (api.accept_all_tokens || !api.accepted_token_ids?.length) return tokens;
+  const allowed = new Set(api.accepted_token_ids);
+  return tokens.filter((t) => allowed.has(t.id));
 }
 
 export function gatewayBaseURL(host: string, platform?: { gateway_port?: number } | null): string {

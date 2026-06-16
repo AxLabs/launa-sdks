@@ -24,6 +24,8 @@ export const MOCK_ROUTES: MockRoute[] = [
   { method: "POST", path: "/auth/verify-email", body: { status: "verified" }, requireAuth: false },
   { method: "GET", path: "/auth/me", body: fixtures.user },
   { method: "POST", path: "/auth/resend-verification", body: { status: "sent" } },
+  { method: "POST", path: "/auth/forgot-password", body: { status: "sent" }, requireAuth: false },
+  { method: "POST", path: "/auth/reset-password", body: { status: "ok" }, requireAuth: false },
   { method: "PUT", path: "/auth/password", body: fixtures.statusOk },
   { method: "POST", path: "/auth/onboarding/complete", body: { ...fixtures.user, onboarding_completed: true } },
   { method: "GET", path: "/auth/scopes", body: fixtures.scopes },

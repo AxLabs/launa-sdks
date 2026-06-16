@@ -3,7 +3,12 @@ import type {
   API,
   APIKey,
   APIStats,
+  BatchIntervals,
+  BatchOverview,
   BatchSettlement,
+  BillingOverview,
+  BillingPackage,
+  BillingPeriod,
   ClientOptions,
   CreateAPIInput,
   CreateEndpointInput,
@@ -11,13 +16,28 @@ import type {
   DomainPlan,
   DomainSetup,
   Endpoint,
+  IncomeLedgerPage,
+  IncomeSummary,
   OpenAPIImportInput,
   OpenAPIImportResult,
   ParsedOpenAPI,
+  PaymentHistoryPage,
+  PaymentHistoryQuery,
+  PayoutRequest,
   PlatformConfig,
+  PublicBillingCatalog,
+  WaitlistJoinInput,
+  WaitlistJoinResponse,
   Settlement,
   StatsOverview,
+  LoginResponse,
+  PasskeyOptionsResponse,
+  TOTPSetupResponse,
   User,
+  FacilitatorEndpoint,
+  FacilitatorStats,
+  SupportedResponse,
+  UserPasskey,
 } from "./types.js";
 
 export type Ax402ClientOptions = ClientOptions & {
@@ -35,6 +55,8 @@ export class Ax402Client {
   readonly openapi: OpenAPIResource;
   readonly stats: StatsResource;
   readonly settlements: SettlementsResource;
+  readonly billing: BillingResource;
+  readonly income: IncomeResource;
   readonly config: ConfigResource;
 
   constructor(opts: Ax402ClientOptions) {
@@ -51,6 +73,8 @@ export class Ax402Client {
     this.openapi = new OpenAPIResource(this.http);
     this.stats = new StatsResource(this.http);
     this.settlements = new SettlementsResource(this.http);
+    this.billing = new BillingResource(this.http);
+    this.income = new IncomeResource(this.http);
     this.config = new ConfigResource(this.http);
   }
 
@@ -73,10 +97,80 @@ class AuthResource {
     });
   }
 
-  login(email: string, password: string) {
-    return this.http.request<{ token: string; user: User }>("/auth/login", {
+  login(email: string, password: string, totpCode?: string) {
+    return this.http.request<LoginResponse>("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, totp_code: totpCode || undefined }),
+    });
+  }
+
+  verifyMfa(mfaToken: string, code: string) {
+    return this.http.request<{ token: string; user: User }>("/auth/mfa/verify", {
+      method: "POST",
+      body: JSON.stringify({ mfa_token: mfaToken, code }),
+    });
+  }
+
+  totpSetup() {
+    return this.http.request<TOTPSetupResponse>("/auth/totp/setup", { method: "POST" });
+  }
+
+  totpConfirm(code: string) {
+    return this.http.request<{ totp_enabled: boolean; backup_codes: string[] }>("/auth/totp/confirm", {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    });
+  }
+
+  totpDisable(password: string, code: string) {
+    return this.http.request<{ totp_enabled: boolean }>("/auth/totp", {
+      method: "DELETE",
+      body: JSON.stringify({ password, code }),
+    });
+  }
+
+  totpRegenerateBackup(password: string, code: string) {
+    return this.http.request<{ backup_codes: string[] }>("/auth/totp/backup-codes", {
+      method: "POST",
+      body: JSON.stringify({ password, code }),
+    });
+  }
+
+  listPasskeys() {
+    return this.http.request<UserPasskey[]>("/auth/passkeys");
+  }
+
+  passkeyRegisterOptions() {
+    return this.http.request<PasskeyOptionsResponse>("/auth/passkeys/register/options", { method: "POST" });
+  }
+
+  passkeyRegisterVerify(body: {
+    session_token: string;
+    name: string;
+    password: string;
+    credential: unknown;
+  }) {
+    return this.http.request<UserPasskey>("/auth/passkeys/register/verify", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  passkeyLoginOptions() {
+    return this.http.request<PasskeyOptionsResponse>("/auth/passkeys/login/options", { method: "POST" });
+  }
+
+  passkeyLoginVerify(sessionToken: string, credential: unknown) {
+    return this.http.request<{ token: string; user: User }>("/auth/passkeys/login/verify", {
+      method: "POST",
+      body: JSON.stringify({ session_token: sessionToken, credential }),
+    });
+  }
+
+  deletePasskey(passkeyId: string, password: string) {
+    return this.http.request<void>(`/auth/passkeys/${passkeyId}`, {
+      method: "DELETE",
+      body: JSON.stringify({ password }),
     });
   }
 
@@ -99,6 +193,20 @@ class AuthResource {
     return this.http.request<{ status: string }>("/auth/resend-verification", { method: "POST" });
   }
 
+  forgotPassword(email: string) {
+    return this.http.request<{ status: string }>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  resetPassword(token: string, password: string) {
+    return this.http.request<{ status: string }>("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token, password }),
+    });
+  }
+
   changePassword(current_password: string, new_password: string) {
     return this.http.request<{ status: string }>("/auth/password", {
       method: "PUT",
@@ -106,8 +214,31 @@ class AuthResource {
     });
   }
 
-  completeOnboarding() {
-    return this.http.request<User>("/auth/onboarding/complete", { method: "POST" });
+  completeOnboarding(skipped?: boolean) {
+    const body = skipped ? JSON.stringify({ skipped: true }) : undefined;
+    return this.http.request<User>("/auth/onboarding/complete", {
+      method: "POST",
+      body,
+    });
+  }
+
+  getFacilitator() {
+    return this.http.request<FacilitatorEndpoint>("/auth/facilitator");
+  }
+
+  refreshFacilitatorSupported() {
+    return this.http.request<SupportedResponse>("/auth/facilitator/supported");
+  }
+
+  facilitatorStats(days = 30) {
+    return this.http.request<FacilitatorStats>(`/auth/facilitator/stats?days=${days}`);
+  }
+
+  updatePreferredEnvironment(environment: "production" | "development") {
+    return this.http.request<{ preferred_environment: string }>("/auth/me/environment", {
+      method: "PATCH",
+      body: JSON.stringify({ environment }),
+    });
   }
 
   supportedNetworks() {
@@ -159,6 +290,17 @@ class APIsResource {
 
   delete(id: string) {
     return this.http.request<void>(`/apis/${id}`, { method: "DELETE" });
+  }
+
+  batchOverview(id: string) {
+    return this.http.request<BatchOverview>(`/apis/${id}/batch`);
+  }
+
+  updateBatchSettings(id: string, settings: BatchIntervals) {
+    return this.http.request<BatchOverview>(`/apis/${id}/batch/settings`, {
+      method: "PUT",
+      body: JSON.stringify(settings),
+    });
   }
 }
 
@@ -264,6 +406,68 @@ class SettlementsResource {
   listBatch(apiId: string) {
     return this.http.request<BatchSettlement[]>(`/apis/${apiId}/batch-settlements`);
   }
+
+  listHistory(query: PaymentHistoryQuery = {}) {
+    const q = new URLSearchParams();
+    const days = query.days ?? 30;
+    q.set("days", days === 0 ? "0" : String(days));
+    if (query.limit != null) q.set("limit", String(query.limit));
+    if (query.offset != null) q.set("offset", String(query.offset));
+    if (query.apiId) q.set("api_id", query.apiId);
+    return this.http.request<PaymentHistoryPage>(`/settlements?${q}`);
+  }
+
+  exportHistoryUrl(query: PaymentHistoryQuery & { format: "csv" | "json" }) {
+    const q = new URLSearchParams();
+    const days = query.days ?? 30;
+    q.set("days", days === 0 ? "0" : String(days));
+    if (query.apiId) q.set("api_id", query.apiId);
+    q.set("format", query.format);
+    if (query.format === "json") q.set("download", "1");
+    return `/settlements?${q}`;
+  }
+}
+
+class BillingResource {
+  constructor(private http: HttpClient) {}
+
+  overview() {
+    return this.http.request<BillingOverview>("/billing");
+  }
+
+  packages() {
+    return this.http.request<{ packages: BillingPackage[] }>("/billing/packages");
+  }
+
+  invoices() {
+    return this.http.request<{ invoices: BillingPeriod[] }>("/billing/invoices");
+  }
+}
+
+class IncomeResource {
+  constructor(private http: HttpClient) {}
+
+  summary() {
+    return this.http.request<IncomeSummary>("/income/summary");
+  }
+
+  ledger(query: { limit?: number; offset?: number; apiId?: string; network?: string } = {}) {
+    const q = new URLSearchParams();
+    if (query.limit != null) q.set("limit", String(query.limit));
+    if (query.offset != null) q.set("offset", String(query.offset));
+    if (query.apiId) q.set("api_id", query.apiId);
+    if (query.network) q.set("network", query.network);
+    const suffix = q.size ? `?${q}` : "";
+    return this.http.request<IncomeLedgerPage>(`/income/ledger${suffix}`);
+  }
+
+  ledgerEntry(entryId: string) {
+    return this.http.request<Record<string, unknown>>(`/income/ledger/${entryId}`);
+  }
+
+  payoutRequests() {
+    return this.http.request<PayoutRequest[]>("/income/payout-requests");
+  }
 }
 
 class ConfigResource {
@@ -271,5 +475,16 @@ class ConfigResource {
 
   platform() {
     return this.http.request<PlatformConfig>("/config/platform");
+  }
+
+  billing() {
+    return this.http.request<PublicBillingCatalog>("/config/billing");
+  }
+
+  joinWaitlist(body: WaitlistJoinInput) {
+    return this.http.request<WaitlistJoinResponse>("/waitlist", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
   }
 }

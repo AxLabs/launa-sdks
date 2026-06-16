@@ -3,11 +3,13 @@ import { parseApiError } from "./scopes.js";
 
 export class Ax402Error extends Error {
   readonly status: number;
+  readonly data?: Record<string, unknown>;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, data?: Record<string, unknown>) {
     super(message);
     this.name = "Ax402Error";
     this.status = status;
+    this.data = data;
   }
 }
 
@@ -15,11 +17,17 @@ export class HttpClient {
   private baseUrl: string;
   private credentials?: Credentials;
   private fetchFn: typeof fetch;
+  private environment?: string;
 
   constructor(opts: ClientOptions) {
     this.baseUrl = opts.baseUrl.replace(/\/$/, "");
     this.credentials = opts.credentials;
     this.fetchFn = opts.fetch ?? globalThis.fetch;
+    this.environment = opts.environment;
+  }
+
+  setEnvironment(environment: string | undefined): void {
+    this.environment = environment;
   }
 
   setCredentials(credentials: Credentials | undefined): void {
@@ -43,12 +51,15 @@ export class HttpClient {
       headers.set("X-API-Key", this.credentials.apiKey);
     } else if (this.credentials?.type === "jwt") {
       headers.set("Authorization", `Bearer ${this.credentials.token}`);
+      if (this.environment && !headers.has("X-Ax402-Environment")) {
+        headers.set("X-Ax402-Environment", this.environment);
+      }
     }
 
     const res = await this.fetchFn(`${this.baseUrl}${path}`, { ...init, headers });
     if (!res.ok) {
       const body = await res.text();
-      throw new Ax402Error(res.status, parseApiError(body || res.statusText));
+      throw new Ax402Error(res.status, parseApiError(body || res.statusText), parseErrorData(body));
     }
     return parseJsonResponse<T>(res);
   }
@@ -59,6 +70,9 @@ export class HttpClient {
       headers.set("X-API-Key", this.credentials.apiKey);
     } else if (this.credentials?.type === "jwt") {
       headers.set("Authorization", `Bearer ${this.credentials.token}`);
+      if (this.environment && !headers.has("X-Ax402-Environment")) {
+        headers.set("X-Ax402-Environment", this.environment);
+      }
     }
     const res = await this.fetchFn(`${this.baseUrl}${path}`, {
       method: "POST",
@@ -67,9 +81,18 @@ export class HttpClient {
     });
     if (!res.ok) {
       const body = await res.text();
-      throw new Ax402Error(res.status, parseApiError(body || res.statusText));
+      throw new Ax402Error(res.status, parseApiError(body || res.statusText), parseErrorData(body));
     }
     return parseJsonResponse<T>(res);
+  }
+}
+
+function parseErrorData(body: string): Record<string, unknown> | undefined {
+  try {
+    const parsed = JSON.parse(body) as Record<string, unknown>;
+    return typeof parsed === "object" && parsed !== null ? parsed : undefined;
+  } catch {
+    return undefined;
   }
 }
 

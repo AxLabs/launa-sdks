@@ -12,3 +12,4 @@ export {
   wrapOpenAPI,
   USDC_DECIMALS,
 } from "./platform/helpers.js";
+export type { PaymentScheme } from "./platform/helpers.js";

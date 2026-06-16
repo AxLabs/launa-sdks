@@ -17,6 +17,8 @@ describe("Ax402Client integration", () => {
     await client.auth.verifyEmail("tok");
     expect(await client.auth.me()).toMatchObject({ email: "test@example.com" });
     await client.auth.resendVerification();
+    await client.auth.forgotPassword("a@b.com");
+    await client.auth.resetPassword("tok", "password2");
     await client.auth.changePassword("old", "newpass12");
     await client.auth.completeOnboarding();
     expect(await client.keys.listScopes()).toHaveProperty("scopes");

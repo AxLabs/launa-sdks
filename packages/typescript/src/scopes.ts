@@ -7,6 +7,10 @@ export const SCOPE_DOMAINS_WRITE = "domains:write";
 export const SCOPE_STATS_READ = "stats:read";
 export const SCOPE_SETTLEMENTS_READ = "settlements:read";
 export const SCOPE_OPENAPI_READ = "openapi:read";
+export const SCOPE_BILLING_READ = "billing:read";
+export const SCOPE_BILLING_WRITE = "billing:write";
+export const SCOPE_INCOME_READ = "income:read";
+export const SCOPE_INCOME_PAYOUT = "income:payout";
 
 export const ALL_SCOPES = [
   SCOPE_APIS_READ,
@@ -18,6 +22,10 @@ export const ALL_SCOPES = [
   SCOPE_STATS_READ,
   SCOPE_SETTLEMENTS_READ,
   SCOPE_OPENAPI_READ,
+  SCOPE_BILLING_READ,
+  SCOPE_BILLING_WRITE,
+  SCOPE_INCOME_READ,
+  SCOPE_INCOME_PAYOUT,
 ] as const;
 
 export const SCOPE_PRESETS = {
@@ -28,6 +36,8 @@ export const SCOPE_PRESETS = {
     SCOPE_STATS_READ,
     SCOPE_SETTLEMENTS_READ,
     SCOPE_OPENAPI_READ,
+    SCOPE_BILLING_READ,
+    SCOPE_INCOME_READ,
   ],
   apiManager: [
     SCOPE_APIS_READ,
@@ -38,7 +48,12 @@ export const SCOPE_PRESETS = {
     SCOPE_DOMAINS_WRITE,
     SCOPE_OPENAPI_READ,
   ],
-  analytics: [SCOPE_STATS_READ, SCOPE_SETTLEMENTS_READ],
+  analytics: [
+    SCOPE_STATS_READ,
+    SCOPE_SETTLEMENTS_READ,
+    SCOPE_BILLING_READ,
+    SCOPE_INCOME_READ,
+  ],
 } as const;
 
 export type ScopePreset = keyof typeof SCOPE_PRESETS;
@@ -53,6 +68,10 @@ export const SCOPE_LABELS: Record<string, string> = {
   [SCOPE_STATS_READ]: "Read analytics",
   [SCOPE_SETTLEMENTS_READ]: "Read settlements",
   [SCOPE_OPENAPI_READ]: "Parse OpenAPI specs",
+  [SCOPE_BILLING_READ]: "Read billing",
+  [SCOPE_BILLING_WRITE]: "Manage billing",
+  [SCOPE_INCOME_READ]: "Read income",
+  [SCOPE_INCOME_PAYOUT]: "Request payouts",
 };
 
 export function scopeLabel(scope: string): string {
