@@ -9,6 +9,8 @@
 | `privateKey` | `string` | Optional hex key (no wallet UI) |
 | `fetch` | `typeof fetch` | Custom fetch implementation |
 | `appearance` | `PaywallAppearance` | Global theme, labels, brand, classes |
+| `batch` | `BatchPaywallOptions` | Batch-settlement channel (`channelSalt`, `depositMultiplier`, `withdrawDelaySecs`, `debugChannel`) |
+| `signTypedData` | `PaywallSignTypedDataOptions` | ERC-5267 EIP-712 domain for `eth_signTypedData_v4` |
 | `debugWallets` | `boolean` | Console wallet discovery logs |
 
 ### usePaywall()
@@ -17,6 +19,8 @@
 |-------|-------------|
 | `inspect(url, init?)` | Fetch; parse 402 requirements |
 | `unlock(url, init?)` | Paid fetch via `@x402/fetch` |
+| `getBatchChannelStatus(requirements)` | Batch escrow balance / headroom for a 402 accept |
+| `resolveBatchPayButtonLabel(requirements)` | Dynamic pay button label for batch channels |
 | `connectWallet(id?)` | EIP-6963 picker if multiple wallets |
 | `disconnectWallet()` | Clear session |
 | `wallets` | Discovered extensions |

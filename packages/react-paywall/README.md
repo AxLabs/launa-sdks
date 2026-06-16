@@ -39,7 +39,7 @@ export function ArticlePage() {
         labels: { payToRead: 'Unlock' },
       }}
     >
-      <PaywallGate resourceUrl="https://echo.staging.ax402.io/get?test=1">
+      <PaywallGate resourceUrl="https://echo.staging.ax402.io/echo/get?test=1">
         <p className="teaser">Preview…</p>
       </PaywallGate>
     </PaywallProvider>

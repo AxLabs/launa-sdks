@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { BatchEscrowHeadroomError, isBatchSettlementScheme } from './batch.js'
 import { formatRequirementPrice } from './formatPrice.js'
 import { usePaywall } from './PaywallContext.js'
 import type { UnlockResult } from './types.js'
@@ -53,12 +54,14 @@ export function PaywallGate({
   const {
     inspect,
     unlock,
+    resolveBatchPayButtonLabel,
     walletAddress,
     connectedWalletName,
     wallets,
     refreshWallets,
     connectWallet,
   } = usePaywall()
+  const { labels: appearanceLabels } = usePaywallAppearance(appearance)
   const [unlocked, setUnlocked] = useState(false)
   const [parsedContent, setParsedContent] = useState<unknown>(null)
   const [displayPrice, setDisplayPrice] = useState(priceLabel ?? '')
@@ -69,6 +72,30 @@ export function PaywallGate({
   const [inspectSnapshot, setInspectSnapshot] = useState<
     Pick<InspectResult, 'paymentRequired' | 'selection' | 'status'> | undefined
   >()
+  const [payToReadLabel, setPayToReadLabel] = useState(appearanceLabels.payToRead)
+
+  const refreshPayButtonLabel = useCallback(async () => {
+    const selected = inspectSnapshot?.selection?.selected
+    if (!walletAddress || !selected || !isBatchSettlementScheme(selected.scheme)) {
+      setPayToReadLabel(appearanceLabels.payToRead)
+      return
+    }
+    const label = await resolveBatchPayButtonLabel(selected, {
+      ...appearanceLabels,
+      ...appearance?.labels,
+    })
+    setPayToReadLabel(label)
+  }, [
+    appearance?.labels,
+    appearanceLabels,
+    inspectSnapshot?.selection?.selected,
+    resolveBatchPayButtonLabel,
+    walletAddress,
+  ])
+
+  useEffect(() => {
+    void refreshPayButtonLabel()
+  }, [refreshPayButtonLabel])
 
   const runInspect = useCallback(async () => {
     setLoading('inspect')
@@ -173,7 +200,11 @@ export function PaywallGate({
       setUnlocked(true)
       onUnlocked?.(result, parsed)
     } catch (e) {
-      setError(formatFetchError(e, resourceUrl))
+      if (e instanceof BatchEscrowHeadroomError) {
+        setError(e.message)
+      } else {
+        setError(formatFetchError(e, resourceUrl))
+      }
     } finally {
       setLoading(null)
     }
@@ -216,7 +247,10 @@ export function PaywallGate({
         state={overlayState}
         overlayClassName={overlayClassName}
         cardClassName={cardClassName}
-        appearance={appearance}
+        appearance={{
+          ...appearance,
+          labels: { ...appearance?.labels, payToRead: payToReadLabel },
+        }}
         renderOverlay={renderLockedOverlay}
       />
       <PaywallAgentDiscovery

@@ -2,8 +2,17 @@ import { toClientEvmSigner, type ClientEvmSigner } from '@x402/evm'
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { chainForNetwork, type Eip1193Provider } from './permit2.js'
+import {
+  signTypedDataWithEip712Domain,
+  type PaywallSignTypedDataOptions,
+} from './eip712Domain.js'
 
-export type { Eip1193Provider }
+export type { Eip1193Provider, PaywallSignTypedDataOptions }
+export type {
+  SignTypedDataContext,
+  Eip712DomainSource,
+  Eip712SignMessage,
+} from './eip712Domain.js'
 import type { RpcConfig } from './types.js'
 
 function caip2ToHexChainId(network: string): `0x${string}` | null {
@@ -68,7 +77,14 @@ export function createBrowserWalletSigner(
   address: `0x${string}`,
   getSelectedNetwork: () => string | undefined,
   rpc?: RpcConfig,
+  signOptions?: PaywallSignTypedDataOptions,
 ): ClientEvmSigner {
+  const eip712Options: PaywallSignTypedDataOptions = {
+    ...signOptions,
+    rpc: signOptions?.rpc ?? rpc,
+    getNetwork: signOptions?.getNetwork ?? getSelectedNetwork,
+  }
+
   return toClientEvmSigner({
     address,
     async signTypedData(message) {
@@ -79,13 +95,20 @@ export function createBrowserWalletSigner(
         chain: chainForNetwork(network, rpc),
         transport: custom(provider),
       })
-      return walletClient.signTypedData({
-        account: address,
-        domain: message.domain as Parameters<typeof walletClient.signTypedData>[0]['domain'],
-        types: message.types as Parameters<typeof walletClient.signTypedData>[0]['types'],
-        primaryType: message.primaryType,
-        message: message.message as Parameters<typeof walletClient.signTypedData>[0]['message'],
-      })
+      return signTypedDataWithEip712Domain(
+        {
+          signTypedData: (msg) =>
+            walletClient.signTypedData({
+              account: address,
+              domain: msg.domain as Parameters<typeof walletClient.signTypedData>[0]['domain'],
+              types: msg.types as Parameters<typeof walletClient.signTypedData>[0]['types'],
+              primaryType: msg.primaryType,
+              message: msg.message as Parameters<typeof walletClient.signTypedData>[0]['message'],
+            }),
+        },
+        message,
+        eip712Options,
+      )
     },
   })
 }
@@ -99,9 +122,16 @@ export function normalizePrivateKey(input: string): `0x${string}` {
   return prefixed as `0x${string}`
 }
 
-export function createPrivateKeySigner(privateKey: `0x${string}`): ClientEvmSigner {
+export function createPrivateKeySigner(
+  privateKey: `0x${string}`,
+  signOptions?: PaywallSignTypedDataOptions,
+): ClientEvmSigner {
   const account = privateKeyToAccount(privateKey)
-  return toClientEvmSigner(account)
+  const inner = toClientEvmSigner(account)
+  return {
+    address: inner.address,
+    signTypedData: (message) => signTypedDataWithEip712Domain(inner, message, signOptions),
+  }
 }
 
 export async function connectWalletAddress(provider: Eip1193Provider): Promise<`0x${string}`> {

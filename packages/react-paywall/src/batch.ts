@@ -1,6 +1,13 @@
 import { BatchSettlementEvmScheme, toClientEvmSigner, type ClientEvmSigner } from '@x402/evm'
-import { recoverChannel, type BatchSettlementClientDeps } from '@x402/evm/batch-settlement/client'
+import {
+  buildChannelConfig,
+  computeChannelId,
+  readChannelBalanceAndTotalClaimed,
+  recoverChannel,
+  type BatchSettlementClientDeps,
+} from '@x402/evm/batch-settlement/client'
 import type { PaymentRequirements } from '@x402/fetch'
+import type { PaywallLabels } from './appearance.js'
 import { createPublicClient, http } from 'viem'
 import { chainForNetwork, rpcUrlForNetwork } from './permit2.js'
 import type { RpcConfig } from './types.js'
@@ -14,13 +21,23 @@ export type BatchChannelStorage = {
 export type BatchPaywallOptions = {
   channelSalt?: `0x${string}`
   depositMultiplier?: number
+  /**
+   * Must match the API batch withdraw delay used when the channel was opened.
+   * Defaults to 3 days (x402 default for new batch endpoints).
+   */
+  withdrawDelaySecs?: number
   storage?: BatchChannelStorage
   /** Persist channel balances in localStorage (browser only). */
   persistChannels?: boolean
+  /** Log channel id / on-chain balance to console (`[x402-paywall:batch]`). */
+  debugChannel?: boolean
 }
 
 const DEFAULT_SALT =
   '0x0000000000000000000000000000000000000000000000000000000000000000' as const
+
+/** Align with @axlabs/ax402-sdk DEFAULT_BATCH_WITHDRAW_DELAY (3 days). */
+export const DEFAULT_BATCH_WITHDRAW_DELAY_SECS = 259_200
 
 function hasUsableChannelBalance(ctx: Record<string, unknown> | undefined): boolean {
   if (!ctx) return false
@@ -38,10 +55,17 @@ export function createRecoveringChannelStorage(inner: BatchChannelStorage): Batc
   return {
     async get(key) {
       const ctx = await inner.get(key)
-      if (!hasUsableChannelBalance(ctx)) return undefined
+      if (!hasUsableChannelBalance(ctx)) {
+        await inner.delete(key)
+        return undefined
+      }
       return ctx
     },
-    set(key, value) {
+    async set(key, value) {
+      if (!hasUsableChannelBalance(value)) {
+        await inner.delete(key)
+        return
+      }
       return inner.set(key, value)
     },
     delete(key) {
@@ -119,6 +143,33 @@ export function withReadContractSigner(
   }
 }
 
+/**
+ * Ensure `extra.withdrawDelay` is set on the same object x402 passes to
+ * BatchSettlementEvmScheme (hooks must not replace selectedRequirements).
+ */
+export function enrichBatchPaymentRequirements(
+  requirements: PaymentRequirements,
+  withdrawDelaySecs: number = DEFAULT_BATCH_WITHDRAW_DELAY_SECS,
+): PaymentRequirements {
+  if (!isBatchSettlementScheme(requirements.scheme)) {
+    return requirements
+  }
+  const extra = (requirements.extra ?? {}) as Record<string, unknown>
+  if (typeof extra.withdrawDelay !== 'number') {
+    requirements.extra = { ...extra, withdrawDelay: withdrawDelaySecs }
+  }
+  return requirements
+}
+
+function batchDebug(enabled: boolean | undefined, message: string, data?: unknown): void {
+  if (!enabled) return
+  if (data !== undefined) {
+    console.info(`[x402-paywall:batch] ${message}`, data)
+  } else {
+    console.info(`[x402-paywall:batch] ${message}`)
+  }
+}
+
 function seedChannelFromRequirementExtra(
   storage: BatchChannelStorage,
   requirements: PaymentRequirements,
@@ -136,11 +187,158 @@ function seedChannelFromRequirementExtra(
   } catch {
     return
   }
+  const extra2 = requirements.extra as Record<string, unknown> | undefined
+  const voucherState = extra2?.voucherState
+  const voucherRow =
+    voucherState && typeof voucherState === 'object'
+      ? (voucherState as Record<string, unknown>)
+      : undefined
+  const signedMax = voucherRow?.signedMaxClaimable
   void storage.set(channelId.toLowerCase(), {
     balance: String(balance),
     totalClaimed: String(row.totalClaimed ?? '0'),
     chargedCumulativeAmount: String(row.chargedCumulativeAmount ?? row.totalClaimed ?? '0'),
+    ...(signedMax !== undefined ? { signedMaxClaimable: String(signedMax) } : {}),
   })
+}
+
+export class BatchEscrowHeadroomError extends Error {
+  readonly shortfallAtomic: string
+  readonly balanceAtomic: string
+  readonly maxClaimableAtomic: string
+
+  constructor(shortfall: bigint, balance: bigint, maxClaimable: bigint) {
+    const shortfallUsdc = Number(shortfall) / 1_000_000
+    super(
+      `Escrow has ${Number(balance) / 1_000_000} USDC left but this payment needs a signed ceiling of ${Number(maxClaimable) / 1_000_000} USDC. Top up the channel by at least ${shortfallUsdc} USDC (wallet will ask for a USDC authorization, then a voucher).`,
+    )
+    this.name = 'BatchEscrowHeadroomError'
+    this.shortfallAtomic = shortfall.toString()
+    this.balanceAtomic = balance.toString()
+    this.maxClaimableAtomic = maxClaimable.toString()
+  }
+}
+
+/**
+ * Refresh on-chain escrow + session charges before @x402/evm builds the payment payload.
+ * Throws when voucher-only is impossible (prevents voucher-then-failed-top-up double sign).
+ */
+export async function prepareBatchChannelForPayment(
+  signer: ClientEvmSigner,
+  requirements: PaymentRequirements,
+  storage: BatchChannelStorage,
+  salt: `0x${string}`,
+  withdrawDelaySecs: number = DEFAULT_BATCH_WITHDRAW_DELAY_SECS,
+  debug?: boolean,
+): Promise<BatchPaymentKind> {
+  const balance = await primeBatchChannelFromChain(
+    signer,
+    requirements,
+    storage,
+    salt,
+    withdrawDelaySecs,
+    debug,
+  )
+  const kind = await resolveBatchPaymentKind(
+    signer,
+    requirements,
+    storage,
+    salt,
+    withdrawDelaySecs,
+    debug,
+  )
+  if (kind === 'topup' || kind === 'deposit') {
+    return kind
+  }
+  const channelId = computeBatchChannelId(signer, requirements, salt, withdrawDelaySecs)
+  const ctx = await storage.get(channelId.toLowerCase())
+  const charged = BigInt(String(ctx?.chargedCumulativeAmount ?? '0'))
+  const requestAmount = BigInt(requirements.amount)
+  const maxClaimable = charged + requestAmount
+  if (maxClaimable > balance) {
+    throw new BatchEscrowHeadroomError(maxClaimable - balance, balance, maxClaimable)
+  }
+  return kind
+}
+
+export function computeBatchChannelId(
+  signer: ClientEvmSigner,
+  requirements: PaymentRequirements,
+  salt: `0x${string}`,
+  withdrawDelaySecs: number = DEFAULT_BATCH_WITHDRAW_DELAY_SECS,
+): `0x${string}` {
+  enrichBatchPaymentRequirements(requirements, withdrawDelaySecs)
+  const deps: BatchSettlementClientDeps = { signer, storage: createNoopChannelStorage(), salt }
+  const config = buildChannelConfig(deps, requirements)
+  return computeChannelId(config, requirements.network)
+}
+
+function createNoopChannelStorage(): BatchChannelStorage {
+  return {
+    async get() {
+      return undefined
+    },
+    async set() {},
+    async delete() {},
+  }
+}
+
+function parseStoredBigInt(value: unknown): bigint | undefined {
+  if (value === undefined || value === null) {
+    return undefined
+  }
+  try {
+    return BigInt(String(value))
+  } catch {
+    return undefined
+  }
+}
+
+/** Align session charge ceiling with on-chain claimed total (x402 batch accounting). */
+function effectiveChargedCumulative(
+  prev: Record<string, unknown> | undefined,
+  totalClaimedOnChain: bigint,
+): bigint {
+  const charged = parseStoredBigInt(prev?.chargedCumulativeAmount) ?? 0n
+  const signedMax = parseStoredBigInt(prev?.signedMaxClaimable) ?? 0n
+  let effective = charged > signedMax ? charged : signedMax
+  if (totalClaimedOnChain > effective) {
+    effective = totalClaimedOnChain
+  }
+  return effective
+}
+
+async function syncChannelBalanceById(
+  signer: ClientEvmSigner,
+  channelId: string,
+  storage: BatchChannelStorage,
+): Promise<bigint> {
+  if (!signer.readContract) {
+    return 0n
+  }
+  const key = channelId.toLowerCase()
+  try {
+    const raw = await readChannelBalanceAndTotalClaimed(signer, channelId as `0x${string}`)
+    const [balance, totalClaimed] = normalizeChannelsReadResult(raw)
+    if (balance <= 0n) {
+      await storage.delete(key)
+      return 0n
+    }
+    const prev = await storage.get(key)
+    const charged = effectiveChargedCumulative(prev, totalClaimed)
+    const signedMax = parseStoredBigInt(prev?.signedMaxClaimable) ?? charged
+    await storage.set(key, {
+      ...prev,
+      balance: balance.toString(),
+      totalClaimed: totalClaimed.toString(),
+      chargedCumulativeAmount: charged.toString(),
+      signedMaxClaimable: (signedMax > charged ? signedMax : charged).toString(),
+    })
+    return balance
+  } catch {
+    await storage.delete(key)
+    return 0n
+  }
 }
 
 /** Load escrow balance from chain (and 402 channelState when present) before paying. */
@@ -149,16 +347,47 @@ export async function primeBatchChannelFromChain(
   requirements: PaymentRequirements,
   storage: BatchChannelStorage,
   salt: `0x${string}`,
+  withdrawDelaySecs: number = DEFAULT_BATCH_WITHDRAW_DELAY_SECS,
+  debug?: boolean,
 ): Promise<bigint> {
+  enrichBatchPaymentRequirements(requirements, withdrawDelaySecs)
   seedChannelFromRequirementExtra(storage, requirements)
+
+  const channelId = computeBatchChannelId(signer, requirements, salt, withdrawDelaySecs)
+  batchDebug(debug, 'channel id', { channelId, withdrawDelay: (requirements.extra as Record<string, unknown>)?.withdrawDelay })
   if (!signer.readContract) {
+    batchDebug(debug, 'signer has no readContract — cannot load on-chain escrow')
     return 0n
   }
+
+  const fromChain = await syncChannelBalanceById(signer, channelId, storage)
+  batchDebug(debug, 'on-chain escrow (atomic)', { channelId, balance: fromChain.toString() })
+  if (fromChain > 0n) {
+    return fromChain
+  }
+
+  const extra = requirements.extra as Record<string, unknown> | undefined
+  const channelState = extra?.channelState
+  if (channelState && typeof channelState === 'object') {
+    const row = channelState as Record<string, unknown>
+    const stateId = row.channelId
+    if (typeof stateId === 'string' && stateId.length > 0 && stateId.toLowerCase() !== channelId.toLowerCase()) {
+      const byState = await syncChannelBalanceById(signer, stateId, storage)
+      batchDebug(debug, 'on-chain escrow via 402 channelState', { stateId, balance: byState.toString() })
+      if (byState > 0n) {
+        return byState
+      }
+    }
+  }
+
   const deps: BatchSettlementClientDeps = { signer, storage, salt }
   try {
     const ctx = await recoverChannel(deps, requirements)
-    return BigInt(ctx.balance ?? '0')
-  } catch {
+    const bal = BigInt(ctx.balance ?? '0')
+    batchDebug(debug, 'recoverChannel balance (atomic)', bal.toString())
+    return bal
+  } catch (err) {
+    batchDebug(debug, 'recoverChannel failed', err)
     return 0n
   }
 }
@@ -188,11 +417,142 @@ export function createBatchSettlementScheme(
     salt,
     depositPolicy: { depositMultiplier },
     ...(storage ? { storage } : {}),
+    depositStrategy: async (ctx) => {
+      const max = BigInt(ctx.maxClaimableAmount)
+      const balance = BigInt(ctx.currentBalance)
+      if (max > balance && balance > 0n) {
+        return ctx.minimumDepositAmount
+      }
+      return ctx.depositAmount
+    },
   })
 }
 
 export function isBatchSettlementScheme(scheme: string): boolean {
   return scheme.toLowerCase() === 'batch-settlement'
+}
+
+export type BatchPaymentKind = 'deposit' | 'topup' | 'voucher'
+
+export type BatchChannelStatus = {
+  channelId: `0x${string}`
+  balance: string
+  totalClaimed: string
+  chargedCumulative: string
+  signedMaxClaimable: string
+  unclaimedEscrow: string
+  /** Balance not yet covered by signed voucher ceiling. */
+  voucherHeadroom: string
+  paymentKind: BatchPaymentKind
+}
+
+function atomicSubNonNeg(a: string, b: string): string {
+  try {
+    const x = BigInt(a)
+    const y = BigInt(b)
+    const z = x - y
+    return (z < 0n ? 0n : z).toString()
+  } catch {
+    return '0'
+  }
+}
+
+/** On-chain escrow + session charges for batch UI (demo/dashboard-style). */
+export async function getBatchChannelStatus(
+  signer: ClientEvmSigner,
+  requirements: PaymentRequirements,
+  storage: BatchChannelStorage,
+  salt: `0x${string}`,
+  withdrawDelaySecs: number = DEFAULT_BATCH_WITHDRAW_DELAY_SECS,
+  debug?: boolean,
+): Promise<BatchChannelStatus> {
+  enrichBatchPaymentRequirements(requirements, withdrawDelaySecs)
+  const channelId = computeBatchChannelId(signer, requirements, salt, withdrawDelaySecs)
+  await primeBatchChannelFromChain(signer, requirements, storage, salt, withdrawDelaySecs, debug)
+
+  let balance = 0n
+  let totalClaimed = 0n
+  if (signer.readContract) {
+    const raw = await readChannelBalanceAndTotalClaimed(signer, channelId)
+    ;[balance, totalClaimed] = normalizeChannelsReadResult(raw)
+  }
+
+  const ctx = await storage.get(channelId.toLowerCase())
+  const charged = BigInt(String(ctx?.chargedCumulativeAmount ?? ctx?.signedMaxClaimable ?? '0'))
+  const signedMax = BigInt(String(ctx?.signedMaxClaimable ?? charged))
+  const paymentKind = await resolveBatchPaymentKind(
+    signer,
+    requirements,
+    storage,
+    salt,
+    withdrawDelaySecs,
+    debug,
+  )
+
+  return {
+    channelId,
+    balance: balance.toString(),
+    totalClaimed: totalClaimed.toString(),
+    chargedCumulative: charged.toString(),
+    signedMaxClaimable: signedMax.toString(),
+    unclaimedEscrow: atomicSubNonNeg(balance.toString(), totalClaimed.toString()),
+    voucherHeadroom: atomicSubNonNeg(balance.toString(), signedMax.toString()),
+    paymentKind,
+  }
+}
+
+/** Mirrors @x402/evm batch deposit vs voucher decision for UI copy. */
+export async function resolveBatchPaymentKind(
+  signer: ClientEvmSigner,
+  requirements: PaymentRequirements,
+  storage: BatchChannelStorage,
+  salt: `0x${string}`,
+  withdrawDelaySecs: number = DEFAULT_BATCH_WITHDRAW_DELAY_SECS,
+  debug?: boolean,
+): Promise<BatchPaymentKind> {
+  const balance = await primeBatchChannelFromChain(
+    signer,
+    requirements,
+    storage,
+    salt,
+    withdrawDelaySecs,
+    debug,
+  )
+  if (balance <= 0n) {
+    batchDebug(debug, 'payment kind', 'deposit (no escrow)')
+    return 'deposit'
+  }
+  enrichBatchPaymentRequirements(requirements, withdrawDelaySecs)
+  const channelId = computeBatchChannelId(signer, requirements, salt, withdrawDelaySecs)
+  const ctx = await storage.get(channelId.toLowerCase())
+  const charged = BigInt(String(ctx?.chargedCumulativeAmount ?? ctx?.signedMaxClaimable ?? '0'))
+  const requestAmount = BigInt(requirements.amount)
+  const maxClaimable = charged + requestAmount
+  if (maxClaimable > balance) {
+    batchDebug(debug, 'payment kind', {
+      kind: 'topup',
+      balance: balance.toString(),
+      charged: charged.toString(),
+      maxClaimable: maxClaimable.toString(),
+    })
+    return 'topup'
+  }
+  batchDebug(debug, 'payment kind', 'voucher')
+  return 'voucher'
+}
+
+export function batchPayLabelForKind(
+  kind: BatchPaymentKind,
+  labels: Partial<PaywallLabels> = {},
+): string {
+  switch (kind) {
+    case 'deposit':
+      return labels.payToReadDeposit ?? labels.payToRead ?? 'Deposit & unlock'
+    case 'topup':
+      return labels.payToReadTopUp ?? 'Top up & unlock'
+    case 'voucher':
+      return labels.payToReadVoucher ?? labels.payToRead ?? 'Unlock'
+  }
 }
 
 export function batchDepositAmount(amount: string, depositMultiplier: number): bigint {

@@ -56,6 +56,12 @@ export type PaywallLabels = {
   connectWallet?: string
   connectWalletLoading?: string
   payToRead?: string
+  /** Batch: first deposit to open a channel. */
+  payToReadDeposit?: string
+  /** Batch: additional escrow when balance is too low. */
+  payToReadTopUp?: string
+  /** Batch: voucher-only (existing on-chain escrow). */
+  payToReadVoucher?: string
   paying?: string
   walletPickerTitle?: string
   walletPickerCancel?: string
@@ -76,6 +82,9 @@ export const defaultPaywallLabels: Required<PaywallLabels> = {
   connectWallet: 'Connect wallet',
   connectWalletLoading: 'Connecting…',
   payToRead: 'Pay to read',
+  payToReadDeposit: 'Deposit & unlock',
+  payToReadTopUp: 'Top up & unlock',
+  payToReadVoucher: 'Unlock',
   paying: 'Paying…',
   walletPickerTitle: 'Choose a wallet',
   walletPickerCancel: 'Cancel',

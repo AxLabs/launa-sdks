@@ -3,10 +3,10 @@
 ## Staging echo (demo)
 
 ```tsx
-<PaywallGate resourceUrl="/echo/get?test=1" title="Unlock response" />
+<PaywallGate resourceUrl="/gateway/echo/get?test=1" title="Unlock response" />
 ```
 
-Proxy `/echo` → `https://echo.staging.ax402.io` in Vite (see `ax402-paywall-demo` demo).
+Proxy `/gateway` → `https://echo.staging.ax402.io` in Vite (see `ax402-paywall-demo` demo).
 
 ## Branded publisher
 
