@@ -1,152 +1,255 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
-import { Ax402Client } from "@axlabs/ax402-sdk";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { atomicToUsdc } from "@axlabs/ax402-sdk";
+import { clientFromCredentials, createAx402Client, getAx402Config } from "../ax402.server.js";
 import { loadCredentials, storeCredentials } from "../crypto.server.js";
+import { endpointBuyerUrl, loadShopDashboard, monetizeProduct, onboardShop } from "../lib/shopify-actions.js";
+import type { ProductPathKind } from "../lib/mapping.js";
+import type { PaymentScheme } from "@axlabs/ax402-sdk";
+import { listProducts } from "../lib/products.js";
 import { getSession, saveSession } from "../shopify.server.js";
-import { priceToAccept, productEndpointPath, shopUpstreamUrl } from "../lib/mapping.js";
-
-function encryptionSecret() {
-  return process.env.SHOPIFY_ENCRYPTION_SECRET ?? "dev-secret-change-me";
-}
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const config = getAx402Config();
   const url = new URL(request.url);
   const sessionId = url.searchParams.get("session") ?? "offline_dev";
   const session = getSession(sessionId) ?? {
     id: sessionId,
-    shop: "demo.myshopify.com",
+    shop: process.env.SHOPIFY_DEV_SHOP ?? "demo.myshopify.com",
     accessToken: "shpat_test",
   };
   saveSession(session);
 
-  let apis: unknown[] = [];
+  let dashboard = null;
   if (session.ax402Credentials) {
-    const creds = loadCredentials(session.ax402Credentials, encryptionSecret());
-    const client = new Ax402Client({
-      baseUrl: process.env.AX402_BASE_URL ?? "http://api.localhost:8090",
-      apiKey: creds.apiKey,
-    });
-    apis = await client.apis.list();
+    const creds = loadCredentials(session.ax402Credentials, config.encryptionSecret);
+    const client = clientFromCredentials(creds, config.baseUrl);
+    dashboard = await loadShopDashboard(client, creds);
   }
 
   return json({
+    config: { baseUrl: config.baseUrl, devMode: config.devMode },
     sessionId: session.id,
     shop: session.shop,
     hasCredentials: Boolean(session.ax402Credentials),
-    apis,
-    products: [
-      { id: "1001", title: "Sample product", price: "9.99" },
-      { id: "1002", title: "Premium API access", price: "0.50" },
-    ],
+    dashboard,
+    products: listProducts(config.devMode, session.shop, session.accessToken),
   });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
+  const config = getAx402Config();
   const form = await request.formData();
   const intent = String(form.get("intent"));
   const sessionId = String(form.get("sessionId"));
   const session = getSession(sessionId);
-  if (!session) return json({ error: "no session" }, { status: 400 });
+  if (!session) return json({ error: "Session not found. Open the app from Shopify admin or use ?session=offline_dev" }, { status: 400 });
 
   if (intent === "save-credentials") {
-    const apiKey = String(form.get("apiKey"));
-    const apiId = String(form.get("apiId"));
-    session.ax402Credentials = storeCredentials({ apiKey, apiId }, encryptionSecret());
+    const apiKey = String(form.get("apiKey") ?? "").trim();
+    const apiId = String(form.get("apiId") ?? "").trim();
+    if (!apiKey || !apiId) {
+      return json({ error: "API key and API ID are required" }, { status: 400 });
+    }
+    session.ax402Credentials = storeCredentials({ apiKey, apiId }, config.encryptionSecret);
     saveSession(session);
-    return json({ saved: true });
+    return json({ ok: true, message: "Credentials saved" });
   }
 
   if (intent === "onboard") {
-    const apiKey = String(form.get("apiKey"));
-    const client = new Ax402Client({
-      baseUrl: process.env.AX402_BASE_URL ?? "http://api.localhost:8090",
-      apiKey,
-    });
-    const api = await client.apis.create({
-      name: session.shop,
-      slug: session.shop.replace(/\./g, "-"),
-      upstream_base_url: shopUpstreamUrl(session.shop),
-    });
-    session.ax402Credentials = storeCredentials({ apiKey, apiId: api.id }, encryptionSecret());
+    const apiKey = String(form.get("apiKey") ?? "").trim();
+    const payTo = String(form.get("payToAddress") ?? "").trim();
+    if (!apiKey) return json({ error: "API key is required" }, { status: 400 });
+    const client = createAx402Client(apiKey, config.baseUrl);
+    const result = await onboardShop(client, session.shop, payTo || undefined);
+    session.ax402Credentials = storeCredentials(
+      { apiKey, apiId: result.apiId },
+      config.encryptionSecret,
+    );
     saveSession(session);
-    return json({ api });
+    return json({ ok: true, message: "Shop onboarded", onboard: result });
   }
 
   if (intent === "monetize") {
-    const creds = loadCredentials(session.ax402Credentials!, encryptionSecret());
-    const client = new Ax402Client({
-      baseUrl: process.env.AX402_BASE_URL ?? "http://api.localhost:8090",
-      apiKey: creds.apiKey,
+    if (!session.ax402Credentials) {
+      return json({ error: "Connect ax402 first" }, { status: 400 });
+    }
+    const creds = loadCredentials(session.ax402Credentials, config.encryptionSecret);
+    const client = clientFromCredentials(creds, config.baseUrl);
+    const scheme = String(form.get("scheme") ?? "exact") as PaymentScheme;
+    const pathKind = String(form.get("pathKind") ?? "rest-product") as ProductPathKind;
+    const endpoint = await monetizeProduct(client, creds.apiId, {
+      productId: String(form.get("productId")),
+      priceUsdc: String(form.get("priceUsdc") ?? "0.10"),
+      pathKind,
+      scheme,
+      description: String(form.get("productTitle") ?? ""),
     });
-    const productId = String(form.get("productId"));
-    const priceUsdc = String(form.get("priceUsdc") ?? "0.10");
-    const endpoint = await client.endpoints.create(creds.apiId, {
-      method: "GET",
-      path_pattern: productEndpointPath(productId),
-      accepts: [priceToAccept(priceUsdc)],
-    });
-    return json({ endpoint });
+    return json({ ok: true, message: "Endpoint created", endpoint });
   }
 
-  return json({ error: "unknown intent" }, { status: 400 });
+  return json({ error: "Unknown action" }, { status: 400 });
 }
+
+const fieldStyle = { display: "block", marginBottom: 8, width: "100%", maxWidth: 400 };
+const sectionStyle = { marginBottom: 32, paddingBottom: 24, borderBottom: "1px solid #e5e5e5" };
 
 export default function AppIndex() {
   const data = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+
   return (
-    <div style={{ fontFamily: "system-ui", padding: 24, maxWidth: 720 }}>
-      <h1>Ax402 × Shopify</h1>
-      <p>Shop: {data.shop}</p>
+    <div style={{ fontFamily: "system-ui", padding: 24, maxWidth: 800, lineHeight: 1.5 }}>
+      <h1 style={{ marginTop: 0 }}>Ax402 × Shopify</h1>
+      <p>
+        Shop: <strong>{data.shop}</strong>
+        {data.config.devMode ? " (dev mode — sample products)" : null}
+      </p>
+
+      {actionData && "error" in actionData ? (
+        <p style={{ color: "#b00020", background: "#fde8e8", padding: 12, borderRadius: 6 }}>
+          {actionData.error}
+        </p>
+      ) : null}
+      {actionData && "message" in actionData ? (
+        <p style={{ color: "#0d5c2e", background: "#e8f5ec", padding: 12, borderRadius: 6 }}>
+          {actionData.message}
+        </p>
+      ) : null}
+
+      <section style={sectionStyle}>
+        <h2>Control plane</h2>
+        <p>
+          Base URL: <code>{data.config.baseUrl}</code> (set <code>AX402_BASE_URL</code> in .env)
+        </p>
+        <p style={{ fontSize: 14, color: "#555" }}>
+          Use an API key with the SDK <code>apiManager</code> scope preset. Keys are encrypted at rest with{" "}
+          <code>SHOPIFY_ENCRYPTION_SECRET</code>.
+        </p>
+      </section>
+
       {!data.hasCredentials ? (
-        <>
+        <section style={sectionStyle}>
           <h2>Connect ax402</h2>
-          <Form method="post">
+          <Form method="post" style={{ marginBottom: 24 }}>
             <input type="hidden" name="intent" value="save-credentials" />
             <input type="hidden" name="sessionId" value={data.sessionId} />
-            <label>
+            <label style={fieldStyle}>
               API key
-              <input name="apiKey" type="password" required />
+              <input name="apiKey" type="password" required autoComplete="off" style={{ width: "100%" }} />
             </label>
-            <label>
-              API ID
-              <input name="apiId" required />
+            <label style={fieldStyle}>
+              Existing API ID
+              <input name="apiId" required placeholder="From ax402 dashboard" style={{ width: "100%" }} />
             </label>
-            <button type="submit">Save</button>
+            <button type="submit">Save credentials</button>
           </Form>
-          <Form method="post" style={{ marginTop: 16 }}>
+
+          <h3>Or auto-onboard this shop</h3>
+          <p style={{ fontSize: 14 }}>
+            Creates an ax402 API with upstream <code>https://{data.shop}</code> and the default gateway subdomain.
+          </p>
+          <Form method="post">
             <input type="hidden" name="intent" value="onboard" />
             <input type="hidden" name="sessionId" value={data.sessionId} />
-            <label>
-              API key (auto-create API)
-              <input name="apiKey" type="password" required />
+            <label style={fieldStyle}>
+              API key
+              <input name="apiKey" type="password" required autoComplete="off" style={{ width: "100%" }} />
+            </label>
+            <label style={fieldStyle}>
+              Pay-to address (optional)
+              <input name="payToAddress" placeholder="0x… — user_wallet mode" style={{ width: "100%" }} />
             </label>
             <button type="submit">Onboard shop</button>
           </Form>
-        </>
+        </section>
       ) : (
         <>
-          <h2>Products</h2>
-          <ul>
-            {data.products.map((p) => (
-              <li key={p.id} style={{ marginBottom: 12 }}>
-                {p.title} (${p.price})
-                <Form method="post" style={{ display: "inline", marginLeft: 8 }}>
-                  <input type="hidden" name="intent" value="monetize" />
-                  <input type="hidden" name="sessionId" value={data.sessionId} />
-                  <input type="hidden" name="productId" value={p.id} />
-                  <input type="hidden" name="priceUsdc" value={p.price} />
-                  <button type="submit">Monetize</button>
-                </Form>
-              </li>
-            ))}
-          </ul>
-          <p>
-            Dashboard: link to ax402 stats for API{" "}
-            {Array.isArray(data.apis) && data.apis[0] && typeof data.apis[0] === "object" && "id" in data.apis[0]
-              ? String((data.apis[0] as { id: string }).id)
-              : "(configured)"}
-          </p>
+          {data.dashboard ? (
+            <section style={sectionStyle}>
+              <h2>Gateway</h2>
+              <p>
+                API: <strong>{data.dashboard.apiName}</strong> (<code>{data.dashboard.apiId}</code>)
+              </p>
+              <p>
+                Buyer URL base:{" "}
+                <a href={data.dashboard.gatewayUrl} target="_blank" rel="noreferrer">
+                  {data.dashboard.gatewayUrl}
+                </a>
+              </p>
+              {data.dashboard.endpoints.length > 0 ? (
+                <>
+                  <h3>Monetized endpoints</h3>
+                  <ul style={{ paddingLeft: 20 }}>
+                    {data.dashboard.endpoints.map((ep) => (
+                      <li key={ep.id} style={{ marginBottom: 8 }}>
+                        <code>
+                          {ep.method} {ep.path_pattern}
+                        </code>
+                        {" — "}
+                        {ep.accepts[0]?.amount
+                          ? `${atomicToUsdc(ep.accepts[0].amount)} USDC (${ep.accepts[0].scheme})`
+                          : "no price"}
+                        <br />
+                        <a href={endpointBuyerUrl(data.dashboard!, ep)} target="_blank" rel="noreferrer">
+                          Open via gateway
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p>No endpoints yet — monetize a product below.</p>
+              )}
+            </section>
+          ) : null}
+
+          <section style={sectionStyle}>
+            <h2>Monetize products</h2>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {data.products.map((p) => (
+                <li
+                  key={p.id}
+                  style={{
+                    marginBottom: 16,
+                    padding: 16,
+                    border: "1px solid #ddd",
+                    borderRadius: 8,
+                  }}
+                >
+                  <strong>{p.title}</strong> — store price ${p.price}
+                  <Form method="post" style={{ marginTop: 12 }}>
+                    <input type="hidden" name="intent" value="monetize" />
+                    <input type="hidden" name="sessionId" value={data.sessionId} />
+                    <input type="hidden" name="productId" value={p.id} />
+                    <input type="hidden" name="productTitle" value={p.title} />
+                    <label style={{ ...fieldStyle, display: "inline-block", marginRight: 12, maxWidth: 120 }}>
+                      USDC price
+                      <input name="priceUsdc" defaultValue={p.price} />
+                    </label>
+                    <label style={{ ...fieldStyle, display: "inline-block", marginRight: 12, maxWidth: 200 }}>
+                      Path
+                      <select name="pathKind" defaultValue="rest-product">
+                        <option value="rest-product">/products/:id</option>
+                        <option value="storefront-product">/products/:id.json</option>
+                      </select>
+                    </label>
+                    <label style={{ ...fieldStyle, display: "inline-block", marginRight: 12, maxWidth: 180 }}>
+                      Scheme
+                      <select name="scheme" defaultValue="exact">
+                        <option value="exact">exact (instant)</option>
+                        <option value="batch-settlement">batch-settlement</option>
+                      </select>
+                    </label>
+                    <button type="submit" style={{ verticalAlign: "bottom" }}>
+                      Create paid endpoint
+                    </button>
+                  </Form>
+                </li>
+              ))}
+            </ul>
+          </section>
         </>
       )}
     </div>

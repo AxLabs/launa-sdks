@@ -22,7 +22,7 @@ export function oauthAuthorizeUrl(shop: string, redirectUri: string): string {
 export function exchangeCode(_shop: string, code: string): Session {
   const session: Session = {
     id: `offline_${code}`,
-    shop: "demo.myshopify.com",
+    shop: process.env.SHOPIFY_DEV_SHOP ?? "demo.myshopify.com",
     accessToken: "shpat_test",
   };
   saveSession(session);
