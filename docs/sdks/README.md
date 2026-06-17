@@ -28,7 +28,7 @@ For browser SPAs, use [`@axlabs/x402-react-paywall`](../packages/react-paywall/d
 
 All three languages cover apis, endpoints, domains, openapi, stats, per-API settlements, and platform config.
 
-**TypeScript-only today:** MFA/passkeys/TOTP, facilitator config/stats, global payment history (`GET /settlements`), preferred environment.
+**TypeScript-only today:** MFA/passkeys/TOTP, facilitator config/stats/events, global payment history (`GET /settlements`), preferred environment.
 
 **Backend-only (no SDK yet):** billing, income/payouts, batch channel settings (`/apis/{id}/batch/*`).
 

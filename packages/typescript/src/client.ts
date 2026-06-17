@@ -35,6 +35,8 @@ import type {
   TOTPSetupResponse,
   User,
   FacilitatorEndpoint,
+  FacilitatorEvent,
+  FacilitatorEventsPage,
   FacilitatorStats,
   SupportedResponse,
   UserPasskey,
@@ -232,6 +234,15 @@ class AuthResource {
 
   facilitatorStats(days = 30) {
     return this.http.request<FacilitatorStats>(`/auth/facilitator/stats?days=${days}`);
+  }
+
+  facilitatorEvents(query?: { days?: number; limit?: number; offset?: number }) {
+    const q = new URLSearchParams();
+    if (query?.days !== undefined) q.set("days", String(query.days));
+    if (query?.limit !== undefined) q.set("limit", String(query.limit));
+    if (query?.offset !== undefined) q.set("offset", String(query.offset));
+    const suffix = q.toString() ? `?${q}` : "";
+    return this.http.request<FacilitatorEventsPage>(`/auth/facilitator/events${suffix}`);
   }
 
   updatePreferredEnvironment(environment: "production" | "development") {

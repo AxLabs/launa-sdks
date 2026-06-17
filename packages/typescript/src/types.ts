@@ -54,6 +54,29 @@ export type FacilitatorStats = {
   success_rate: number;
 };
 
+export type FacilitatorEvent = {
+  id: string;
+  user_id: string;
+  event_type: string;
+  hostname: string;
+  success: boolean;
+  created_at: string;
+  scheme?: string;
+  network?: string;
+  asset?: string;
+  amount?: string;
+  pay_to?: string;
+  payer?: string;
+  transaction?: string;
+  reason?: string;
+  message?: string;
+};
+
+export type FacilitatorEventsPage = {
+  items: FacilitatorEvent[];
+  total: number;
+};
+
 export type UserPasskey = {
   id: string;
   name: string;

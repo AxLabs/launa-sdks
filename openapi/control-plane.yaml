@@ -140,6 +140,29 @@ components:
         verify_ok: { type: integer }
         settle_ok: { type: integer }
         success_rate: { type: number }
+    FacilitatorEvent:
+      type: object
+      properties:
+        id: { type: string }
+        user_id: { type: string }
+        event_type: { type: string }
+        hostname: { type: string }
+        success: { type: boolean }
+        created_at: { type: string, format: date-time }
+        scheme: { type: string }
+        network: { type: string }
+        asset: { type: string }
+        amount: { type: string }
+        pay_to: { type: string }
+        payer: { type: string }
+        transaction: { type: string }
+        reason: { type: string }
+        message: { type: string }
+    FacilitatorEventsPage:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/FacilitatorEvent' } }
+        total: { type: integer }
 paths:
   /auth/signup:
     post:
@@ -324,6 +347,24 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/FacilitatorStats' }
+  /auth/facilitator/events:
+    get:
+      summary: Paginated facilitator verify/settle event log (JWT only)
+      parameters:
+        - name: days
+          in: query
+          schema: { type: integer, default: 30 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FacilitatorEventsPage' }
   /auth/scopes:
     get:
       summary: List available API key scopes (JWT only)
