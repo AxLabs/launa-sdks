@@ -1,36 +1,65 @@
 # Ax402 Gateway for WordPress
 
-Phase 1 starter plugin — connects WordPress admin to ax402 control plane.
+Production plugin — connects WordPress to the ax402 control plane and monetizes REST routes via x402.
+
+## Requirements
+
+- WordPress 6.0+
+- PHP 8.0+ with OpenSSL (encrypted API key storage)
+- ax402 API key with SDK `apiManager` scope preset
 
 ## Install
 
-Copy `ax402-gateway.php` to `wp-content/plugins/ax402-gateway/` and activate.
+Copy the plugin folder to `wp-content/plugins/ax402-gateway/`:
+
+```
+ax402-gateway/
+  ax402-gateway.php
+  includes/admin-page.php
+../shared/   → symlink or copy shared/ beside wordpress/ (see layout below)
+```
+
+Recommended layout in `wp-content/plugins/`:
+
+```
+ax402-shared/          ← copy from ax402-sdk/plugins/shared/
+ax402-gateway/         ← this plugin (wordpress/)
+ax402-woocommerce/     ← optional WooCommerce extension
+```
+
+Or bundle `shared/` inside `ax402-gateway/shared/` and change the `require_once` path in `ax402-gateway.php`.
 
 ## Configure
 
-Settings → Ax402:
+**Settings → Ax402**
 
-- Control plane URL (`http://api.localhost:8090`)
-- Scoped API key (`apiManager` preset)
-- API ID from ax402 dashboard
+1. Set control plane URL and API key (stored encrypted).
+2. **Create API & gateway** — auto-onboards with upstream `https://yoursite.com/wp-json` and default gateway subdomain.
+3. Or paste an existing **API ID** from the dashboard.
+4. **Sync REST route** — pick a route, USDC price, and scheme (`exact` or `batch-settlement`).
+
+Re-syncing the same method + path **updates** the endpoint instead of creating duplicates.
+
+## Security
+
+Define in `wp-config.php` for production:
+
+```php
+define('AX402_ENCRYPTION_SECRET', 'long-random-string');
+```
+
+Falls back to `AUTH_KEY` if unset.
+
+## Testing (no WordPress install required)
+
+```bash
+cd ax402-sdk/plugins
+composer install
+composer test
+```
 
 ## Architecture
 
 ```
-Buyer → gateway.{slug}.localhost → x402 payment → WordPress upstream (REST API)
+Buyer (x402 client) → gateway.{slug}.{platform_domain} → verify/settle → your-site/wp-json/...
 ```
-
-WordPress does not handle x402 directly; the ax402 gateway proxies to your site URL configured as upstream.
-
-## Sync endpoints
-
-Use CLI or call `ax402_sync_endpoint()` from custom code:
-
-```bash
-ax402 endpoints create --api-id YOUR_ID --method GET \
-  --path "/wp-json/wp/v2/posts" --price-usdc 0.01 --json
-```
-
-## Phase 2 (checkout hybrid)
-
-See [docs/ecommerce/README.md](../../docs/ecommerce/README.md) — WooCommerce order hooks can unlock x402-protected download URLs post-purchase.
