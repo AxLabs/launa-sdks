@@ -1,16 +1,38 @@
-# Ax402 WooCommerce extension
+# Ax402 Gateway for WooCommerce
 
-Requires [Ax402 Gateway for WordPress](../wordpress/).
+Extends [Ax402 Gateway for WordPress](../wordpress/). Monetizes products via gateway endpoints with upsert semantics (no duplicate endpoints on re-save).
 
-## Phase 1
+## Requirements
 
-- Syncs downloadable product price to gateway endpoint on product save
-- Path pattern: `/wc-api/download-product/{id}` (customize for your setup)
+- WordPress + WooCommerce
+- Ax402 Gateway plugin active
+- USDC prices set per product (store currency is **not** auto-converted)
 
-## Phase 2 — checkout hybrid
+## Product metabox
 
-`woocommerce_order_status_completed` hook stub for post-purchase unlock flows. See [docs/ecommerce/README.md](../../docs/ecommerce/README.md).
+Per product (**Ax402 monetization** sidebar):
 
-## Upstream URL
+| Field | Purpose |
+|-------|---------|
+| Monetize via x402 | Enable sync on save |
+| Price (USDC) | Payment amount (required for sync) |
+| Gateway path | REST product (`/wp-json/wc/v3/products/{id}`), download query, or custom pattern |
+| Scheme | `exact` or `batch-settlement` |
 
-When creating the ax402 API, set `upstream_base_url` to your WooCommerce store origin, e.g. `https://shop.example.com`.
+Shows buyer gateway URL and endpoint ID after successful sync. Errors are stored and shown in the metabox.
+
+## Upstream
+
+Onboard the WordPress site with upstream `https://your-store.com/wp-json` (default onboard path). WooCommerce REST paths are matched under that origin.
+
+## Phase 2
+
+`ax402_wc_order_complete` action fires on `woocommerce_order_status_completed` for post-checkout unlock flows. See [docs/ecommerce/README.md](../../docs/ecommerce/README.md).
+
+## Testing
+
+```bash
+cd ax402-sdk/plugins && composer test
+```
+
+Path helpers are covered in `tests/WcPathsTest.php`.
