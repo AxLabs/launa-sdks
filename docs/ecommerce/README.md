@@ -8,9 +8,9 @@ Buyers pay with x402-capable clients/wallets to access protected resources.
 
 | Platform | Approach |
 |----------|----------|
-| WordPress | Plugin stores API key + API ID; sync REST routes as paid endpoints |
-| WooCommerce | Extend WP plugin: map product/download URLs to gateway endpoints |
-| Shopify | Remix app: OAuth + link products to gateway endpoints |
+| WordPress | Onboard or connect API; upsert REST routes as paid endpoints (`exact` or `batch-settlement`) |
+| WooCommerce | Product metabox: USDC price, REST/download/custom paths, upsert on save |
+| Shopify | Remix dashboard: connect/onboard, monetize products, integration tests against mock control plane |
 
 Traffic flow:
 
@@ -38,9 +38,9 @@ Gateway-wrap requires buyers to use x402 clients (`@x402/fetch`, `x402-go-client
 
 ## Plugin starters
 
-- [`plugins/wordpress/`](../plugins/wordpress/) — settings, onboard, endpoint upsert, encrypted keys
-- [`plugins/woocommerce/`](../plugins/woocommerce/) — product metabox + WC REST path mapping
-- [`plugins/shopify/`](../plugins/shopify/) — Remix app starter
+- [`plugins/wordpress/`](../plugins/wordpress/) — settings, onboard, endpoint upsert, encrypted keys (`composer test` in `plugins/`)
+- [`plugins/woocommerce/`](../plugins/woocommerce/) — product metabox + WC REST path mapping (requires WP plugin)
+- [`plugins/shopify/`](../plugins/shopify/) — Remix merchant UI + `npm test` (unit + mock control-plane integration)
 
 ## Required scopes (API keys)
 
