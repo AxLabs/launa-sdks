@@ -1,12 +1,24 @@
 # Examples
 
-## Staging echo (demo)
+## Live demo (`ax402-paywall-demo`)
+
+Run `make demo` from `ax402-paywall-demo/`. The Vite app includes five switchable brand presets (AxLabs, Herald, Neon Labs, Mint SaaS, Ocean Data) that showcase:
+
+- `appearance.theme` CSS tokens (accent, card, overlay, radii, fonts)
+- `appearance.brand` logo slot
+- `appearance.labels` button and agent copy
+- `appearance.classNames` per-slot overrides
+- `agentInstructions` and the in-page agent manifest (`#x402-agent-manifest`)
+
+Toggle **Theme** and **Scheme** (exact vs batch-settlement) in the demo header. Each theme includes sample unlock copy plus a collapsible raw gateway response. Source: `demo/src/themes.tsx`.
+
+## Gateway proxy (local dev)
 
 ```tsx
 <PaywallGate resourceUrl="/gateway/echo/get?test=1" title="Unlock response" />
 ```
 
-Proxy `/gateway` → `https://echo.staging.ax402.io` in Vite (see `ax402-paywall-demo` demo).
+Proxy `/gateway` → your gateway origin in Vite (see `ax402-paywall-demo/demo/vite.config.ts`).
 
 ## Branded publisher
 

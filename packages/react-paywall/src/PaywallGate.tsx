@@ -9,6 +9,11 @@ import type { PaywallAppearance } from './appearance.js'
 import { PaywallLockedOverlay, type PaywallLockedOverlayState } from './PaywallLockedOverlay.js'
 import { usePaywallAppearance } from './appearanceContext.js'
 
+export type PaywallUnlockedState = {
+  parsed: unknown
+  result: UnlockResult
+}
+
 export type PaywallGateProps = {
   resourceUrl: string
   requestInit?: RequestInit
@@ -29,6 +34,8 @@ export type PaywallGateProps = {
   inspectOnMount?: boolean
   /** Fully custom locked-state UI; receives wallet/pay handlers and inspect state. */
   renderLockedOverlay?: (state: PaywallLockedOverlayState) => ReactNode
+  /** Custom unlocked content; default renders `{ title, body }` JSON or raw response. */
+  renderUnlocked?: (state: PaywallUnlockedState) => ReactNode
 }
 
 export function PaywallGate({
@@ -49,6 +56,7 @@ export function PaywallGate({
   children,
   inspectOnMount = true,
   renderLockedOverlay,
+  renderUnlocked,
 }: PaywallGateProps) {
   const { slot } = usePaywallAppearance(appearance)
   const {
@@ -64,6 +72,7 @@ export function PaywallGate({
   const { labels: appearanceLabels } = usePaywallAppearance(appearance)
   const [unlocked, setUnlocked] = useState(false)
   const [parsedContent, setParsedContent] = useState<unknown>(null)
+  const [unlockedResult, setUnlockedResult] = useState<UnlockResult | null>(null)
   const [displayPrice, setDisplayPrice] = useState(priceLabel ?? '')
   const [loading, setLoading] = useState<'inspect' | 'pay' | 'connect' | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -118,15 +127,14 @@ export function PaywallGate({
           /* plain text */
         }
         setParsedContent(parsed)
+        const freeResult: UnlockResult = {
+          status: result.status,
+          bodyText: result.bodyText,
+          headers: [],
+        }
+        setUnlockedResult(freeResult)
         setUnlocked(true)
-        onUnlocked?.(
-          {
-            status: result.status,
-            bodyText: result.bodyText,
-            headers: [],
-          },
-          parsed,
-        )
+        onUnlocked?.(freeResult, parsed)
       }
     } catch (e) {
       setError(formatFetchError(e, resourceUrl))
@@ -197,6 +205,7 @@ export function PaywallGate({
         /* plain */
       }
       setParsedContent(parsed)
+      setUnlockedResult(result)
       setUnlocked(true)
       onUnlocked?.(result, parsed)
     } catch (e) {
@@ -211,9 +220,15 @@ export function PaywallGate({
   }
 
   if (unlocked) {
+    const unlockedState: PaywallUnlockedState = {
+      parsed: parsedContent,
+      result: unlockedResult!,
+    }
     return (
       <div className={[className, unlockedClassName].filter(Boolean).join(' ') || undefined}>
-        {parsedContent !== null ? (
+        {renderUnlocked ? (
+          renderUnlocked(unlockedState)
+        ) : parsedContent !== null ? (
           <ArticleBody data={parsedContent} appearance={appearance} />
         ) : (
           children

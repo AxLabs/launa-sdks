@@ -43,6 +43,7 @@ Throws `WalletSelectionRequiredError` with `.wallets` when multiple and no `id`.
 | `inspectOnMount` | `true` | Probe 402 on mount |
 | `onUnlocked` | — | `(result, parsed) => void` |
 | `renderLockedOverlay` | — | Custom locked UI |
+| `renderUnlocked` | — | Custom unlocked content (`{ parsed, result }`) |
 | `className` / `teaserClassName` / … | — | Layout class hooks |
 
 ## PaywallOverlay

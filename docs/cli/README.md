@@ -9,16 +9,68 @@ pnpm --filter @axlabs/ax402-cli build
 node tools/cli/dist/index.js apis list --json
 ```
 
+## Quick start (local)
+
+Requires a running control plane (default `http://api.localhost:8090`). See the [ax402 full-stack dev guide](../../ax402/DEVELOPMENT.md) or run ax402-backend locally.
+
+```bash
+pnpm --filter @axlabs/ax402-cli build
+export AX402_BASE_URL=http://api.localhost:8090
+
+# 1. Log in (JWT) — prints the token to stdout when --json is omitted
+export AX402_JWT=$(node tools/cli/dist/index.js auth login \
+  --email you@example.com --password 'your-password')
+
+# 2. Create a scoped API key for scripts/CI (keys commands require JWT)
+node tools/cli/dist/index.js keys create \
+  --name local-cli --scopes apis:read,apis:write,endpoints:read,endpoints:write --json
+# Save the returned key — shown once. Then:
+export AX402_API_KEY=ax402_live_...
+unset AX402_JWT
+
+# 3. List APIs
+node tools/cli/dist/index.js apis list
+
+# 4. Create an API (--pay-to required when your account uses user_wallet payout mode)
+node tools/cli/dist/index.js apis create \
+  --name "My API" --slug my-api \
+  --upstream https://api.example.com \
+  --pay-to 0xYourWalletAddress --json
+
+# 5. Add a paid route
+node tools/cli/dist/index.js endpoints create \
+  --api-id API_ID --path "/v1/*" --price-usdc 0.10 --json
+
+# 6. Inspect payment requirements on the gateway URL (no wallet needed)
+node tools/cli/dist/index.js inspect url \
+  --url "https://my-api.YOUR_PLATFORM_DOMAIN/v1/hello"
+```
+
+Run `ax402 config platform --json` for `platform_domain` and gateway hostname patterns.
+
 ## Environment
 
 | Variable | Purpose |
 |----------|---------|
 | `AX402_BASE_URL` | Control plane URL (default `http://api.localhost:8090`) |
-| `AX402_API_KEY` | Scoped API key |
-| `AX402_JWT` | Alternative to API key |
-| `AX402_EVM_PRIVATE_KEY` | `pay url` / `inspect url` buyer commands |
+| `AX402_API_KEY` | Scoped API key (`ax402_live_...`) for automation |
+| `AX402_JWT` | Session token from `auth login` — alternative to API key |
+| `AX402_EVM_PRIVATE_KEY` | `pay url` only — signs x402 payments (legacy alias: `EVM_PRIVATE_KEY`) |
 
 Global flag: `--json` on any command.
+
+## Authentication
+
+| Credential | Use for |
+|------------|---------|
+| `AX402_API_KEY` | Automation — most commands (apis, endpoints, domains, stats, settlements, openapi, config) |
+| `AX402_JWT` | Interactive session — **required** for `keys list/create/revoke` and `auth me` |
+
+Create keys in the dashboard or via `auth login` → `keys create`. Scope presets: `ax402 scopes presets --json`. See [agents](../agents/README.md) for bootstrap flow.
+
+## Output
+
+Without `--json`, commands print human-readable tables and summaries. With `--json`, stdout is JSON (errors too). `auth login` without `--json` prints only the JWT token — useful for `export AX402_JWT=$(ax402 auth login ...)`.
 
 ## Command reference
 
@@ -40,15 +92,15 @@ ax402 domains list --api-id ID [--json]
 ax402 domains verify --api-id ID --domain-id ID [--json]
 ax402 domains delete --api-id ID --domain-id ID [--json]
 
-ax402 keys list [--json]
-ax402 keys create --name NAME --scopes apis:read,apis:write [--json]
-ax402 keys revoke --id ID [--json]
+ax402 keys list [--json]                              # JWT only
+ax402 keys create --name NAME --scopes apis:read,... [--json]  # JWT only
+ax402 keys revoke --id ID [--json]                    # JWT only
 
 ax402 auth login --email EMAIL --password PASS [--json]
-ax402 auth me [--json]
+ax402 auth me [--json]                                # JWT only
 
-ax402 openapi parse --file PATH [--spec YAML_OR_JSON] [--json]
-ax402 openapi import --api-id ID --file PATH [--price-usdc 0.10] [--json]
+ax402 openapi parse [--file PATH] [--spec YAML_OR_JSON] [--json]
+ax402 openapi import --api-id ID [--file PATH] [--spec YAML_OR_JSON] [--price-usdc 0.10] [--json]
 
 ax402 stats overview [--days 30] [--json]
 ax402 stats api --api-id ID [--days 30] [--json]
@@ -67,6 +119,8 @@ ax402 scopes presets [--json]
 ax402 inspect url --url GATEWAY_URL [--method GET] [--json]
 ax402 pay url --url GATEWAY_URL [--method GET] [--json]
 ```
+
+`apis create --pay-to` is required when the account uses `user_wallet` payout mode (typical for seller accounts).
 
 Exit codes: 0 success, 1 API error, 2 usage error.
 

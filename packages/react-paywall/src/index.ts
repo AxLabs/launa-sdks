@@ -15,7 +15,7 @@ export {
   type PaywallLabels,
   type PaywallTheme,
 } from './appearance.js'
-export { PaywallGate, type PaywallGateProps } from './PaywallGate.js'
+export { PaywallGate, type PaywallGateProps, type PaywallUnlockedState } from './PaywallGate.js'
 export { PaywallLockedOverlay, type PaywallLockedOverlayProps, type PaywallLockedOverlayState } from './PaywallLockedOverlay.js'
 export { PaywallAgentDiscovery, type PaywallAgentDiscoveryProps } from './PaywallAgentDiscovery.js'
 export {

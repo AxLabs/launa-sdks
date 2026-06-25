@@ -194,6 +194,35 @@ function isEip712DomainNotFound(error: unknown): boolean {
   )
 }
 
+/** Contract has no usable ERC-5267 domain (missing fn or call reverts — e.g. Base Sepolia USDC). */
+function shouldUseMessageDomain(error: unknown): boolean {
+  if (isEip712DomainNotFound(error)) {
+    return true
+  }
+  let current: unknown = error
+  for (let depth = 0; depth < 6 && current !== undefined && current !== null; depth++) {
+    if (typeof current === 'object' && current !== null && 'name' in current) {
+      const name = (current as { name: string }).name
+      if (
+        name === 'ContractFunctionRevertedError' ||
+        name === 'ContractFunctionExecutionError' ||
+        name === 'CallExecutionError'
+      ) {
+        return true
+      }
+    }
+    if (typeof current === 'object' && current !== null && 'cause' in current) {
+      current = (current as { cause?: unknown }).cause
+      continue
+    }
+    break
+  }
+  if (error instanceof Error && /execution reverted/i.test(error.message)) {
+    return true
+  }
+  return false
+}
+
 function logEip712(debug: boolean | undefined, ...args: unknown[]): void {
   if (!debug) {
     return
@@ -215,7 +244,7 @@ export async function contractSupportsEip712Domain(
     await getEip712Domain(publicClient, { address: verifyingContract })
     return true
   } catch (error) {
-    if (isEip712DomainNotFound(error)) {
+    if (shouldUseMessageDomain(error)) {
       return false
     }
     throw error
@@ -245,10 +274,10 @@ export async function resolveSigningDomain(
     logEip712(options.debugEip712, 'ERC-5267', verifyingContract, domain)
     return { domain, domainSource: 'erc5267' }
   } catch (error) {
-    if (isEip712DomainNotFound(error)) {
+    if (shouldUseMessageDomain(error)) {
       logEip712(
         options.debugEip712,
-        'no eip712Domain() on',
+        'no usable eip712Domain() on',
         verifyingContract,
         'using payload domain',
       )
