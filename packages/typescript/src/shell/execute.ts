@@ -178,7 +178,7 @@ export async function runShellCommand(
       const email = flag(parsed, "--email");
       const password = flag(parsed, "--password");
       if (!email || !password) return usage("--email and --password required");
-      const baseUrl = ctx.baseUrl ?? "http://api.localhost:8090";
+      const baseUrl = ctx.baseUrl ?? "https://api.ax402.io";
       const guest = new Ax402Client({ baseUrl });
       return { ok: true, data: await guest.auth.login(email, password) };
     }

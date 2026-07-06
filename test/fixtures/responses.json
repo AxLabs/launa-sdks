@@ -15,10 +15,10 @@
     }
   },
   "platformConfig": {
-    "platform_domain": "localhost",
-    "gateway_cname_target": "gateway.localhost",
+    "platform_domain": "ax402.io",
+    "gateway_cname_target": "gateway.ax402.io",
     "gateway_port": 8090,
-    "admin_host": "api.localhost"
+    "admin_host": "api.example.com"
   },
   "api": {
     "id": "507f1f77bcf86cd799439012",
@@ -30,7 +30,7 @@
     "domains": [
       {
         "id": "507f1f77bcf86cd799439013",
-        "hostname": "test-api.localhost",
+        "hostname": "test-api.example.com",
         "is_primary": true,
         "is_default_subdomain": true
       }
@@ -59,7 +59,7 @@
     "verification_token": "x402-token",
     "verification_record": "_x402-verify.api.example.com",
     "cname_record": "api",
-    "cname_target": "gateway.localhost",
+    "cname_target": "gateway.ax402.io",
     "instructions": ["Add CNAME", "Add TXT", "Verify"]
   },
   "apiKey": {
@@ -125,7 +125,7 @@
     "gateway_hostname": "x402.example.com",
     "upstream_base_url": "https://example.com/api",
     "cname_record": "x402",
-    "cname_target": "gateway.localhost",
+    "cname_target": "gateway.ax402.io",
     "txt_record": "_x402-verify.x402.example.com"
   }
 }

@@ -14,7 +14,7 @@ describe("formatHumanOutput", () => {
           upstream_base_url: "https://postman-echo.com",
           pay_to_mode: "user_wallet",
           pay_to_address: "0x6d5aB248dFB8074812d841B06DE7B3382230b4FF",
-          domains: [{ hostname: "echo.staging.ax402.io", is_primary: true, verified_at: "2026-01-01" }],
+          domains: [{ hostname: "my-api.ax402.io", is_primary: true, verified_at: "2026-01-01" }],
         },
       ],
       "apis",
@@ -24,7 +24,7 @@ describe("formatHumanOutput", () => {
     expect(out).toContain("6a1def0956a1f09595ac6087");
     expect(out).toContain("Postman Echo");
     expect(out).toContain("Live");
-    expect(out).toContain("echo.staging.ax402.io");
+    expect(out).toContain("my-api.ax402.io");
     expect(out).not.toContain("[{");
   });
 

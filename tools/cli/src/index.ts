@@ -19,7 +19,7 @@ function usage(msg?: string): never {
 }
 
 function client(): Ax402Client {
-  const baseUrl = process.env.AX402_BASE_URL ?? "http://api.localhost:8090";
+  const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
   const apiKey = process.env.AX402_API_KEY;
   const token = process.env.AX402_JWT;
   if (!apiKey && !token) usage("AX402_API_KEY or AX402_JWT required");
@@ -31,7 +31,7 @@ async function main() {
   if (!parsed.cmd) usage();
 
   const c = client();
-  const baseUrl = process.env.AX402_BASE_URL ?? "http://api.localhost:8090";
+  const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
 
   const result = await runShellCommand(parsed, {
     client: c,

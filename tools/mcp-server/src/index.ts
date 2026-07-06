@@ -6,7 +6,7 @@ import { Ax402Client } from "@axlabs/ax402-sdk";
 import { createToolHandlers } from "./tools.js";
 
 function client(): Ax402Client {
-  const baseUrl = process.env.AX402_BASE_URL ?? "http://api.localhost:8090";
+  const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
   const apiKey = process.env.AX402_API_KEY;
   if (!apiKey) throw new Error("AX402_API_KEY required");
   return new Ax402Client({ baseUrl, apiKey });

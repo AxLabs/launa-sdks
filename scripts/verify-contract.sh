@@ -2,15 +2,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-ROUTER="$ROOT/../ax402-backend/internal/admin/router.go"
 OPENAPI="$ROOT/openapi/control-plane.yaml"
 
-if [[ ! -f "$ROUTER" ]]; then
-  echo "router not found: $ROUTER" >&2
-  exit 1
-fi
-
-# Expected routes from ax402-backend router (method + chi path pattern)
+# Routes covered by this SDK's OpenAPI contract
 EXPECTED=(
   "POST /auth/signup"
   "POST /auth/login"
