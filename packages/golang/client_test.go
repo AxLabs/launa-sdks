@@ -41,6 +41,8 @@ func loadMockRoutes() []mockRoute {
 		{"POST", "/auth/verify-email", 200, `{"status":"verified"}`, false, false},
 		{"GET", "/auth/me", 200, "user", false, true},
 		{"POST", "/auth/resend-verification", 200, `{"status":"sent"}`, false, true},
+		{"POST", "/auth/forgot-password", 200, `{"status":"sent"}`, false, false},
+		{"POST", "/auth/reset-password", 200, `{"status":"ok"}`, false, false},
 		{"PUT", "/auth/password", 200, "statusOk", false, true},
 		{"POST", "/auth/onboarding/complete", 200, "user", false, true},
 		{"GET", "/auth/scopes", 200, "scopes", false, true},
@@ -51,6 +53,7 @@ func loadMockRoutes() []mockRoute {
 		{"GET", "/domains/suggest", 200, "domainPlan", false, true},
 		{"GET", "/supported-networks", 200, "supportedNetworks", false, true},
 		{"GET", "/stats/overview", 200, "statsOverview", false, true},
+		{"GET", "/exchange-rates/supported", 200, "exchangeRatesSupported", false, true},
 		{"POST", "/openapi/parse", 200, "parsedOpenAPI", false, true},
 		{"GET", "/apis", 200, `[` + string(fixtures["api"]) + `]`, false, true},
 		{"POST", "/apis", 201, "api", false, true},
@@ -65,6 +68,7 @@ func loadMockRoutes() []mockRoute {
 		{"GET", "/apis/api1/domains", 200, `[` + string(fixtures["domainSetup"]) + `]`, false, true},
 		{"POST", "/apis/api1/domains", 201, "domainSetup", false, true},
 		{"POST", "/apis/api1/domains/dom1/verify", 200, `{"status":"verified"}`, false, true},
+		{"DELETE", "/apis/api1/domains/dom1", 204, "", true, true},
 		{"GET", "/apis/api1/stats", 200, "statsOverview", false, true},
 		{"GET", "/apis/api1/settlements", 200, "settlements", false, true},
 		{"GET", "/apis/api1/batch-settlements", 200, "batchSettlements", false, true},
@@ -149,6 +153,12 @@ func TestAllRoutes(t *testing.T) {
 	if _, err := cl.ResendVerification(ctx); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := cl.ForgotPassword(ctx, "a@b.com"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.ResetPassword(ctx, "tok", "password2"); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := cl.ChangePassword(ctx, "old", "newpass12"); err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +186,17 @@ func TestAllRoutes(t *testing.T) {
 	if _, err := cl.SupportedNetworks(ctx); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := cl.StatsOverview(ctx, 30); err != nil {
+	overview, err := cl.StatsOverview(ctx, 30)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if overview["total_requests"] != float64(10) {
+		t.Fatalf("total_requests: %v", overview["total_requests"])
+	}
+	if overview["display_currency"] != "usd" {
+		t.Fatalf("display_currency: %v", overview["display_currency"])
+	}
+	if _, err := cl.ExchangeRatesSupported(ctx); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := cl.ParseOpenAPI(ctx, "openapi: 3"); err != nil {
@@ -222,7 +242,13 @@ func TestAllRoutes(t *testing.T) {
 	if _, err := cl.VerifyDomain(ctx, "api1", "dom1"); err != nil {
 		t.Fatal(err)
 	}
+	if err := cl.DeleteDomain(ctx, "api1", "dom1"); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := cl.APIStats(ctx, "api1", 30); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.ExchangeRatesSupported(ctx); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := cl.ListSettlements(ctx, "api1"); err != nil {
@@ -234,6 +260,20 @@ func TestAllRoutes(t *testing.T) {
 }
 
 func boolPtr(v bool) *bool { return &v }
+
+func TestUnauthenticatedMe(t *testing.T) {
+	srv := newMockServer(t)
+	defer srv.Close()
+	cl := NewClient(srv.URL, Credentials{})
+	_, err := cl.Me(context.Background())
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	axErr, ok := err.(*Error)
+	if !ok || axErr.Status != 401 {
+		t.Fatalf("got %v", err)
+	}
+}
 
 func TestErrorParsing(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
