@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["-y", "@axlabs/ax402-mcp-server"],
       "env": {
-        "AX402_BASE_URL": "http://api.localhost:8090",
+        "AX402_BASE_URL": "https://api.ax402.io",
         "AX402_API_KEY": "ax402_live_your_key_here"
       }
     }
