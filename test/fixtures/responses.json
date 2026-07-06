@@ -102,13 +102,21 @@
     "payment_required": 5,
     "paid_requests": 3,
     "total_earnings": [],
+    "display_currency": "usd",
+    "total_earnings_fiat": "2.50",
+    "voucher_earnings_fiat": "0.50",
     "earnings_by_day": [],
+    "earnings_by_day_fiat": [],
     "requests_by_day": [],
     "paid_by_day": [],
     "unique_payers": 1,
     "top_payers": [],
     "recent_payments": [],
     "top_apis": []
+  },
+  "exchangeRatesSupported": {
+    "currencies": ["usd", "eur"],
+    "default": "usd"
   },
   "settlements": [],
   "batchSettlements": [],

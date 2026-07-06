@@ -24,6 +24,7 @@ import {
   isBatchSettlementScheme,
   prepareBatchChannelForPayment,
   resolveBatchChannelStorage,
+  seedBatchChannelFromRequirements,
   getBatchChannelStatus,
   resolveBatchPaymentKind,
   withReadContractSigner,
@@ -33,6 +34,7 @@ import {
 } from './batch.js'
 import { defaultPaywallLabels, type PaywallLabels } from './appearance.js'
 import { ensurePaymentPrerequisites } from './permit2.js'
+import { DEFAULT_BATCH_PAYWALL_NETWORK } from './networks.js'
 import {
   wrapFetchWithPayment,
   x402Client,
@@ -342,6 +344,7 @@ export function PaywallProvider({
         if (isBatchSettlementScheme(req.scheme) && policyAllowsBatch(policy)) {
           enrichBatchPaymentRequirements(req, batchWithdrawDelaySecs)
           if (batchStorageRef.current) {
+            seedBatchChannelFromRequirements(batchStorageRef.current, req)
             const batchSigner = withReadContractSigner(signer, req.network, rpc)
             await prepareBatchChannelForPayment(
               batchSigner,
@@ -370,7 +373,7 @@ export function PaywallProvider({
         const batchNetwork =
           selectedNetworkRef.current ??
           policy.preferredNetworks?.split(',')[0]?.trim() ??
-          'eip155:84532'
+          DEFAULT_BATCH_PAYWALL_NETWORK
         const batchSigner = withReadContractSigner(signer, batchNetwork, rpc)
         client.register(
           'eip155:*',
@@ -400,6 +403,13 @@ export function PaywallProvider({
           parsedBody,
         )
         selection = createSelectionResult(paymentRequired.accepts, policy)
+        if (batchStorageRef.current) {
+          for (const accept of paymentRequired.accepts) {
+            if (isBatchSettlementScheme(accept.scheme)) {
+              seedBatchChannelFromRequirements(batchStorageRef.current, accept)
+            }
+          }
+        }
       }
 
       return {

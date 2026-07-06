@@ -10,6 +10,7 @@ import {
 } from 'viem'
 import { getEip712Domain } from 'viem/actions'
 import { chainForNetwork, rpcUrlForNetwork } from './permit2.js'
+import { DEFAULT_PAYWALL_NETWORK } from './networks.js'
 import type { RpcConfig } from './types.js'
 
 export type Eip712SignMessage = {
@@ -261,7 +262,7 @@ export async function resolveSigningDomain(
   }
 
   const network =
-    options.getNetwork?.() ?? networkFromDomain(message.domain) ?? 'eip155:84532'
+    options.getNetwork?.() ?? networkFromDomain(message.domain) ?? DEFAULT_PAYWALL_NETWORK
   const publicClient = createPublicClient({
     chain: chainForNetwork(network, options.rpc),
     transport: http(rpcUrlForNetwork(network, options.rpc)),
@@ -294,7 +295,7 @@ export async function signTypedDataWithEip712Domain(
 ): Promise<`0x${string}`> {
   const { domain, domainSource } = await resolveSigningDomain(message, options)
   const network =
-    options.getNetwork?.() ?? networkFromDomain(domain) ?? 'eip155:84532'
+    options.getNetwork?.() ?? networkFromDomain(domain) ?? DEFAULT_PAYWALL_NETWORK
   const types = typesForSigning(domain, message.types)
 
   const ctx: SignTypedDataContext = {

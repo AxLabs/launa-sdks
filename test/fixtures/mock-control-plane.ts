@@ -36,6 +36,7 @@ export const MOCK_ROUTES: MockRoute[] = [
   { method: "GET", path: "/domains/suggest", body: fixtures.domainPlan },
   { method: "GET", path: "/supported-networks", body: fixtures.supportedNetworks },
   { method: "GET", path: "/stats/overview", body: fixtures.statsOverview },
+  { method: "GET", path: "/exchange-rates/supported", body: fixtures.exchangeRatesSupported },
   { method: "POST", path: "/openapi/parse", body: fixtures.parsedOpenAPI },
   { method: "GET", path: "/apis", body: [fixtures.api] },
   { method: "POST", path: "/apis", status: 201, body: fixtures.api },

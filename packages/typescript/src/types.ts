@@ -20,6 +20,7 @@ export type User = {
   totp_enabled?: boolean;
   passkey_count?: number;
   preferred_environment?: Environment;
+  display_currency?: string;
 };
 
 export type SupportedKind = {
@@ -341,13 +342,24 @@ export type OpenAPIImportResult = {
   endpoints: Endpoint[];
 };
 
+export type DayFiatAmount = {
+  date: string;
+  amount: string;
+  currency: string;
+  count: number;
+};
+
 export type StatsOverview = {
   total_requests: number;
   payment_required: number;
   paid_requests: number;
   total_earnings: EarningsByNetwork[];
   voucher_earnings?: EarningsByNetwork[];
+  display_currency?: string;
+  total_earnings_fiat?: string;
+  voucher_earnings_fiat?: string;
   earnings_by_day: DayAmount[];
+  earnings_by_day_fiat?: DayFiatAmount[];
   requests_by_day: DayCount[];
   paid_by_day: DayCount[];
   unique_payers: number;
@@ -526,9 +538,24 @@ export type SellerCustodialAccount = {
 
 export type IncomeSummary = {
   lifetime_earnings_atomic: number;
+  lifetime_earnings_fiat?: string;
+  display_currency?: string;
   custodial_balances: SellerCustodialAccount[];
   pending_payouts: number;
   income_enabled: boolean;
+};
+
+export type ExchangeRatesSupported = {
+  currencies: string[];
+  default: string;
+};
+
+export type ExchangeRateLookup = {
+  price_token_id: string;
+  rate: string;
+  rate_date: string;
+  source: string;
+  quote: string;
 };
 
 export type SellerIncomeEntry = {

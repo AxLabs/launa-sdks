@@ -50,23 +50,49 @@ function hasUsableChannelBalance(ctx: Record<string, unknown> | undefined): bool
   }
 }
 
+function hasBatchSessionMetadata(ctx: Record<string, unknown> | undefined): boolean {
+  if (!ctx) return false
+  return (
+    ctx.chargedCumulativeAmount !== undefined ||
+    ctx.signedMaxClaimable !== undefined ||
+    ctx.totalClaimed !== undefined
+  )
+}
+
+/** Charged amount used for voucher cumulative signing (not signedMax ceiling). */
+function storedChargedAmount(ctx: Record<string, unknown> | undefined): bigint {
+  const charged = parseStoredBigInt(ctx?.chargedCumulativeAmount)
+  if (charged !== undefined) return charged
+  const totalClaimed = parseStoredBigInt(ctx?.totalClaimed)
+  if (totalClaimed !== undefined) return totalClaimed
+  return 0n
+}
+
 /** Treat empty/zero cached balance as a miss so @x402/evm recoverChannel reads on-chain escrow. */
 export function createRecoveringChannelStorage(inner: BatchChannelStorage): BatchChannelStorage {
   return {
     async get(key) {
       const ctx = await inner.get(key)
-      if (!hasUsableChannelBalance(ctx)) {
-        await inner.delete(key)
-        return undefined
+      if (!ctx) return undefined
+      if (hasUsableChannelBalance(ctx) || hasBatchSessionMetadata(ctx)) {
+        return ctx
       }
-      return ctx
+      await inner.delete(key)
+      return undefined
     },
     async set(key, value) {
-      if (!hasUsableChannelBalance(value)) {
+      let next = value
+      if (!hasUsableChannelBalance(next)) {
+        const prev = await inner.get(key)
+        if (prev) {
+          next = { ...prev, ...value }
+        }
+      }
+      if (!hasUsableChannelBalance(next) && !hasBatchSessionMetadata(next)) {
         await inner.delete(key)
         return
       }
-      return inner.set(key, value)
+      return inner.set(key, next)
     },
     delete(key) {
       return inner.delete(key)
@@ -170,7 +196,8 @@ function batchDebug(enabled: boolean | undefined, message: string, data?: unknow
   }
 }
 
-function seedChannelFromRequirementExtra(
+/** Sync client channel storage from batch accept extra (402 channelState / voucherState). */
+export function seedBatchChannelFromRequirements(
   storage: BatchChannelStorage,
   requirements: PaymentRequirements,
 ): void {
@@ -252,7 +279,7 @@ export async function prepareBatchChannelForPayment(
   }
   const channelId = computeBatchChannelId(signer, requirements, salt, withdrawDelaySecs)
   const ctx = await storage.get(channelId.toLowerCase())
-  const charged = BigInt(String(ctx?.chargedCumulativeAmount ?? '0'))
+  const charged = storedChargedAmount(ctx)
   const requestAmount = BigInt(requirements.amount)
   const maxClaimable = charged + requestAmount
   if (maxClaimable > balance) {
@@ -294,18 +321,13 @@ function parseStoredBigInt(value: unknown): bigint | undefined {
   }
 }
 
-/** Align session charge ceiling with on-chain claimed total (x402 batch accounting). */
+/** Session charged total for voucher signing — never conflate with signedMax ceiling. */
 function effectiveChargedCumulative(
   prev: Record<string, unknown> | undefined,
   totalClaimedOnChain: bigint,
 ): bigint {
   const charged = parseStoredBigInt(prev?.chargedCumulativeAmount) ?? 0n
-  const signedMax = parseStoredBigInt(prev?.signedMaxClaimable) ?? 0n
-  let effective = charged > signedMax ? charged : signedMax
-  if (totalClaimedOnChain > effective) {
-    effective = totalClaimedOnChain
-  }
-  return effective
+  return totalClaimedOnChain > charged ? totalClaimedOnChain : charged
 }
 
 async function syncChannelBalanceById(
@@ -332,7 +354,7 @@ async function syncChannelBalanceById(
       balance: balance.toString(),
       totalClaimed: totalClaimed.toString(),
       chargedCumulativeAmount: charged.toString(),
-      signedMaxClaimable: (signedMax > charged ? signedMax : charged).toString(),
+      signedMaxClaimable: signedMax.toString(),
     })
     return balance
   } catch {
@@ -351,7 +373,7 @@ export async function primeBatchChannelFromChain(
   debug?: boolean,
 ): Promise<bigint> {
   enrichBatchPaymentRequirements(requirements, withdrawDelaySecs)
-  seedChannelFromRequirementExtra(storage, requirements)
+  seedBatchChannelFromRequirements(storage, requirements)
 
   const channelId = computeBatchChannelId(signer, requirements, salt, withdrawDelaySecs)
   batchDebug(debug, 'channel id', { channelId, withdrawDelay: (requirements.extra as Record<string, unknown>)?.withdrawDelay })
@@ -478,8 +500,8 @@ export async function getBatchChannelStatus(
   }
 
   const ctx = await storage.get(channelId.toLowerCase())
-  const charged = BigInt(String(ctx?.chargedCumulativeAmount ?? ctx?.signedMaxClaimable ?? '0'))
-  const signedMax = BigInt(String(ctx?.signedMaxClaimable ?? charged))
+  const charged = storedChargedAmount(ctx)
+  const signedMax = parseStoredBigInt(ctx?.signedMaxClaimable) ?? charged
   const paymentKind = await resolveBatchPaymentKind(
     signer,
     requirements,
@@ -525,7 +547,7 @@ export async function resolveBatchPaymentKind(
   enrichBatchPaymentRequirements(requirements, withdrawDelaySecs)
   const channelId = computeBatchChannelId(signer, requirements, salt, withdrawDelaySecs)
   const ctx = await storage.get(channelId.toLowerCase())
-  const charged = BigInt(String(ctx?.chargedCumulativeAmount ?? ctx?.signedMaxClaimable ?? '0'))
+  const charged = storedChargedAmount(ctx)
   const requestAmount = BigInt(requirements.amount)
   const maxClaimable = charged + requestAmount
   if (maxClaimable > balance) {

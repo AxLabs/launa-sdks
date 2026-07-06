@@ -13,6 +13,7 @@ export type {
   Eip712DomainSource,
   Eip712SignMessage,
 } from './eip712Domain.js'
+import { DEFAULT_PAYWALL_NETWORK } from './networks.js'
 import type { RpcConfig } from './types.js'
 
 function caip2ToHexChainId(network: string): `0x${string}` | null {
@@ -88,7 +89,7 @@ export function createBrowserWalletSigner(
   return toClientEvmSigner({
     address,
     async signTypedData(message) {
-      const network = getSelectedNetwork() ?? 'eip155:84532'
+      const network = getSelectedNetwork() ?? DEFAULT_PAYWALL_NETWORK
       await switchWalletToNetwork(provider, network)
       const walletClient = createWalletClient({
         account: address,

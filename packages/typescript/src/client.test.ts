@@ -28,7 +28,12 @@ describe("Ax402Client integration", () => {
     expect(await client.config.platform()).toHaveProperty("platform_domain");
     expect(await client.domains.suggest("example.com")).toHaveProperty("gateway_hostname");
     await client.auth.supportedNetworks();
-    expect(await client.stats.overview(30)).toHaveProperty("total_requests");
+    expect(await client.stats.overview(30)).toMatchObject({
+      total_requests: 10,
+      display_currency: "usd",
+      total_earnings_fiat: "2.50",
+    });
+    expect(await client.exchangeRates.supported()).toMatchObject({ default: "usd" });
     await client.openapi.parseSpec("openapi: 3");
     expect(await client.apis.list()).toHaveLength(1);
     await client.apis.create({ name: "n", slug: "s", upstream_base_url: "https://x.com" });
@@ -49,6 +54,7 @@ describe("Ax402Client integration", () => {
     await client.domains.verify("api1", "dom1");
     await client.domains.delete("api1", "dom1");
     await client.stats.forApi("api1");
+    await client.exchangeRates.supported();
     await client.settlements.list("api1");
     await client.settlements.listBatch("api1");
 

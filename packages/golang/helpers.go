@@ -6,8 +6,10 @@ import (
 )
 
 const (
-	usdcNetwork = "eip155:84532"
-	usdcAsset   = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+	USDCNetworkMainnet = "eip155:8453"
+	USDCNetworkSepolia = "eip155:84532"
+	USDCAssetMainnet   = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+	USDCAssetSepolia   = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
 )
 
 func GatewayURL(host, path string, port int) string {
@@ -23,10 +25,16 @@ func GatewayURL(host, path string, port int) string {
 }
 
 func BuildUsdcAccept(scheme, amountAtomic string) AcceptOption {
+	network := USDCNetworkMainnet
+	asset := USDCAssetMainnet
+	if scheme == "batch-settlement" {
+		network = USDCNetworkMainnet
+		asset = USDCAssetMainnet
+	}
 	base := AcceptOption{
 		Scheme:            "exact",
-		Network:           usdcNetwork,
-		Asset:             usdcAsset,
+		Network:           network,
+		Asset:             asset,
 		Amount:            amountAtomic,
 		MaxTimeoutSeconds: 300,
 		Extra: map[string]any{

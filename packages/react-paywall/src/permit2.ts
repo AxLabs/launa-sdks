@@ -14,6 +14,7 @@ import {
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { batchDepositAmount, isBatchSettlementScheme } from './batch.js'
+import { DEFAULT_RPC_BY_NETWORK } from './networks.js'
 import type { RpcConfig } from './types.js'
 
 export type Eip1193Provider = {
@@ -31,11 +32,9 @@ export function rpcUrlForNetwork(network: string, rpc?: RpcConfig): string {
   if (rpc?.defaultUrl?.trim()) {
     return rpc.defaultUrl.trim()
   }
-  if (network === 'eip155:84532') {
-    return 'https://sepolia.base.org'
-  }
-  if (network === 'eip155:12227332') {
-    return 'https://testnet.rpc.banelabs.org'
+  const builtIn = DEFAULT_RPC_BY_NETWORK[network.trim()]
+  if (builtIn) {
+    return builtIn
   }
   throw new Error(`No RPC URL for network ${network}. Pass rpc.defaultUrl or rpc.byNetwork`)
 }

@@ -66,6 +66,17 @@ export {
   type PaymentPrerequisiteOptions,
 } from './permit2.js'
 export {
+  DEFAULT_BATCH_PAYWALL_NETWORK,
+  DEFAULT_PAYWALL_NETWORK,
+  DEFAULT_RPC_BY_NETWORK,
+  NETWORK_BASE,
+  NETWORK_BASE_SEPOLIA,
+  NETWORK_NEOX_MAINNET,
+  NETWORK_NEOX_TESTNET,
+  SUPPORTED_PAYWALL_NETWORKS,
+  resolveFallbackNetwork,
+} from './networks.js'
+export {
   createBatchSettlementScheme,
   createLocalStorageChannelStorage,
   createRecoveringChannelStorage,

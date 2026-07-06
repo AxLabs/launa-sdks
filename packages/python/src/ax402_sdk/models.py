@@ -157,6 +157,13 @@ SCOPE_PRESETS: dict[str, list[str]] = {
 USDC_DECIMALS = 6
 DEFAULT_USDC = {
     "scheme": "exact",
+    "network": "eip155:8453",
+    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "max_timeout_seconds": 300,
+    "extra": {"name": "USDC", "version": "2", "assetTransferMethod": "eip3009"},
+}
+DEFAULT_USDC_SEPOLIA = {
+    "scheme": "exact",
     "network": "eip155:84532",
     "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
     "max_timeout_seconds": 300,

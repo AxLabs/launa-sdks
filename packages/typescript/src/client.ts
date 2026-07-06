@@ -18,6 +18,8 @@ import type {
   Endpoint,
   IncomeLedgerPage,
   IncomeSummary,
+  ExchangeRatesSupported,
+  ExchangeRateLookup,
   OpenAPIImportInput,
   OpenAPIImportResult,
   ParsedOpenAPI,
@@ -59,6 +61,7 @@ export class Ax402Client {
   readonly settlements: SettlementsResource;
   readonly billing: BillingResource;
   readonly income: IncomeResource;
+  readonly exchangeRates: ExchangeRatesResource;
   readonly config: ConfigResource;
 
   constructor(opts: Ax402ClientOptions) {
@@ -77,6 +80,7 @@ export class Ax402Client {
     this.settlements = new SettlementsResource(this.http);
     this.billing = new BillingResource(this.http);
     this.income = new IncomeResource(this.http);
+    this.exchangeRates = new ExchangeRatesResource(this.http);
     this.config = new ConfigResource(this.http);
   }
 
@@ -213,6 +217,13 @@ class AuthResource {
     return this.http.request<{ status: string }>("/auth/password", {
       method: "PUT",
       body: JSON.stringify({ current_password, new_password }),
+    });
+  }
+
+  patchPreferences(body: { display_currency?: string }) {
+    return this.http.request<{ display_currency?: string; status?: string }>("/auth/me/preferences", {
+      method: "PATCH",
+      body: JSON.stringify(body),
     });
   }
 
@@ -478,6 +489,23 @@ class IncomeResource {
 
   payoutRequests() {
     return this.http.request<PayoutRequest[]>("/income/payout-requests");
+  }
+}
+
+class ExchangeRatesResource {
+  constructor(private http: HttpClient) {}
+
+  supported() {
+    return this.http.request<ExchangeRatesSupported>("/exchange-rates/supported");
+  }
+
+  lookup(query: { network: string; asset: string; quote?: string; date?: string }) {
+    const q = new URLSearchParams();
+    q.set("network", query.network);
+    q.set("asset", query.asset);
+    if (query.quote) q.set("quote", query.quote);
+    if (query.date) q.set("date", query.date);
+    return this.http.request<ExchangeRateLookup>(`/exchange-rates/lookup?${q}`);
   }
 }
 

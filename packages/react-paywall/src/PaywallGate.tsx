@@ -196,7 +196,7 @@ export function PaywallGate({
       }
       const result = await unlock(resourceUrl, requestInit)
       if (result.status >= 400) {
-        throw new Error(`Payment failed: HTTP ${result.status}`)
+        throw new Error(formatPaymentFailure(result))
       }
       let parsed: unknown = result.bodyText
       try {
@@ -278,6 +278,20 @@ export function PaywallGate({
       />
     </div>
   )
+}
+
+function formatPaymentFailure(result: UnlockResult): string {
+  if (result.status === 402) {
+    const reason = result.paymentRequired?.error
+    if (reason?.includes('cumulative_amount_mismatch')) {
+      return `Payment failed: voucher total out of sync with the gateway (${reason}). Clear local batch state (localStorage keys x402-paywall:*), refresh, and pay again — you should only need one voucher signature.`
+    }
+    if (reason && reason !== 'Payment required') {
+      return `Payment failed: ${reason}. If this persists, refresh the page or clear local batch state (DevTools → Application → localStorage keys starting with x402-paywall:).`
+    }
+    return 'Payment failed: gateway rejected the voucher (HTTP 402). Check the Batch escrow panel — you may need Top up instead of Unlock. Clear x402-paywall:* localStorage if charged amount looks wrong.'
+  }
+  return `Payment failed: HTTP ${result.status}`
 }
 
 function formatFetchError(error: unknown, resourceUrl: string): string {
