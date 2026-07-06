@@ -123,12 +123,29 @@ class StatsOverview(BaseModel):
     paid_requests: int = 0
     unique_payers: int = 0
     total_earnings: list[Any] = Field(default_factory=list)
+    display_currency: str | None = None
+    total_earnings_fiat: str | None = None
+    voucher_earnings_fiat: str | None = None
     earnings_by_day: list[Any] = Field(default_factory=list)
+    earnings_by_day_fiat: list[Any] = Field(default_factory=list)
     requests_by_day: list[Any] = Field(default_factory=list)
     paid_by_day: list[Any] = Field(default_factory=list)
     top_payers: list[Any] = Field(default_factory=list)
     recent_payments: list[Any] = Field(default_factory=list)
     top_apis: list[Any] = Field(default_factory=list)
+
+
+class ExchangeRatesSupported(BaseModel):
+    currencies: list[str] = Field(default_factory=list)
+    default: str = "usd"
+
+
+class ExchangeRateLookup(BaseModel):
+    price_token_id: str
+    rate: str
+    rate_date: str
+    source: str
+    quote: str
 
 
 SCOPE_PRESETS: dict[str, list[str]] = {
@@ -155,20 +172,6 @@ SCOPE_PRESETS: dict[str, list[str]] = {
 }
 
 USDC_DECIMALS = 6
-DEFAULT_USDC = {
-    "scheme": "exact",
-    "network": "eip155:8453",
-    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    "max_timeout_seconds": 300,
-    "extra": {"name": "USDC", "version": "2", "assetTransferMethod": "eip3009"},
-}
-DEFAULT_USDC_SEPOLIA = {
-    "scheme": "exact",
-    "network": "eip155:84532",
-    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-    "max_timeout_seconds": 300,
-    "extra": {"name": "USDC", "version": "2", "assetTransferMethod": "eip3009"},
-}
 
 
 def usdc_to_atomic(amount: str) -> str:
@@ -181,9 +184,16 @@ def usdc_to_atomic(amount: str) -> str:
     return str(atomic)
 
 
-def build_usdc_accept(amount_atomic: str, scheme: str = "exact") -> dict[str, Any]:
-    out = {**DEFAULT_USDC, "amount": amount_atomic}
-    if scheme == "batch-settlement":
-        out["scheme"] = "batch-settlement"
-        out.setdefault("extra", {})["withdrawDelay"] = 900
-    return out
+def atomic_to_usdc(atomic: str) -> str:
+    if not atomic or not atomic.isdigit():
+        return "0"
+    s = atomic.zfill(USDC_DECIMALS + 1)
+    whole = s[:-USDC_DECIMALS].lstrip("0") or "0"
+    frac = s[-USDC_DECIMALS:].rstrip("0")
+    return f"{whole}.{frac}" if frac else whole
+
+
+def build_usdc_accept(amount_atomic: str, scheme: str = "exact", withdraw_delay: int | None = None) -> dict[str, Any]:
+    from .platform.helpers import build_usdc_accept as _build
+
+    return _build(amount_atomic, scheme, withdraw_delay)

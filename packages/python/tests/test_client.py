@@ -6,7 +6,7 @@ import httpx
 import pytest
 
 from ax402_sdk.client import Ax402Client
-from ax402_sdk.models import Ax402Error, StatsOverview, User
+from ax402_sdk.models import Ax402Error, ExchangeRatesSupported, StatsOverview, User
 
 FIXTURES = json.loads(
     (Path(__file__).resolve().parents[3] / "test" / "fixtures" / "responses.json").read_text()
@@ -19,6 +19,8 @@ ROUTES = [
     ("POST", "/auth/verify-email", 200, None, False),
     ("GET", "/auth/me", 200, "user", True),
     ("POST", "/auth/resend-verification", 200, None, True),
+    ("POST", "/auth/forgot-password", 200, None, False),
+    ("POST", "/auth/reset-password", 200, None, False),
     ("PUT", "/auth/password", 200, "statusOk", True),
     ("POST", "/auth/onboarding/complete", 200, "user", True),
     ("GET", "/auth/scopes", 200, "scopes", True),
@@ -29,6 +31,7 @@ ROUTES = [
     ("GET", "/domains/suggest", 200, "domainPlan", True),
     ("GET", "/supported-networks", 200, "supportedNetworks", True),
     ("GET", "/stats/overview", 200, "statsOverview", True),
+    ("GET", "/exchange-rates/supported", 200, "exchangeRatesSupported", True),
     ("POST", "/openapi/parse", 200, "parsedOpenAPI", True),
     ("GET", "/apis", 200, "api", True),
     ("POST", "/apis", 201, "api", True),
@@ -43,6 +46,7 @@ ROUTES = [
     ("GET", "/apis/api1/domains", 200, "domainSetup", True),
     ("POST", "/apis/api1/domains", 201, "domainSetup", True),
     ("POST", "/apis/api1/domains/dom1/verify", 200, None, True),
+    ("DELETE", "/apis/api1/domains/dom1", 204, None, True),
     ("GET", "/apis/api1/stats", 200, "statsOverview", True),
     ("GET", "/apis/api1/settlements", 200, "settlements", True),
     ("GET", "/apis/api1/batch-settlements", 200, "batchSettlements", True),
@@ -93,25 +97,31 @@ def test_all_routes(client: Ax402Client) -> None:
     client.auth.login("a@b.com", "password1")
     client.auth.logout()
     client.auth.verify_email("tok")
-    assert isinstance(client.auth.me(), User)
+    assert client.auth.me().email == "test@example.com"
     client.auth.resend_verification()
+    client.auth.forgot_password("a@b.com")
+    client.auth.reset_password("tok", "password2")
     client.auth.change_password("old", "newpass12")
     client.auth.complete_onboarding()
     assert client.keys.list_scopes()
-    assert client.keys.list()
+    assert len(client.keys.list()) == 1
     client.keys.create("ci", ["apis:read"])
     client.keys.revoke("key1")
-    client.config.platform()
-    client.domains.suggest("example.com")
+    assert client.config.platform().platform_domain
+    assert client.domains.suggest("example.com").gateway_hostname
     client.auth.supported_networks()
-    assert isinstance(client.stats.overview(30), StatsOverview)
+    overview = client.stats.overview(30)
+    assert overview.total_requests == 10
+    assert overview.display_currency == "usd"
+    assert overview.total_earnings_fiat == "2.50"
+    assert client.exchange_rates.supported().default == "usd"
     client.openapi.parse_spec("openapi: 3")
-    assert client.apis.list()
+    assert len(client.apis.list()) == 1
     client.apis.create({"name": "n", "slug": "s", "upstream_base_url": "https://x.com"})
     client.apis.get("api1")
     client.apis.update("api1", {"name": "n"})
     client.apis.delete("api1")
-    assert client.endpoints.list("api1")
+    assert len(client.endpoints.list("api1")) == 1
     body = {"method": "GET", "path_pattern": "/v1/*", "accepts": []}
     client.endpoints.create("api1", body)
     client.endpoints.update("api1", "ep1", {"enabled": True})
@@ -120,9 +130,20 @@ def test_all_routes(client: Ax402Client) -> None:
     client.domains.list("api1")
     client.domains.add("api1", "api.example.com")
     client.domains.verify("api1", "dom1")
-    client.stats.for_api("api1")
+    client.domains.delete("api1", "dom1")
+    assert isinstance(client.stats.for_api("api1"), StatsOverview)
+    client.exchange_rates.supported()
     client.settlements.list("api1")
     client.settlements.list_batch("api1")
+
+
+def test_unauthenticated_me_raises() -> None:
+    transport = httpx.MockTransport(_mock_handler)
+    http = httpx.Client(transport=transport, base_url="http://test")
+    client = Ax402Client("http://test", http_client=http)
+    with pytest.raises(Ax402Error) as exc:
+        client.auth.me()
+    assert exc.value.status == 401
 
 
 def test_error_parsing() -> None:

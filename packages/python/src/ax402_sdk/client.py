@@ -11,11 +11,12 @@ from .resources.billing import BillingResource
 from .resources.config import ConfigResource
 from .resources.domains import DomainsResource
 from .resources.endpoints import EndpointsResource
+from .resources.exchange_rates import ExchangeRatesResource
 from .resources.income import IncomeResource
 from .resources.keys import KeysResource
 from .resources.openapi import OpenAPIResource
-from .resources.settlements import SettlementsResource
 from .resources.stats import StatsResource
+from .resources.settlements import SettlementsResource
 
 
 class Ax402Client:
@@ -47,6 +48,7 @@ class Ax402Client:
         self.settlements = SettlementsResource(self._http)
         self.billing = BillingResource(self._http)
         self.income = IncomeResource(self._http)
+        self.exchange_rates = ExchangeRatesResource(self._http)
         self.config = ConfigResource(self._http)
 
     def set_api_key(self, api_key: str) -> None:
@@ -93,5 +95,5 @@ class Ax402Client:
 
     @classmethod
     def from_env(cls) -> Ax402Client:
-        base = os.environ.get("AX402_BASE_URL", "http://api.localhost:8090")
+        base = os.environ.get("AX402_BASE_URL", "https://api.ax402.io")
         return cls(base, api_key=os.environ.get("AX402_API_KEY"), token=os.environ.get("AX402_JWT"))

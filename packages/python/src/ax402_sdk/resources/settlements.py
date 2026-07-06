@@ -32,3 +32,18 @@ class SettlementsResource:
             params["api_id"] = api_id
         q = "&".join(f"{k}={v}" for k, v in params.items())
         return self._http.request("GET", f"/settlements?{q}")
+
+    def export_history_url(
+        self,
+        *,
+        days: int = 30,
+        api_id: str | None = None,
+        fmt: str = "csv",
+    ) -> str:
+        params: dict[str, str] = {"days": str(days), "format": fmt}
+        if api_id:
+            params["api_id"] = api_id
+        if fmt == "json":
+            params["download"] = "1"
+        q = "&".join(f"{k}={v}" for k, v in params.items())
+        return f"/settlements?{q}"

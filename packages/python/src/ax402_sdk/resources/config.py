@@ -13,3 +13,6 @@ class ConfigResource:
 
     def billing(self) -> dict:
         return self._http.request("GET", "/config/billing")
+
+    def join_waitlist(self, body: dict[str, str]) -> dict[str, str]:
+        return self._http.request("POST", "/waitlist", json_body=body)
