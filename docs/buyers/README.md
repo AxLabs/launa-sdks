@@ -19,12 +19,12 @@ You never configure a facilitator URL in buyer code — the gateway handles veri
 |----------|---------|
 | `AX402_EVM_PRIVATE_KEY` | Hex EVM key with USDC on the gateway's network (legacy: `EVM_PRIVATE_KEY`) |
 
-Fund the wallet with **testnet USDC** on the network the gateway accepts (typically Base Sepolia `eip155:84532`).
+Fund the wallet with USDC on the network shown in the gateway's payment requirements.
 
-**Staging smoke test:**
+**Example gateway URL** (use your hostname from the dashboard):
 
 ```text
-https://echo.staging.ax402.io/echo/get?test=1
+https://my-api.ax402.io/v1/echo?test=1
 ```
 
 ## Language parity
@@ -55,7 +55,7 @@ pnpm add @axlabs/ax402-sdk @x402/fetch @x402/evm viem
 import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
 
 const client = await buyerClientFromEnv();
-const result = await client.pay({ url: "https://echo.staging.ax402.io/echo/get?test=1" });
+const result = await client.pay({ url: "https://my-api.ax402.io/v1/echo?test=1" });
 const body = await result.response.text();
 console.log(result.response.status, body, result.payment);
 ```
@@ -67,7 +67,7 @@ import { payAndFetch, createEvmSignerFromPrivateKey } from "@axlabs/ax402-sdk/bu
 
 const signer = await createEvmSignerFromPrivateKey(process.env.AX402_EVM_PRIVATE_KEY!);
 const res = await payAndFetch(signer, {
-  url: "https://echo.staging.ax402.io/echo/get?test=1",
+  url: "https://my-api.ax402.io/v1/echo?test=1",
 });
 ```
 
@@ -81,7 +81,7 @@ const fetchWithPay = await createPaymentFetch(signer);
 const res = await fetchWithPay("https://myapi.example.com/v1/data");
 ```
 
-### Batch-settlement gateways (TypeScript only)
+### Batch-settlement gateways
 
 When the gateway endpoint accepts `batch-settlement`, register the batch scheme alongside `exact`:
 
@@ -94,7 +94,7 @@ const client = await buyerClientFromEnv({
     depositMultiplier: 5,
   },
 });
-const result = await client.pay({ url: "https://echo.staging.ax402.io/echo/get?test=1" });
+const result = await client.pay({ url: "https://my-api.ax402.io/v1/echo?test=1" });
 ```
 
 ### Browser wallet (extension)
@@ -117,7 +117,7 @@ import "github.com/AxLabs/ax402-sdk/go/buyer"
 c, err := buyer.NewFromPrivateKey(os.Getenv("AX402_EVM_PRIVATE_KEY"))
 if err != nil { /* handle */ }
 
-resp, err := c.Get(ctx, "https://echo.staging.ax402.io/echo/get?test=1")
+resp, err := c.Get(ctx, "https://my-api.ax402.io/v1/echo?test=1")
 if err != nil { /* handle */ }
 defer resp.Body.Close()
 
@@ -147,7 +147,7 @@ pip install "ax402-sdk[buyer]"
 ```python
 from ax402_sdk.buyer import BuyerClient
 
-result = BuyerClient.from_env().get("https://echo.staging.ax402.io/echo/get?test=1")
+result = BuyerClient.from_env().get("https://my-api.ax402.io/v1/echo?test=1")
 print(result.status_code, result.body, result.settlement)
 ```
 
@@ -159,7 +159,7 @@ import os
 
 signer = evm_signer_from_private_key(os.environ["AX402_EVM_PRIVATE_KEY"])
 async with AsyncBuyerClient(signer, batch=BatchBuyerOptions(deposit_multiplier=5)) as client:
-    result = await client.get("https://echo.staging.ax402.io/echo/get?test=1")
+    result = await client.get("https://my-api.ax402.io/v1/echo?test=1")
 ```
 
 ### Batch-settlement (sync)
@@ -168,7 +168,7 @@ async with AsyncBuyerClient(signer, batch=BatchBuyerOptions(deposit_multiplier=5
 from ax402_sdk.buyer import BuyerClient, BatchBuyerOptions
 
 result = BuyerClient.from_env(batch=BatchBuyerOptions(deposit_multiplier=5)).get(
-    "https://echo.staging.ax402.io/echo/get?test=1"
+    "https://my-api.ax402.io/v1/echo?test=1"
 )
 ```
 
@@ -176,8 +176,8 @@ result = BuyerClient.from_env(batch=BatchBuyerOptions(deposit_multiplier=5)).get
 
 ```bash
 export AX402_EVM_PRIVATE_KEY=0x...
-ax402 inspect url --url https://echo.staging.ax402.io/echo/get?test=1 --json
-ax402 pay url --url https://echo.staging.ax402.io/echo/get?test=1 --json
+ax402 inspect url --url https://my-api.ax402.io/v1/echo?test=1 --json
+ax402 pay url --url https://my-api.ax402.io/v1/echo?test=1 --json
 ```
 
 MCP tool `ax402_pay_url` uses the same env var when set. See [mcp](../mcp/README.md).
@@ -194,6 +194,4 @@ MCP tool `ax402_pay_url` uses the same env var when set. See [mcp](../mcp/README
 
 ## Protocol reference
 
-Signing and settlement semantics: [x402-foundation/x402](https://github.com/x402-foundation/x402).
-
-AxLabs testnet facilitator (used by gateways, not called directly from buyer code): `https://ax402.testnet.app.mf.axlabs.net`.
+Signing and settlement semantics: [x402-foundation/x402](https://github.com/x402-foundation/x402). Buyer clients never call the facilitator directly — the gateway handles verify and settle.

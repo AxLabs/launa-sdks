@@ -25,9 +25,7 @@ const client = new Ax402Client({
 const apis = await client.apis.list();
 ```
 
-Resources: `auth`, `keys`, `apis`, `endpoints`, `domains`, `openapi`, `stats`, `settlements`, `config`.
-
-TypeScript has the broadest control-plane surface (MFA, passkeys, facilitator stats, global payment history). Go and Python target scoped API-key automation — see [buyers](../buyers/README.md) for buyer parity.
+Resources: `auth`, `keys`, `apis`, `endpoints`, `domains`, `openapi`, `stats`, `settlements`, `billing`, `income`, `exchangeRates`, `config`.
 
 ## Buyer
 
@@ -38,7 +36,7 @@ import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
 
 const client = await buyerClientFromEnv();
 const { response, payment } = await client.pay({
-  url: "https://echo.staging.ax402.io/echo/get?test=1",
+  url: "https://my-api.ax402.io/v1/echo?test=1",
 });
 ```
 
@@ -52,7 +50,7 @@ Browser wallet: `createEvmSignerFromBrowserProvider()` + `BuyerClient.create(sig
 
 ## Platform helpers
 
-`SCOPE_PRESETS`, `usdcToAtomic`, `buildUsdcAccept`, `buildBatchUsdcAccept`, `gatewayURL`, `setupApiWithDefaultDomain`, `wrapOpenAPI`.
+`SCOPE_PRESETS`, `usdcToAtomic`, `atomicToUsdc`, `buildUsdcAccept`, `gatewayURL`, `setupApiWithDefaultDomain`, `wrapOpenAPI`.
 
 ## Build & test
 
@@ -60,3 +58,7 @@ Browser wallet: `createEvmSignerFromBrowserProvider()` + `BuyerClient.create(sig
 pnpm --filter @axlabs/ax402-sdk build
 pnpm --filter @axlabs/ax402-sdk test
 ```
+
+## Examples
+
+See [examples/typescript/](../../examples/typescript/) — setup API, pay gateway, stats, wrap OpenAPI. Run with `npx tsx examples/typescript/<script>.ts`.

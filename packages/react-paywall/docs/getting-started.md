@@ -37,7 +37,7 @@ export function ArticleRoute() {
       rpc={{ defaultUrl: 'https://sepolia.base.org' }}
     >
       <PaywallGate
-        resourceUrl="https://echo.staging.ax402.io/echo/get?test=1"
+        resourceUrl="https://my-api.ax402.io/v1/echo?test=1"
         title="Unlock full article"
         description="One-time micropayment via x402."
       >
@@ -59,7 +59,7 @@ export function ArticleRoute() {
 
 Browsers block cross-origin **402** responses without `Access-Control-Allow-Origin`. Options:
 
-- Proxy the seller through your dev server (see `ax402-paywall-demo/demo/vite.config.ts`).
+- Proxy gateway requests through your dev server (configure your bundler's dev proxy to forward `/gateway` to your gateway origin).
 - Or host the SPA on the same origin as the gateway.
 
 ## Headless / testing
@@ -76,4 +76,4 @@ No wallet UI is shown; signing uses the key directly.
 
 - [Theming & branding](./theming.md) — match your product
 - [Components](./components.md) — full API
-- [Examples](./examples.md) — staging echo, dark theme, custom overlay
+- [Examples](./examples.md) — branded themes, custom overlay, programmatic unlock

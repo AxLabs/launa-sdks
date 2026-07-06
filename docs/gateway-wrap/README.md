@@ -11,11 +11,11 @@ Buyer (x402 client) → gateway hostname → 402 + payment requirements
 
 ## Steps
 
-1. Sign up and verify email in the dashboard
+1. Sign up and verify email in the [Ax402 dashboard](https://ax402.io)
 2. Register an API with upstream base URL and pay-to wallet
 3. Add endpoints (method, path pattern, x402 accept options)
-4. Publish default subdomain or verify custom domain (CNAME to your assigned gateway server + TXT)
-5. Test with a buyer client against the gateway hostname
+4. Publish default subdomain or verify custom domain (CNAME + TXT)
+5. Test with a buyer client against your gateway hostname
 
 ## When to use
 
@@ -26,4 +26,5 @@ Buyer (x402 client) → gateway hostname → 402 + payment requirements
 ## Related
 
 - [Buyer clients](../buyers/README.md)
-- Platform: [ax402-frontend `/docs/gateway-wrap`](https://github.com/AxLabs/ax402-frontend) (dashboard, DNS, OpenAPI import)
+- [SDK integration](../sdk-integration/README.md)
+- Dashboard: [ax402.io/docs/gateway-wrap](https://ax402.io/docs/gateway-wrap)

@@ -8,7 +8,7 @@ Model Context Protocol server in `tools/mcp-server/`. Workspace-only — build f
 pnpm --filter @axlabs/ax402-mcp-server build
 
 AX402_API_KEY=ax402_live_... \
-AX402_BASE_URL=http://api.localhost:8090 \
+AX402_BASE_URL=https://api.ax402.io \
 node tools/mcp-server/dist/index.js
 ```
 
@@ -38,4 +38,4 @@ Auth: `AX402_API_KEY` only (no JWT).
 
 Cursor config: point `command` at `node` and `args` at the built `dist/index.js` path.
 
-See [agents](../agents/README.md). Hosted docs: ax402-frontend `/docs/mcp`.
+See [agents](../agents/README.md). More docs: [ax402.io/docs/mcp](https://ax402.io/docs/mcp).

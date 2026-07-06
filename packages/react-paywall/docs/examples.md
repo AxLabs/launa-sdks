@@ -1,24 +1,12 @@
 # Examples
 
-## Live demo (`ax402-paywall-demo`)
-
-Run `make demo` from `ax402-paywall-demo/`. The Vite app includes five switchable brand presets (AxLabs, Herald, Neon Labs, Mint SaaS, Ocean Data) that showcase:
-
-- `appearance.theme` CSS tokens (accent, card, overlay, radii, fonts)
-- `appearance.brand` logo slot
-- `appearance.labels` button and agent copy
-- `appearance.classNames` per-slot overrides
-- `agentInstructions` and the in-page agent manifest (`#x402-agent-manifest`)
-
-Toggle **Theme** and **Scheme** (exact vs batch-settlement) in the demo header. Each theme includes sample unlock copy plus a collapsible raw gateway response. Source: `demo/src/themes.tsx`.
-
 ## Gateway proxy (local dev)
 
 ```tsx
-<PaywallGate resourceUrl="/gateway/echo/get?test=1" title="Unlock response" />
+<PaywallGate resourceUrl="/gateway/v1/echo?test=1" title="Unlock response" />
 ```
 
-Proxy `/gateway` → your gateway origin in Vite (see `ax402-paywall-demo/demo/vite.config.ts`).
+Proxy `/gateway` to your gateway origin in your bundler dev config.
 
 ## Branded publisher
 
@@ -42,8 +30,8 @@ Proxy `/gateway` → your gateway origin in Vite (see `ax402-paywall-demo/demo/v
       connectWallet: 'Sign in with wallet',
     },
   }}
-  policy={{ preferredNetworks: 'eip155:84532' }}
-  rpc={{ defaultUrl: 'https://sepolia.base.org' }}
+  policy={{ preferredNetworks: 'eip155:8453' }}
+  rpc={{ defaultUrl: 'https://mainnet.base.org' }}
 >
   <PaywallGate
     resourceUrl="https://api.publisher.com/v1/story/42"

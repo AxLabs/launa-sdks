@@ -4,9 +4,11 @@ Ax402 ships control-plane clients (seller automation) and buyer helpers (pay gat
 
 | Language | Package | Control plane | Buyer |
 |----------|---------|:-------------:|:-----:|
-| TypeScript | `@axlabs/ax402-sdk` | Full (+ MFA, facilitator) | `exact` + `batch-settlement` |
-| Go | `github.com/AxLabs/ax402-sdk/go` | Core automation | `exact` |
-| Python | `ax402-sdk` | Core automation | `exact` (+ async) |
+| TypeScript | `@axlabs/ax402-sdk` | Full | `exact` + `batch-settlement` |
+| Go | `github.com/AxLabs/ax402-sdk/go` | Full | `exact` + `batch-settlement` |
+| Python | `ax402-sdk` | Full | `exact` + `batch-settlement` (+ async) |
+
+All three SDKs expose the same control-plane resources: `auth`, `keys`, `apis`, `endpoints`, `domains`, `openapi`, `stats`, `settlements`, `billing`, `income`, `exchangeRates`, and `config`. Platform helpers (`buildUsdcAccept`, `wrapOpenAPI`, `setupApiWithDefaultDomain`, etc.) are available in each language.
 
 ## Guides
 
@@ -16,6 +18,8 @@ Ax402 ships control-plane clients (seller automation) and buyer helpers (pay gat
 | Go | [go](./go/README.md) |
 | Python | [python](./python/README.md) |
 
+Runnable scripts: [examples/](../../examples/README.md).
+
 ## Paying gateway URLs
 
 Start here if you consume paid APIs: **[buyers](../buyers/README.md)**.
@@ -24,12 +28,4 @@ Buyer clients sign x402 payments against **gateway hostnames** — not `AX402_BA
 
 For browser SPAs, use [`@axlabs/x402-react-paywall`](../packages/react-paywall/docs/README.md).
 
-## Control plane parity notes
-
-All three languages cover apis, endpoints, domains, openapi, stats, per-API settlements, and platform config.
-
-**TypeScript-only today:** MFA/passkeys/TOTP, facilitator config/stats/events, global payment history (`GET /settlements`), preferred environment.
-
-**Backend-only (no SDK yet):** billing, income/payouts, batch channel settings (`/apis/{id}/batch/*`).
-
-OpenAPI contract: [openapi/control-plane.yaml](../../openapi/control-plane.yaml) — lags backend on billing, income, and MFA routes.
+OpenAPI contract: [openapi/control-plane.yaml](../../openapi/control-plane.yaml).

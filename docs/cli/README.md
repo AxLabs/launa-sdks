@@ -9,13 +9,13 @@ pnpm --filter @axlabs/ax402-cli build
 node tools/cli/dist/index.js apis list --json
 ```
 
-## Quick start (local)
+## Quick start
 
-Requires a running control plane (default `http://api.localhost:8090`). See the [ax402 full-stack dev guide](../../ax402/DEVELOPMENT.md) or run ax402-backend locally.
+Set `AX402_BASE_URL` to your Ax402 API URL from the dashboard.
 
 ```bash
 pnpm --filter @axlabs/ax402-cli build
-export AX402_BASE_URL=http://api.localhost:8090
+export AX402_BASE_URL=https://api.ax402.io
 
 # 1. Log in (JWT) — prints the token to stdout when --json is omitted
 export AX402_JWT=$(node tools/cli/dist/index.js auth login \
@@ -52,7 +52,7 @@ Run `ax402 config platform --json` for `platform_domain` and gateway hostname pa
 
 | Variable | Purpose |
 |----------|---------|
-| `AX402_BASE_URL` | Control plane URL (default `http://api.localhost:8090`) |
+| `AX402_BASE_URL` | Control plane URL (default `https://api.ax402.io`) |
 | `AX402_API_KEY` | Scoped API key (`ax402_live_...`) for automation |
 | `AX402_JWT` | Session token from `auth login` — alternative to API key |
 | `AX402_EVM_PRIVATE_KEY` | `pay url` only — signs x402 payments (legacy alias: `EVM_PRIVATE_KEY`) |
@@ -124,4 +124,4 @@ ax402 pay url --url GATEWAY_URL [--method GET] [--json]
 
 Exit codes: 0 success, 1 API error, 2 usage error.
 
-Hosted docs: ax402-frontend `/docs/cli`.
+More docs: [ax402.io/docs/cli](https://ax402.io/docs/cli).

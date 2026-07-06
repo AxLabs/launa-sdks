@@ -17,25 +17,27 @@ from ax402_sdk import Ax402Client
 client = Ax402Client.from_env()  # AX402_BASE_URL, AX402_API_KEY or AX402_JWT
 
 apis = client.apis.list()
-api = client.apis.create(name="My API", slug="myapi", upstream_base_url="https://api.example.com")
+api = client.apis.create({
+    "name": "My API",
+    "slug": "myapi",
+    "upstream_base_url": "https://api.example.com",
+})
 ```
 
-Resource-style API: `client.auth`, `client.apis`, `client.endpoints`, `client.domains`, `client.openapi`, `client.stats`, `client.settlements`, `client.config`.
+Resource-style API: `client.auth`, `client.keys`, `client.apis`, `client.endpoints`, `client.domains`, `client.openapi`, `client.stats`, `client.settlements`, `client.billing`, `client.income`, `client.exchange_rates`, `client.config`.
 
 Flat back-compat aliases (`list_apis`, `stats_overview`, etc.) remain on `Ax402Client`.
 
-Python matches Go for core seller automation. JWT-only routes (MFA, billing, income) are TypeScript-only today.
-
-Helpers: `gateway_url`, `wrap_openapi`, `SCOPE_PRESETS`, `usdc_to_atomic`, `build_usdc_accept`.
+Helpers: `gateway_url`, `gateway_base_url`, `wrap_openapi`, `setup_api_with_default_domain`, `SCOPE_PRESETS`, `usdc_to_atomic`, `build_usdc_accept`.
 
 ## Buyer
 
-Pay gateway URLs with EVM `exact` scheme. Full guide: [buyers](../buyers/README.md).
+Pay gateway URLs with EVM `exact` or `batch-settlement`. Full guide: [buyers](../buyers/README.md).
 
 ```python
 from ax402_sdk.buyer import BuyerClient
 
-result = BuyerClient.from_env().get("https://echo.staging.ax402.io/echo/get?test=1")
+result = BuyerClient.from_env().get("https://my-api.ax402.io/v1/echo?test=1")
 print(result.status_code, result.settlement)
 ```
 
@@ -45,7 +47,7 @@ Async:
 from ax402_sdk.buyer import AsyncBuyerClient, evm_signer_from_private_key
 
 async with AsyncBuyerClient(evm_signer_from_private_key(key)) as client:
-    result = await client.get("https://echo.staging.ax402.io/echo/get?test=1")
+    result = await client.get("https://my-api.ax402.io/v1/echo?test=1")
 ```
 
 Batch-settlement gateways:
@@ -54,12 +56,16 @@ Batch-settlement gateways:
 from ax402_sdk.buyer import BuyerClient, BatchBuyerOptions
 
 result = BuyerClient.from_env(batch=BatchBuyerOptions(deposit_multiplier=5)).get(
-    "https://echo.staging.ax402.io/echo/get?test=1"
+    "https://my-api.ax402.io/v1/echo?test=1"
 )
 ```
 
 ## Tests
 
 ```bash
-cd packages/python && pip install -e ".[dev]" && pytest
+cd packages/python && pip install -e ".[dev,buyer]" && pytest
 ```
+
+## Examples
+
+See [examples/python/](../../examples/python/) — setup API, pay gateway, stats, wrap OpenAPI.

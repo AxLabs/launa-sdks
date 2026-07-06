@@ -13,7 +13,7 @@ They are separate concerns. An agent that wraps APIs uses an API key; paying tho
 
 ## Buyer quick start
 
-Staging echo (Base Sepolia USDC): `https://echo.staging.ax402.io/echo/get?test=1`
+Example gateway URL: `https://my-api.ax402.io/v1/echo?test=1`
 
 ### TypeScript
 
@@ -21,7 +21,7 @@ Staging echo (Base Sepolia USDC): `https://echo.staging.ax402.io/echo/get?test=1
 import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
 
 const client = await buyerClientFromEnv();
-const { response } = await client.pay({ url: "https://echo.staging.ax402.io/echo/get?test=1" });
+const { response } = await client.pay({ url: "https://my-api.ax402.io/v1/echo?test=1" });
 ```
 
 Requires: `@x402/fetch`, `@x402/evm`, `viem`. See [buyers](../buyers/README.md) for batch-settlement and browser wallet.
@@ -30,7 +30,7 @@ Requires: `@x402/fetch`, `@x402/evm`, `viem`. See [buyers](../buyers/README.md) 
 
 ```go
 c, _ := buyer.NewFromPrivateKey(os.Getenv("AX402_EVM_PRIVATE_KEY"))
-resp, _ := c.Get(ctx, "https://echo.staging.ax402.io/echo/get?test=1")
+resp, _ := c.Get(ctx, "https://my-api.ax402.io/v1/echo?test=1")
 ```
 
 ### Python
@@ -38,7 +38,7 @@ resp, _ := c.Get(ctx, "https://echo.staging.ax402.io/echo/get?test=1")
 ```python
 from ax402_sdk.buyer import BuyerClient
 
-result = BuyerClient.from_env().get("https://echo.staging.ax402.io/echo/get?test=1")
+result = BuyerClient.from_env().get("https://my-api.ax402.io/v1/echo?test=1")
 ```
 
 Install: `pip install "ax402-sdk[buyer]"`.

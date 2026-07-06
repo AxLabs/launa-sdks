@@ -2,7 +2,7 @@
 
 Agent automation combines the [CLI](../cli/README.md) and [MCP server](../mcp/README.md).
 
-Platform guide (dashboard, gateway, MCP setup): [ax402-frontend `/docs/agents`](https://github.com/AxLabs/ax402-frontend).
+Dashboard guide (gateway, MCP setup): [ax402.io/docs/agents](https://ax402.io/docs/agents).
 
 Run pnpm commands below from the **ax402-sdk** repository root.
 
@@ -10,7 +10,7 @@ Run pnpm commands below from the **ax402-sdk** repository root.
 
 ```bash
 pnpm --filter @axlabs/ax402-mcp-server build
-AX402_API_KEY=ax402_live_... AX402_BASE_URL=http://api.localhost:8090 node tools/mcp-server/dist/index.js
+AX402_API_KEY=ax402_live_... AX402_BASE_URL=https://api.ax402.io node tools/mcp-server/dist/index.js
 ```
 
 Full tool list: [../mcp/README.md](../mcp/README.md).
@@ -30,7 +30,7 @@ See [../cli/README.md](../cli/README.md).
 
 See `packages/typescript/src/scopes.ts` — `readonly`, `apiManager`, `analytics`.
 
-Use `apiManager` for plugin automation keys:
+Use `apiManager` for API automation keys:
 
 ```
 apis:read, apis:write, endpoints:read, endpoints:write, domains:read, domains:write, openapi:read

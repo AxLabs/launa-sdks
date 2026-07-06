@@ -1,10 +1,10 @@
 # Ax402 SDK documentation
 
-Docs for **@axlabs/ax402-sdk** and related automation tools (CLI, MCP). Control plane API is implemented by [ax402-backend](../ax402-backend/).
-
-**Platform docs** (hosted gateway, dashboard, domains, OpenAPI import, React paywall) live on the [ax402-frontend](../ax402-frontend/) site at `/docs`.
+Docs for **@axlabs/ax402-sdk** and related automation tools (CLI, MCP).
 
 Payment protocol (402, signing, facilitator) is defined by [x402-foundation/x402](https://github.com/x402-foundation/x402).
+
+Dashboard guides (gateway setup, DNS, domains, billing): [ax402.io/docs](https://ax402.io/docs).
 
 ## SDK packages & tools
 
@@ -19,24 +19,15 @@ Payment protocol (402, signing, facilitator) is defined by [x402-foundation/x402
 | Agents | [agents](./agents/README.md) | CLI + MCP recipes |
 | React paywall | [packages/react-paywall/docs](../packages/react-paywall/docs/README.md) | `@axlabs/x402-react-paywall` |
 
-## Platform (hosted docs)
-
-| Guide | Path on ax402-frontend |
-|-------|------------------------|
-| Full stack | `/docs/platform` |
-| Gateway wrap | `/docs/gateway-wrap` |
-| Agent guide + `/llms.txt` | `/docs/agents` |
-
-OpenAPI contract: [openapi/control-plane.yaml](../openapi/control-plane.yaml).
-
-## Integration (SDK-centric)
+## Integration
 
 | Guide | Use when |
 |-------|----------|
+| [gateway-wrap](./gateway-wrap/README.md) | Monetize an API through the hosted gateway |
 | [sdk-integration](./sdk-integration/README.md) | Automate APIs, endpoints, keys from code or CI |
 | [buyers](./buyers/README.md) | Sign and pay gateway URLs in-process |
 
-Gateway setup, DNS, and dashboard workflows: **[/docs on ax402-frontend](https://github.com/AxLabs/ax402-frontend)** — start at [gateway-wrap](https://github.com/AxLabs/ax402-frontend) (`/docs/gateway-wrap`).
+OpenAPI contract: [openapi/control-plane.yaml](../openapi/control-plane.yaml).
 
 ## Environment
 
