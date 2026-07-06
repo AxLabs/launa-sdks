@@ -56,6 +56,3 @@ coverage.html
 # OS
 .DS_Store
 Thumbs.db
-
-# Shopify app (local CLI state)
-.shopify/

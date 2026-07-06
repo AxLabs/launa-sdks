@@ -2,7 +2,7 @@
 
 Docs for **@axlabs/ax402-sdk** and related automation tools (CLI, MCP). Control plane API is implemented by [ax402-backend](../ax402-backend/).
 
-**Platform docs** (hosted gateway, dashboard, domains, OpenAPI import, React paywall, e-commerce plugins) live on the [ax402-frontend](../ax402-frontend/) site at `/docs`.
+**Platform docs** (hosted gateway, dashboard, domains, OpenAPI import, React paywall) live on the [ax402-frontend](../ax402-frontend/) site at `/docs`.
 
 Payment protocol (402, signing, facilitator) is defined by [x402-foundation/x402](https://github.com/x402-foundation/x402).
 
@@ -25,7 +25,6 @@ Payment protocol (402, signing, facilitator) is defined by [x402-foundation/x402
 |-------|------------------------|
 | Full stack | `/docs/platform` |
 | Gateway wrap | `/docs/gateway-wrap` |
-| E-commerce plugins | `/docs/plugins` |
 | Agent guide + `/llms.txt` | `/docs/agents` |
 
 OpenAPI contract: [openapi/control-plane.yaml](../openapi/control-plane.yaml).
