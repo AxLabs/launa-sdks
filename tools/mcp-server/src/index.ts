@@ -141,6 +141,70 @@ server.tool(
 );
 
 server.tool(
+  "ax402_settlements_export",
+  "Export settlement history as CSV or JSON. Requires settlements:read.",
+  {
+    format: z.enum(["csv", "json"]),
+    days: z.number().optional(),
+    api_id: z.string().optional(),
+  },
+  async ({ format, days, api_id }) => text(await handlers.settlementsExport(format, days ?? 30, api_id)),
+);
+
+server.tool(
+  "ax402_billing_overview",
+  "Account billing overview. Requires billing:read.",
+  {},
+  async () => text(await handlers.billingOverview()),
+);
+
+server.tool(
+  "ax402_income_summary",
+  "Seller income summary. Requires income:read.",
+  {},
+  async () => text(await handlers.incomeSummary()),
+);
+
+server.tool(
+  "ax402_apis_slug_check",
+  "Check whether an API slug is available. Requires apis:read.",
+  { slug: z.string(), exclude_api_id: z.string().optional() },
+  async ({ slug, exclude_api_id }) => text(await handlers.checkSlug(slug, exclude_api_id)),
+);
+
+server.tool(
+  "ax402_apis_probe_upstream",
+  "Probe upstream reachability for API endpoints. Requires apis:read.",
+  {
+    api_id: z.string(),
+    endpoint_id: z.string().optional(),
+    path: z.string().optional(),
+  },
+  async ({ api_id, endpoint_id, path }) => text(await handlers.probeUpstream(api_id, endpoint_id, path)),
+);
+
+server.tool(
+  "ax402_scopes_list",
+  "List assignable API key scopes. Requires JWT session.",
+  {},
+  async () => text(await handlers.listScopes()),
+);
+
+server.tool(
+  "ax402_facilitator_stats",
+  "Facilitator verify/settle stats for your account.",
+  { days: z.number().optional() },
+  async ({ days }) => text(await handlers.facilitatorStats(days ?? 30)),
+);
+
+server.tool(
+  "ax402_billing_catalog",
+  "Public billing catalog (packages, PAYG tiers). No auth required.",
+  {},
+  async () => text(await handlers.billingCatalog()),
+);
+
+server.tool(
   "ax402_inspect_url",
   "Fetch a gateway URL and parse HTTP 402 payment requirements (no wallet).",
   { url: z.string().url(), method: z.string().optional() },

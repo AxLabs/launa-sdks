@@ -24,4 +24,12 @@ describe("ax402 cli", () => {
     const r = run(["--json", "apis", "list"], { AX402_API_KEY: "", AX402_JWT: "" });
     expect(r.status).toBe(2);
   });
+
+  it("inspect url does not require control-plane credentials", () => {
+    const r = run(
+      ["--json", "inspect", "url", "--url", "https://example.invalid/x402-inspect-test"],
+      { AX402_API_KEY: "", AX402_JWT: "" },
+    );
+    expect(r.stderr).not.toContain("AX402_API_KEY or AX402_JWT required");
+  });
 });

@@ -28,6 +28,7 @@ import type {
   PayoutRequest,
   PlatformConfig,
   PublicBillingCatalog,
+  UpstreamProbeResponse,
   WaitlistJoinInput,
   WaitlistJoinResponse,
   Settlement,
@@ -324,6 +325,23 @@ class APIsResource {
       body: JSON.stringify(settings),
     });
   }
+
+  checkSlugAvailability(slug: string, excludeApiId?: string) {
+    const q = new URLSearchParams({ slug });
+    if (excludeApiId) q.set("exclude_api_id", excludeApiId);
+    return this.http.request<{ available: boolean }>(`/apis/slug-availability?${q}`);
+  }
+
+  probeUpstream(
+    apiId: string,
+    probes?: { endpoint_id: string; path?: string }[],
+  ) {
+    const body = probes?.length ? { probes } : {};
+    return this.http.request<UpstreamProbeResponse>(`/apis/${apiId}/readiness/upstream`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
 }
 
 class EndpointsResource {
@@ -447,6 +465,10 @@ class SettlementsResource {
     q.set("format", query.format);
     if (query.format === "json") q.set("download", "1");
     return `/settlements?${q}`;
+  }
+
+  exportHistory(query: PaymentHistoryQuery & { format: "csv" | "json" }) {
+    return this.http.requestText(this.exportHistoryUrl(query));
   }
 }
 

@@ -439,6 +439,29 @@ function formatPayResult(data: Record<string, unknown>): string {
   return lines.join("\n");
 }
 
+function formatScopeList(scopes: unknown[]): string {
+  const lines = ["Available scopes:", ""];
+  for (const scope of scopes) {
+    lines.push(`  • ${formatScalar(scope)}`);
+  }
+  return lines.join("\n");
+}
+
+function formatUpstreamProbe(data: Record<string, unknown>): string {
+  const lines = [`Upstream probe: ${data.ok ? "ok" : "failed"}`, ""];
+  if (typeof data.error === "string" && data.error) lines.push(`  error: ${data.error}`, "");
+  const results = Array.isArray(data.results) ? data.results : [];
+  for (const item of results) {
+    if (!isRecord(item)) continue;
+    const status = item.status != null ? ` HTTP ${item.status}` : "";
+    const mark = item.ok ? "✓" : "✗";
+    lines.push(`  ${mark} ${item.method} ${item.path_pattern}${status}`);
+    if (item.upstream_url) lines.push(`    ${item.upstream_url}`);
+    if (item.error) lines.push(`    ${item.error}`);
+  }
+  return lines.join("\n");
+}
+
 function formatScopePresets(data: Record<string, unknown>): string {
   const lines = ["Scope presets:", ""];
   for (const [name, scopes] of Object.entries(data)) {
@@ -485,7 +508,10 @@ function formatByCommand(cmd: string, sub: string, data: unknown): string | null
   if (key === "domains suggest") return isRecord(data) ? formatDomainPlan(data) : null;
   if (key === "domains add" || key === "domains verify") return isRecord(data) ? formatDomainResult(data) : null;
   if (key === "networks supported") return formatSupportedNetworks(data);
-  if (key === "scopes presets") return isRecord(data) ? formatScopePresets(data) : null;
+  if (key === "apis slug-check") return isRecord(data) ? `Slug ${data.available ? "available" : "taken"}.` : null;
+  if (key === "apis probe-upstream") return isRecord(data) ? formatUpstreamProbe(data) : null;
+  if (key === "config billing") return isRecord(data) ? formatGeneric(data) : null;
+  if (key === "scopes list") return isRecord(data) && Array.isArray(data.scopes) ? formatScopeList(data.scopes) : null;
   if (key === "inspect url" || key === "x402 inspect") return isRecord(data) ? formatInspect(data) : null;
   if (key === "pay url") return isRecord(data) ? formatPayResult(data) : null;
   if (key === "openapi parse") return isRecord(data) ? formatParsedOpenApi(data) : null;

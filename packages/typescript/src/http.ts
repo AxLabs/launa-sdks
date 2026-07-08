@@ -64,6 +64,25 @@ export class HttpClient {
     return parseJsonResponse<T>(res);
   }
 
+  async requestText(path: string, init: RequestInit = {}): Promise<string> {
+    const headers = new Headers(init.headers);
+    if (this.credentials?.type === "apiKey") {
+      headers.set("X-API-Key", this.credentials.apiKey);
+    } else if (this.credentials?.type === "jwt") {
+      headers.set("Authorization", `Bearer ${this.credentials.token}`);
+      if (this.environment && !headers.has("X-Ax402-Environment")) {
+        headers.set("X-Ax402-Environment", this.environment);
+      }
+    }
+
+    const res = await this.fetchFn(`${this.baseUrl}${path}`, { ...init, headers });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Ax402Error(res.status, parseApiError(body || res.statusText), parseErrorData(body));
+    }
+    return res.text();
+  }
+
   async requestMultipart<T>(path: string, form: FormData): Promise<T> {
     const headers = new Headers();
     if (this.credentials?.type === "apiKey") {

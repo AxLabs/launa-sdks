@@ -92,6 +92,20 @@ export async function runShellCommand(
       }
       return { ok: true, data: await c.apis.update(id, body) };
     }
+    if (cmd === "apis" && sub === "slug-check") {
+      const slug = flag(parsed, "--slug");
+      if (!slug) return usage("--slug required");
+      const excludeApiId = flag(parsed, "--exclude-api-id");
+      return { ok: true, data: await c.apis.checkSlugAvailability(slug, excludeApiId) };
+    }
+    if (cmd === "apis" && sub === "probe-upstream") {
+      const apiId = flag(parsed, "--api-id");
+      if (!apiId) return usage("--api-id required");
+      const endpointId = flag(parsed, "--endpoint-id");
+      const path = flag(parsed, "--path");
+      const probes = endpointId ? [{ endpoint_id: endpointId, path: path ?? undefined }] : undefined;
+      return { ok: true, data: await c.apis.probeUpstream(apiId, probes) };
+    }
 
     if (cmd === "endpoints" && sub === "list") {
       const apiId = flag(parsed, "--api-id");
@@ -258,6 +272,17 @@ export async function runShellCommand(
         }),
       };
     }
+    if (cmd === "settlements" && sub === "export") {
+      const format = flag(parsed, "--format");
+      if (format !== "csv" && format !== "json") return usage("--format must be csv or json");
+      const days = parseInt(flag(parsed, "--days") ?? "30", 10);
+      const apiId = flag(parsed, "--api-id");
+      const text = await c.settlements.exportHistory({ days, apiId, format });
+      if (format === "json") {
+        return { ok: true, data: JSON.parse(text) as unknown };
+      }
+      return { ok: true, data: text };
+    }
     if (cmd === "batch" && sub === "overview") {
       const apiId = flag(parsed, "--api-id");
       if (!apiId) return usage("--api-id required");
@@ -284,11 +309,85 @@ export async function runShellCommand(
     if (cmd === "config" && sub === "platform") {
       return { ok: true, data: await c.config.platform() };
     }
+    if (cmd === "config" && sub === "billing") {
+      return { ok: true, data: await c.config.billing() };
+    }
     if (cmd === "networks" && sub === "supported") {
       return { ok: true, data: await c.auth.supportedNetworks() };
     }
     if (cmd === "scopes" && sub === "presets") {
       return { ok: true, data: SCOPE_PRESETS };
+    }
+    if (cmd === "scopes" && sub === "list") {
+      return { ok: true, data: await c.keys.listScopes() };
+    }
+
+    if (cmd === "billing" && sub === "overview") {
+      return { ok: true, data: await c.billing.overview() };
+    }
+    if (cmd === "billing" && sub === "packages") {
+      return { ok: true, data: await c.billing.packages() };
+    }
+    if (cmd === "billing" && sub === "invoices") {
+      return { ok: true, data: await c.billing.invoices() };
+    }
+
+    if (cmd === "income" && sub === "summary") {
+      return { ok: true, data: await c.income.summary() };
+    }
+    if (cmd === "income" && sub === "ledger") {
+      const limit = flag(parsed, "--limit");
+      const offset = flag(parsed, "--offset");
+      const apiId = flag(parsed, "--api-id");
+      const network = flag(parsed, "--network");
+      return {
+        ok: true,
+        data: await c.income.ledger({
+          limit: limit ? parseInt(limit, 10) : undefined,
+          offset: offset ? parseInt(offset, 10) : undefined,
+          apiId,
+          network,
+        }),
+      };
+    }
+    if (cmd === "income" && sub === "payout-requests") {
+      return { ok: true, data: await c.income.payoutRequests() };
+    }
+
+    if (cmd === "facilitator" && sub === "stats") {
+      const days = parseInt(flag(parsed, "--days") ?? "30", 10);
+      return { ok: true, data: await c.auth.facilitatorStats(days) };
+    }
+    if (cmd === "facilitator" && sub === "events") {
+      const days = parseInt(flag(parsed, "--days") ?? "30", 10);
+      const limit = flag(parsed, "--limit");
+      const offset = flag(parsed, "--offset");
+      return {
+        ok: true,
+        data: await c.auth.facilitatorEvents({
+          days,
+          limit: limit ? parseInt(limit, 10) : undefined,
+          offset: offset ? parseInt(offset, 10) : undefined,
+        }),
+      };
+    }
+
+    if (cmd === "exchange-rates" && sub === "supported") {
+      return { ok: true, data: await c.exchangeRates.supported() };
+    }
+    if (cmd === "exchange-rates" && sub === "lookup") {
+      const network = flag(parsed, "--network");
+      const asset = flag(parsed, "--asset");
+      if (!network || !asset) return usage("--network and --asset required");
+      return {
+        ok: true,
+        data: await c.exchangeRates.lookup({
+          network,
+          asset,
+          quote: flag(parsed, "--quote"),
+          date: flag(parsed, "--date"),
+        }),
+      };
     }
 
     return usage(`unknown command: ${cmd} ${sub}`);

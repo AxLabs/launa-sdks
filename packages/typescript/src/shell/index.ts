@@ -5,7 +5,13 @@ export {
   buildArgvFromForm,
   argvToShellCommand,
 } from "./registry.js";
-export { tokenizeInput, parseShellArgv, parseShellInput, flag } from "./parse.js";
+export {
+  tokenizeInput,
+  parseShellArgv,
+  parseShellInput,
+  flag,
+  shellCommandNeedsCredentials,
+} from "./parse.js";
 export { runShellCommand } from "./execute.js";
 export { inspectGatewayUrl, type InspectGatewayResult } from "./gateway.js";
 export { formatShellOutput, formatShellError, shellErrorFromUnknown } from "./format.js";

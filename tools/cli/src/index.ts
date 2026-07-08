@@ -6,6 +6,7 @@ import {
   inspectGatewayUrl,
   parseShellArgv,
   runShellCommand,
+  shellCommandNeedsCredentials,
   shellUsageText,
 } from "@axlabs/ax402-sdk/shell";
 
@@ -30,8 +31,10 @@ async function main() {
   const parsed = parseShellArgv(args);
   if (!parsed.cmd) usage();
 
-  const c = client();
   const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
+  const c = shellCommandNeedsCredentials(parsed)
+    ? client()
+    : new Ax402Client({ baseUrl });
 
   const result = await runShellCommand(parsed, {
     client: c,

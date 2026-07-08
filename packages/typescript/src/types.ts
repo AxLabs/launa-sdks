@@ -238,6 +238,23 @@ export type CreateAPIInput = {
   upstream_auth?: UpstreamAuthInput;
 };
 
+export type UpstreamProbeResult = {
+  endpoint_id: string;
+  method: string;
+  path_pattern: string;
+  probe_path?: string;
+  upstream_url?: string;
+  status?: number;
+  ok: boolean;
+  error?: string;
+};
+
+export type UpstreamProbeResponse = {
+  ok: boolean;
+  results: UpstreamProbeResult[];
+  error?: string;
+};
+
 export type AcceptOption = {
   scheme: string;
   network: string;
@@ -290,7 +307,13 @@ export type BatchSettlement = {
 export type EarningsByNetwork = { network: string; amount: string; count: number };
 export type DayCount = { date: string; count: number };
 export type DayAmount = { date: string; amount: string; count: number };
-export type PayerStats = { payer: string; count: number; amount: string; network?: string };
+export type PayerStats = {
+  payer: string;
+  count: number;
+  amount: string;
+  network?: string;
+  asset?: string;
+};
 
 export type PaymentActivity = {
   id: string;
@@ -298,6 +321,7 @@ export type PaymentActivity = {
   type?: string;
   payer: string;
   amount: string;
+  asset?: string;
   network: string;
   tx?: string;
   created_at: string;
@@ -376,7 +400,11 @@ export type APIStats = {
   payment_required: number;
   earnings: EarningsByNetwork[];
   voucher_earnings?: EarningsByNetwork[];
+  display_currency?: string;
+  total_earnings_fiat?: string;
+  voucher_earnings_fiat?: string;
   earnings_by_day: DayAmount[];
+  earnings_by_day_fiat?: DayFiatAmount[];
   by_day: DayCount[];
   by_endpoint: {
     endpoint_id: string;

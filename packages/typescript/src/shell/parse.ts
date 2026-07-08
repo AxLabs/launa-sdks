@@ -79,3 +79,15 @@ export function parseShellInput(input: string): ParsedShellCommand {
 export function flag(parsed: ParsedShellCommand, name: string): string | undefined {
   return parsed.flags[name];
 }
+
+/** Buyer and auth-login commands talk to gateway URLs or /auth/login — no API key. */
+export function shellCommandNeedsCredentials(parsed: ParsedShellCommand): boolean {
+  const { cmd, sub } = parsed;
+  if (cmd === "help" || cmd === "clear") return false;
+  if (cmd === "inspect" && sub === "url") return false;
+  if (cmd === "x402" && sub === "inspect") return false;
+  if (cmd === "pay" && sub === "url") return false;
+  if (cmd === "auth" && sub === "login") return false;
+  if (cmd === "config" && (sub === "platform" || sub === "billing")) return false;
+  return true;
+}

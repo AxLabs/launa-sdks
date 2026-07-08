@@ -63,8 +63,8 @@ Global flag: `--json` on any command.
 
 | Credential | Use for |
 |------------|---------|
-| `AX402_API_KEY` | Automation — most commands (apis, endpoints, domains, stats, settlements, openapi, config) |
-| `AX402_JWT` | Interactive session — **required** for `keys list/create/revoke` and `auth me` |
+| `AX402_API_KEY` | Automation — most commands (apis, endpoints, domains, stats, settlements, billing, income, openapi, config billing) |
+| `AX402_JWT` | Interactive session — **required** for `keys list/create/revoke`, `auth me`, and `scopes list` |
 
 Create keys in the dashboard or via `auth login` → `keys create`. Scope presets: `ax402 scopes presets --json`. See [agents](../agents/README.md) for bootstrap flow.
 
@@ -80,6 +80,8 @@ ax402 apis create --name NAME --slug SLUG --upstream URL [--pay-to 0x...] [--jso
 ax402 apis get --id ID [--json]
 ax402 apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to 0x...] [--json]
 ax402 apis delete --id ID [--json]
+ax402 apis slug-check --slug SLUG [--exclude-api-id ID] [--json]
+ax402 apis probe-upstream --api-id ID [--endpoint-id EP] [--path PATH] [--json]
 
 ax402 endpoints list --api-id ID [--json]
 ax402 endpoints create --api-id ID --path "/v1/*" [--method GET] [--price-usdc 0.10] [--scheme exact|batch-settlement] [--json]
@@ -108,13 +110,30 @@ ax402 stats api --api-id ID [--days 30] [--json]
 ax402 settlements list --api-id ID [--json]
 ax402 settlements batch --api-id ID [--json]
 ax402 settlements history [--days 30] [--api-id ID] [--limit N] [--offset N] [--json]
+ax402 settlements export --format csv|json [--days 30] [--api-id ID] [--json]
+
+ax402 billing overview [--json]
+ax402 billing packages [--json]
+ax402 billing invoices [--json]
+
+ax402 income summary [--json]
+ax402 income ledger [--limit N] [--offset N] [--api-id ID] [--network NET] [--json]
+ax402 income payout-requests [--json]
+
+ax402 facilitator stats [--days 30] [--json]
+ax402 facilitator events [--days 30] [--limit N] [--offset N] [--json]
 
 ax402 batch overview --api-id ID [--json]
 ax402 batch settings --api-id ID --claim-interval-secs N --settle-interval-secs N --refund-interval-secs N [--json]
 
 ax402 config platform [--json]
+ax402 config billing [--json]
 ax402 networks supported [--json]
 ax402 scopes presets [--json]
+ax402 scopes list [--json]                              # JWT only
+
+ax402 exchange-rates supported [--json]
+ax402 exchange-rates lookup --network NET --asset ADDR [--quote USD] [--date YYYY-MM-DD] [--json]
 
 ax402 inspect url --url GATEWAY_URL [--method GET] [--json]
 ax402 pay url --url GATEWAY_URL [--method GET] [--json]

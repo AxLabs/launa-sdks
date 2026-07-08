@@ -73,4 +73,30 @@ describe("runShellCommand", () => {
     expect(result.ok).toBe(true);
     expect(inspect).toHaveBeenCalledWith("https://x.test/foo", "GET");
   });
+
+  it("apis slug-check", async () => {
+    const client = mockClient({
+      apis: { checkSlugAvailability: vi.fn().mockResolvedValue({ available: true }) },
+    } as Partial<Ax402Client>);
+    const result = await runShellCommand(parseShellArgv(["apis", "slug-check", "--slug", "my-api"]), { client });
+    expect(result.ok).toBe(true);
+    expect(client.apis.checkSlugAvailability).toHaveBeenCalledWith("my-api", undefined);
+  });
+
+  it("config billing without credentials", async () => {
+    const billing = vi.fn().mockResolvedValue({ packages: [] });
+    const client = mockClient({ config: { billing } } as Partial<Ax402Client>);
+    const result = await runShellCommand(parseShellArgv(["config", "billing"]), { client });
+    expect(result.ok).toBe(true);
+    expect(billing).toHaveBeenCalled();
+  });
+
+  it("billing overview", async () => {
+    const client = mockClient({
+      billing: { overview: vi.fn().mockResolvedValue({ model: "payg" }) },
+    } as Partial<Ax402Client>);
+    const result = await runShellCommand(parseShellArgv(["billing", "overview"]), { client });
+    expect(result.ok).toBe(true);
+    expect(client.billing.overview).toHaveBeenCalled();
+  });
 });

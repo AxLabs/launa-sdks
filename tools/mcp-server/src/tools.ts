@@ -30,6 +30,20 @@ export function createToolHandlers(getClient: () => Ax402Client) {
     statsOverview: async (days: number) => getClient().stats.overview(days),
     statsApi: async (api_id: string, days: number) => getClient().stats.forApi(api_id, days),
     settlementsList: async (api_id: string) => getClient().settlements.list(api_id),
+    settlementsExport: async (format: "csv" | "json", days = 30, api_id?: string) =>
+      getClient().settlements.exportHistory({ format, days, apiId: api_id }),
+    billingOverview: async () => getClient().billing.overview(),
+    incomeSummary: async () => getClient().income.summary(),
+    checkSlug: async (slug: string, exclude_api_id?: string) =>
+      getClient().apis.checkSlugAvailability(slug, exclude_api_id),
+    probeUpstream: async (api_id: string, endpoint_id?: string, path?: string) =>
+      getClient().apis.probeUpstream(
+        api_id,
+        endpoint_id ? [{ endpoint_id, path }] : undefined,
+      ),
+    listScopes: async () => getClient().keys.listScopes(),
+    facilitatorStats: async (days = 30) => getClient().auth.facilitatorStats(days),
+    billingCatalog: async () => getClient().config.billing(),
     supportedNetworks: async () => getClient().auth.supportedNetworks(),
     platformConfig: async () => getClient().config.platform(),
     inspectUrl: async (url: string, method = "GET") => inspectGatewayUrl(url, method),

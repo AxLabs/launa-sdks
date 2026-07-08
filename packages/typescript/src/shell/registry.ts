@@ -45,6 +45,25 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
         ],
         sdkSnippet: 'await client.apis.update("API_ID", { name: "New name" })',
       },
+      {
+        id: "slug-check",
+        label: "Slug check",
+        flags: [
+          { name: "--slug", required: true, type: "string" },
+          { name: "--exclude-api-id", required: false, type: "string" },
+        ],
+        sdkSnippet: 'await client.apis.checkSlugAvailability("my-api")',
+      },
+      {
+        id: "probe-upstream",
+        label: "Probe upstream",
+        flags: [
+          { name: "--api-id", required: true, type: "string" },
+          { name: "--endpoint-id", required: false, type: "string" },
+          { name: "--path", required: false, type: "string" },
+        ],
+        sdkSnippet: 'await client.apis.probeUpstream("API_ID")',
+      },
     ],
   },
   {
@@ -259,6 +278,89 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
         ],
         sdkSnippet: "await client.settlements.listHistory({ days: 30 })",
       },
+      {
+        id: "export",
+        label: "Export",
+        flags: [
+          { name: "--format", required: true, type: "string", placeholder: "csv|json" },
+          { name: "--days", required: false, type: "number", defaultValue: "30" },
+          { name: "--api-id", required: false, type: "string" },
+        ],
+        sdkSnippet: 'await client.settlements.exportHistory({ days: 30, format: "csv" })',
+      },
+    ],
+  },
+  {
+    id: "billing",
+    label: "Billing",
+    methods: [
+      { id: "overview", label: "Overview", flags: [], sdkSnippet: "await client.billing.overview()" },
+      { id: "packages", label: "Packages", flags: [], sdkSnippet: "await client.billing.packages()" },
+      { id: "invoices", label: "Invoices", flags: [], sdkSnippet: "await client.billing.invoices()" },
+    ],
+  },
+  {
+    id: "income",
+    label: "Income",
+    methods: [
+      { id: "summary", label: "Summary", flags: [], sdkSnippet: "await client.income.summary()" },
+      {
+        id: "ledger",
+        label: "Ledger",
+        flags: [
+          { name: "--limit", required: false, type: "number" },
+          { name: "--offset", required: false, type: "number" },
+          { name: "--api-id", required: false, type: "string" },
+          { name: "--network", required: false, type: "string" },
+        ],
+        sdkSnippet: "await client.income.ledger({ limit: 50 })",
+      },
+      {
+        id: "payout-requests",
+        label: "Payout requests",
+        flags: [],
+        sdkSnippet: "await client.income.payoutRequests()",
+      },
+    ],
+  },
+  {
+    id: "facilitator",
+    label: "Facilitator",
+    methods: [
+      {
+        id: "stats",
+        label: "Stats",
+        flags: [{ name: "--days", required: false, type: "number", defaultValue: "30" }],
+        sdkSnippet: "await client.auth.facilitatorStats(30)",
+      },
+      {
+        id: "events",
+        label: "Events",
+        flags: [
+          { name: "--days", required: false, type: "number", defaultValue: "30" },
+          { name: "--limit", required: false, type: "number" },
+          { name: "--offset", required: false, type: "number" },
+        ],
+        sdkSnippet: "await client.auth.facilitatorEvents({ days: 30 })",
+      },
+    ],
+  },
+  {
+    id: "exchange-rates",
+    label: "Exchange rates",
+    methods: [
+      { id: "supported", label: "Supported", flags: [], sdkSnippet: "await client.exchangeRates.supported()" },
+      {
+        id: "lookup",
+        label: "Lookup",
+        flags: [
+          { name: "--network", required: true, type: "string" },
+          { name: "--asset", required: true, type: "string" },
+          { name: "--quote", required: false, type: "string" },
+          { name: "--date", required: false, type: "string" },
+        ],
+        sdkSnippet: 'await client.exchangeRates.lookup({ network: "eip155:8453", asset: "0x..." })',
+      },
     ],
   },
   {
@@ -294,6 +396,12 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
         flags: [],
         sdkSnippet: "await client.config.platform()",
       },
+      {
+        id: "billing",
+        label: "Billing catalog",
+        flags: [],
+        sdkSnippet: "await client.config.billing()",
+      },
     ],
   },
   {
@@ -317,6 +425,12 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
         label: "Presets",
         flags: [],
         sdkSnippet: "import { SCOPE_PRESETS } from '@axlabs/ax402-sdk'",
+      },
+      {
+        id: "list",
+        label: "List",
+        flags: [],
+        sdkSnippet: "await client.keys.listScopes()",
       },
     ],
   },
@@ -367,9 +481,10 @@ export function shellUsageText(): string {
       lines.push(`  ${resource.id} ${method.id}${flagParts ? " " + flagParts : ""}${optional ? " " + optional : ""}`);
     }
   }
-  lines.push("  pay url requires AX402_EVM_PRIVATE_KEY (CLI) or a browser wallet (Workbench)");
+  lines.push("  inspect url — gateway URL only (no API key)");
+  lines.push("  pay url — gateway URL + AX402_EVM_PRIVATE_KEY (no API key)");
   lines.push("");
-  lines.push("Env: AX402_BASE_URL, AX402_API_KEY or AX402_JWT, AX402_EVM_PRIVATE_KEY (buyer CLI)");
+  lines.push("Env: AX402_API_KEY or AX402_JWT (control plane), AX402_EVM_PRIVATE_KEY (pay url)");
   return lines.join("\n");
 }
 
