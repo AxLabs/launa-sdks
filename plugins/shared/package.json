@@ -1,0 +1,29 @@
+{
+  "name": "@axlabs/x402-buyer-plugin-core",
+  "version": "0.1.0",
+  "description": "Shared buyer paywall config for Ax402 CMS plugins",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "docs"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "prepare": "pnpm run build"
+  },
+  "dependencies": {
+    "@axlabs/ax402-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "vitest": "~3.0.9"
+  },
+  "license": "Apache-2.0"
+}

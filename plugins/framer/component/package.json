@@ -1,0 +1,32 @@
+{
+  "name": "@axlabs/x402-framer-component",
+  "version": "0.1.0",
+  "description": "Framer code component for Ax402 buyer paywall",
+  "type": "module",
+  "main": "./dist/Ax402Paywall.js",
+  "types": "./dist/Ax402Paywall.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "pnpm run build"
+  },
+  "peerDependencies": {
+    "framer": "*",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@axlabs/x402-buyer-plugin-react": "workspace:*",
+    "@axlabs/x402-react-paywall": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "framer-motion": "^11.0.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "typescript": "^5.7.2"
+  },
+  "optionalDependencies": {
+    "framer": "^2.4.0"
+  },
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@axlabs/x402-framer-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Framer editor plugin for Ax402 buyer paywall setup",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@axlabs/x402-buyer-plugin-core": "workspace:*",
+    "@axlabs/x402-buyer-plugin-editor-ui": "workspace:*",
+    "@axlabs/x402-framer-component": "workspace:*",
+    "@framer/plugin": "^4.0.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.0"
+  },
+  "license": "Apache-2.0"
+}

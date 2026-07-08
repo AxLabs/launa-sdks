@@ -1,0 +1,24 @@
+{
+  "name": "@axlabs/x402-webflow-designer-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Webflow Designer Extension for Ax402 buyer paywall",
+  "type": "module",
+  "scripts": {
+    "dev": "webflow extension serve",
+    "build": "webflow extension bundle"
+  },
+  "dependencies": {
+    "@axlabs/x402-buyer-plugin-core": "workspace:*",
+    "@axlabs/x402-buyer-plugin-editor-ui": "workspace:*",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@webflow/webflow-cli": "^1.0.0",
+    "typescript": "^5.7.2"
+  },
+  "license": "Apache-2.0"
+}

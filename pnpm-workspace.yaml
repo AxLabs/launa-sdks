@@ -3,3 +3,12 @@ packages:
   - packages/react-paywall
   - tools/cli
   - tools/mcp-server
+  - plugins/shared
+  - plugins/buyer-react
+  - plugins/editor-ui
+  - plugins/payload
+  - plugins/framer/plugin
+  - plugins/framer/component
+  - plugins/webflow/devlink
+  - plugins/webflow/designer-extension
+  - plugins/webflow/backend

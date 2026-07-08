@@ -1,0 +1,35 @@
+{
+  "name": "@axlabs/x402-buyer-plugin-editor-ui",
+  "version": "0.1.0",
+  "description": "Shared buyer paywall config wizard for CMS editor plugins",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./src/styles.css"
+  },
+  "files": ["dist", "src/styles.css"],
+  "scripts": {
+    "build": "tsc && cp src/styles.css dist/styles.css",
+    "prepare": "pnpm run build"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@axlabs/x402-buyer-plugin-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "typescript": "^5.7.2"
+  },
+  "license": "Apache-2.0"
+}

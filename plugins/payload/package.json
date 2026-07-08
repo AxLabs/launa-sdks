@@ -1,0 +1,48 @@
+{
+  "name": "@axlabs/ax402-payload",
+  "version": "0.1.0",
+  "description": "Payload CMS buyer-side x402 paywall plugin",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/exports/client.d.ts",
+      "import": "./dist/exports/client.js"
+    },
+    "./rsc": {
+      "types": "./dist/exports/rsc.d.ts",
+      "import": "./dist/exports/rsc.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "pnpm run build"
+  },
+  "peerDependencies": {
+    "payload": "^3.0.0",
+    "@payloadcms/ui": "^3.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@axlabs/x402-buyer-plugin-core": "workspace:*",
+    "@axlabs/x402-buyer-plugin-react": "workspace:*",
+    "@axlabs/x402-react-paywall": "workspace:*"
+  },
+  "devDependencies": {
+    "@payloadcms/ui": "^3.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "payload": "^3.0.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "typescript": "^5.7.2"
+  },
+  "license": "Apache-2.0"
+}

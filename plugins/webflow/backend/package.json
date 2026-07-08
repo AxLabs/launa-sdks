@@ -1,0 +1,15 @@
+{
+  "name": "@axlabs/x402-webflow-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OAuth backend for Ax402 Webflow hybrid app",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "webflow-api": "^3.0.0"
+  },
+  "license": "Apache-2.0"
+}
