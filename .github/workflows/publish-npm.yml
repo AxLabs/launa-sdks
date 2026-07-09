@@ -1,7 +1,6 @@
 name: Publish npm
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - "v*"
@@ -15,16 +14,48 @@ jobs:
     name: Publish @ax402 packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout tag
+        uses: actions/checkout@v4
         with:
-          node-version: 22
-          cache: pnpm
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
           registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Use npm 11+
+        run: npm install -g npm@^11.10.0
+
+      - name: Print versions
+        run: |
+          node -v
+          npm -v
+          pnpm -v
+
+      - name: Verify tag matches package versions
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          ROOT_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$ROOT_VERSION" ]; then
+            echo "Tag v${TAG} does not match package.json version ${ROOT_VERSION}"
+            exit 1
+          fi
+
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server build
+      - run: pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server --filter @ax402/react-paywall build
       - run: pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server test
-      - run: pnpm publish -r --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish packages to npm
+        run: |
+          pnpm publish -r \
+            --filter @ax402/sdk \
+            --filter @ax402/cli \
+            --filter @ax402/mcp-server \
+            --filter @ax402/react-paywall \
+            --access public \
+            --no-git-checks

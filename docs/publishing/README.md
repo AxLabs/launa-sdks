@@ -12,11 +12,11 @@ Published packages from this repository:
 
 Go (`packages/golang`) is consumed via module tags on GitHub — no separate registry publish.
 
-Go module: `github.com/AxLabs/ax402-sdks/go`. Tag releases as `go/v0.0.1` (or the matching semver).
+Go module: `github.com/AxLabs/ax402-sdks/go`. Tag releases as `go/v0.0.2` (or the matching semver).
 
 ## Trusted publishing
 
-Initial `v0.0.1` packages are already on npm and PyPI. Configure trusted publishers so future tag releases do not need long-lived tokens.
+Configure trusted publishers so tag releases do not need long-lived tokens. PyPI publishing is manual (`workflow_dispatch`) until trusted publishing is set up.
 
 ### npm (`@ax402` scope)
 
@@ -27,17 +27,29 @@ For each published package (`@ax402/sdk`, `@ax402/cli`, `@ax402/mcp-server`, `@a
    - **GitHub repository:** `AxLabs/ax402-sdks`
    - **Workflow file:** `publish-npm.yml`
    - **Environment:** leave empty (workflow runs on `v*` tags)
-3. Ensure `.github/workflows/publish-npm.yml` has `permissions: id-token: write` (already set).
-4. After trusted publishing is active, remove the `NPM_TOKEN` repository secret if you no longer need token-based publishes.
+3. Ensure `.github/workflows/publish-npm.yml` has `permissions: id-token: write` (already set). The workflow uses Node 24, npm 11+, and OIDC — no `NPM_TOKEN` secret.
 
-Release:
+### Release (npm)
+
+1. Bump `version` in all publishable `package.json` files (and `packages/python/pyproject.toml` when PyPI is enabled). Keep them in sync.
+2. Commit and push to `main`.
+3. Create and push the tag manually — **the tag triggers publish**, not the other way around:
 
 ```bash
 git tag v0.0.2
 git push origin v0.0.2
 ```
 
-Or run **Actions → Publish npm → Run workflow** manually.
+The workflow checks out the tagged commit, verifies the tag matches `package.json` version, then publishes `@ax402/sdk`, `@ax402/cli`, `@ax402/mcp-server`, and `@ax402/react-paywall`.
+
+To move a tag after a fix:
+
+```bash
+git push origin :refs/tags/v0.0.2
+git tag -d v0.0.2
+git tag v0.0.2
+git push origin v0.0.2
+```
 
 ### PyPI (`ax402-sdk`)
 
@@ -82,5 +94,5 @@ pip install "ax402-sdk[buyer]"
 ```
 
 ```bash
-go get github.com/AxLabs/ax402-sdks/go@v0.0.1
+go get github.com/AxLabs/ax402-sdks/go@v0.0.2
 ```

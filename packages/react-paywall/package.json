@@ -1,6 +1,6 @@
 {
   "name": "@ax402/react-paywall",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Embeddable React paywall overlay for x402 micropayments",
   "type": "module",
   "main": "./dist/index.js",
@@ -33,5 +33,13 @@
     "react-dom": "^19.2.6",
     "typescript": "^5.7.2"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AxLabs/ax402-sdks.git",
+    "directory": "packages/react-paywall"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

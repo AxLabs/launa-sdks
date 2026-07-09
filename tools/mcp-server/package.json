@@ -1,9 +1,14 @@
 {
   "name": "@ax402/mcp-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Ax402 MCP server for Cursor and Claude",
   "type": "module",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AxLabs/ax402-sdks.git",
+    "directory": "tools/mcp-server"
+  },
   "bin": {
     "ax402-mcp": "./dist/index.js"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@ax402/sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Ax402 platform control-plane SDK",
   "type": "module",
   "main": "./dist/index.js",
@@ -46,6 +46,11 @@
     "vitest": "~3.0.9"
   },
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AxLabs/ax402-sdks.git",
+    "directory": "packages/typescript"
+  },
   "publishConfig": {
     "access": "public"
   },
