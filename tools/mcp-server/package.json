@@ -1,6 +1,6 @@
 {
   "name": "@ax402/mcp-server",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Ax402 MCP server for Cursor and Claude",
   "type": "module",
   "license": "Apache-2.0",

@@ -13,7 +13,7 @@ function client(): Ax402Client {
 }
 
 const handlers = createToolHandlers(client);
-const server = new McpServer({ name: "ax402", version: "0.0.2" });
+const server = new McpServer({ name: "ax402", version: "0.0.3" });
 
 function text(data: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] };

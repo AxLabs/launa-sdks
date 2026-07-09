@@ -1,6 +1,6 @@
 {
   "name": "@ax402/sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Ax402 platform control-plane SDK",
   "type": "module",
   "main": "./dist/index.js",
@@ -27,7 +27,7 @@
       "import": "./dist/shell/index.js"
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsc",
     "prepare": "pnpm run build",
