@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "ax402": {
+      "command": "npx",
+      "args": ["-y", "@ax402/mcp-server"],
+      "env": {
+        "AX402_BASE_URL": "https://api.ax402.io",
+        "AX402_API_KEY": "ax402_live_your_key_here"
+      }
+    }
+  }
+}

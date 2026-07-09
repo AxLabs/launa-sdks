@@ -1,0 +1,238 @@
+.x402-paywall-root {
+  font-family: var(--x402-font-family, inherit);
+}
+
+.x402-paywall-gate {
+  position: relative;
+}
+
+.x402-paywall-brand {
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.x402-paywall-brand img {
+  max-height: 2.5rem;
+  width: auto;
+}
+
+.x402-paywall-agent {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  border: 1px dashed var(--x402-border, #cbd5e1);
+  background: var(--x402-agent-bg, #f8fafc);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--x402-muted, #475569);
+}
+
+.x402-paywall-agent-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--x402-title, #0f172a);
+}
+
+.x402-paywall-agent-summary,
+.x402-paywall-agent-resource,
+.x402-paywall-agent-offer,
+.x402-paywall-agent-libs {
+  margin: 0 0 0.5rem;
+}
+
+.x402-paywall-agent-steps {
+  margin: 0 0 0.75rem 1.25rem;
+  padding: 0;
+}
+
+.x402-paywall-agent code {
+  font-size: 0.75rem;
+  word-break: break-all;
+}
+
+.x402-paywall-teaser {
+  filter: blur(4px);
+  user-select: none;
+  pointer-events: none;
+  max-height: 8rem;
+  overflow: hidden;
+}
+
+.x402-paywall-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    to bottom,
+    var(--x402-overlay-start, rgba(255, 255, 255, 0.6)) 0%,
+    var(--x402-overlay-end, rgba(255, 255, 255, 0.95)) 45%
+  );
+  padding: 1.5rem;
+}
+
+.x402-paywall-card {
+  max-width: 22rem;
+  width: 100%;
+  padding: 1.5rem;
+  border-radius: var(--x402-card-radius, 12px);
+  border: 1px solid var(--x402-border, #e2e8f0);
+  background: var(--x402-card-bg, #fff);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12);
+  text-align: center;
+}
+
+.x402-paywall-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--x402-title, #0f172a);
+}
+
+.x402-paywall-desc {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--x402-muted, #64748b);
+  line-height: 1.45;
+}
+
+.x402-paywall-price {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--x402-accent, #2563eb);
+}
+
+.x402-paywall-error {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--x402-error, #dc2626);
+}
+
+.x402-paywall-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.x402-paywall-btn {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border-radius: var(--x402-button-radius, 8px);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+.x402-paywall-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.x402-paywall-btn-primary {
+  background: var(--x402-accent, #2563eb);
+  color: #fff;
+}
+
+.x402-paywall-btn-secondary {
+  background: var(--x402-secondary-bg, #f1f5f9);
+  color: var(--x402-title, #0f172a);
+}
+
+.x402-paywall-wallet {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  color: var(--x402-muted, #64748b);
+}
+
+.x402-paywall-article h1 {
+  margin-top: 0;
+}
+
+.x402-paywall-raw {
+  font-size: 0.8125rem;
+  overflow: auto;
+}
+
+.x402-wallet-picker {
+  text-align: left;
+  margin-bottom: 0.75rem;
+}
+
+.x402-wallet-picker-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--x402-title, #0f172a);
+}
+
+.x402-wallet-picker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.x402-wallet-picker-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--x402-border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--x402-secondary-bg, #f8fafc);
+  cursor: pointer;
+  font-size: 0.9375rem;
+  color: var(--x402-title, #0f172a);
+}
+
+.x402-wallet-picker-option:hover:not(:disabled) {
+  border-color: var(--x402-accent, #2563eb);
+}
+
+.x402-wallet-picker-option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.x402-wallet-picker-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 6px;
+}
+
+.x402-wallet-picker-icon-placeholder {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 6px;
+  background: var(--x402-border, #e2e8f0);
+}
+
+.x402-wallet-picker-name {
+  flex: 1;
+  text-align: left;
+}
+
+.x402-wallet-picker-cancel {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.375rem;
+  border: none;
+  background: none;
+  color: var(--x402-muted, #64748b);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.x402-wallet-picker-cancel:hover:not(:disabled) {
+  color: var(--x402-title, #0f172a);
+}

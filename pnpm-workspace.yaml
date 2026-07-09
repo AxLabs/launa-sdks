@@ -1,0 +1,5 @@
+packages:
+  - packages/typescript
+  - packages/react-paywall
+  - tools/cli
+  - tools/mcp-server

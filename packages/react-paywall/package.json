@@ -1,0 +1,37 @@
+{
+  "name": "@ax402/react-paywall",
+  "version": "0.0.1",
+  "description": "Embeddable React paywall overlay for x402 micropayments",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./src/styles.css"
+  },
+  "files": ["dist", "src/styles.css", "docs"],
+  "scripts": {
+    "build": "tsc && cp src/styles.css dist/styles.css",
+    "prepare": "pnpm run build"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@x402/evm": "^2.14.0",
+    "@x402/fetch": "^2.14.0",
+    "viem": "^2.49.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "typescript": "^5.7.2"
+  },
+  "license": "Apache-2.0"
+}
