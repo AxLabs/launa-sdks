@@ -36,6 +36,7 @@ export const MOCK_ROUTES: MockRoute[] = [
   { method: "GET", path: "/domains/suggest", body: fixtures.domainPlan },
   { method: "GET", path: "/supported-networks", body: fixtures.supportedNetworks },
   { method: "GET", path: "/stats/overview", body: fixtures.statsOverview },
+  { method: "GET", path: "/exchange-rates", body: fixtures.exchangeRatesAll },
   { method: "GET", path: "/exchange-rates/supported", body: fixtures.exchangeRatesSupported },
   { method: "POST", path: "/openapi/parse", body: fixtures.parsedOpenAPI },
   { method: "GET", path: "/apis", body: [fixtures.api] },
@@ -43,6 +44,10 @@ export const MOCK_ROUTES: MockRoute[] = [
   { method: "GET", path: "/apis/api1", body: fixtures.api },
   { method: "PUT", path: "/apis/api1", body: fixtures.api },
   { method: "DELETE", path: "/apis/api1", status: 204, empty: true },
+  { method: "GET", path: "/apis/api1/cors", body: fixtures.apiCors },
+  { method: "PUT", path: "/apis/api1/cors", body: fixtures.apiCors },
+  { method: "POST", path: "/apis/api1/cors", body: fixtures.apiCors },
+  { method: "DELETE", path: "/apis/api1/cors", body: fixtures.apiCors },
   { method: "GET", path: "/apis/api1/endpoints", body: [fixtures.endpoint] },
   { method: "POST", path: "/apis/api1/endpoints", status: 201, body: fixtures.endpoint },
   { method: "PUT", path: "/apis/api1/endpoints/ep1", body: fixtures.endpoint },
@@ -54,6 +59,7 @@ export const MOCK_ROUTES: MockRoute[] = [
   { method: "DELETE", path: "/apis/api1/domains/dom1", status: 204, empty: true },
   { method: "GET", path: "/apis/api1/stats", body: fixtures.statsOverview },
   { method: "GET", path: "/apis/api1/settlements", body: fixtures.settlements },
+  { method: "GET", path: "/apis/api1/webhook-deliveries", body: fixtures.webhookDeliveries ?? [] },
   { method: "GET", path: "/apis/api1/batch-settlements", body: fixtures.batchSettlements },
 ];
 

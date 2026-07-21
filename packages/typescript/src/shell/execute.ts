@@ -53,6 +53,8 @@ export async function runShellCommand(
       const upstream = flag(parsed, "--upstream");
       if (!name || !slug || !upstream) return usage("--name, --slug, --upstream required");
       const payTo = flag(parsed, "--pay-to");
+      const webhookUrl = flag(parsed, "--webhook-url");
+      const webhookSecret = flag(parsed, "--webhook-secret");
       return {
         ok: true,
         data: await c.apis.create({
@@ -61,8 +63,15 @@ export async function runShellCommand(
           upstream_base_url: upstream,
           pay_to_mode: payTo ? "user_wallet" : undefined,
           pay_to_address: payTo,
+          webhook_url: webhookUrl,
+          webhook_secret: webhookSecret,
         }),
       };
+    }
+    if (cmd === "apis" && sub === "webhook-deliveries") {
+      const id = flag(parsed, "--id");
+      if (!id) return usage("--id required");
+      return { ok: true, data: await c.apis.listWebhookDeliveries(id) };
     }
     if (cmd === "apis" && sub === "get") {
       const id = flag(parsed, "--id");
@@ -105,6 +114,30 @@ export async function runShellCommand(
       const path = flag(parsed, "--path");
       const probes = endpointId ? [{ endpoint_id: endpointId, path: path ?? undefined }] : undefined;
       return { ok: true, data: await c.apis.probeUpstream(apiId, probes) };
+    }
+    if (cmd === "apis" && sub === "cors-list") {
+      const apiId = flag(parsed, "--api-id");
+      if (!apiId) return usage("--api-id required");
+      return { ok: true, data: await c.apis.getCors(apiId) };
+    }
+    if (cmd === "apis" && sub === "cors-set") {
+      const apiId = flag(parsed, "--api-id");
+      const originsRaw = flag(parsed, "--origins");
+      if (!apiId || !originsRaw) return usage("--api-id and --origins required");
+      const origins = originsRaw.split(",").map((s) => s.trim()).filter(Boolean);
+      return { ok: true, data: await c.apis.putCors(apiId, origins) };
+    }
+    if (cmd === "apis" && sub === "cors-add") {
+      const apiId = flag(parsed, "--api-id");
+      const origin = flag(parsed, "--origin");
+      if (!apiId || !origin) return usage("--api-id and --origin required");
+      return { ok: true, data: await c.apis.addCorsOrigin(apiId, origin) };
+    }
+    if (cmd === "apis" && sub === "cors-remove") {
+      const apiId = flag(parsed, "--api-id");
+      const origin = flag(parsed, "--origin");
+      if (!apiId || !origin) return usage("--api-id and --origin required");
+      return { ok: true, data: await c.apis.removeCorsOrigin(apiId, origin) };
     }
 
     if (cmd === "endpoints" && sub === "list") {
@@ -372,6 +405,15 @@ export async function runShellCommand(
       };
     }
 
+    if (cmd === "exchange-rates" && sub === "list") {
+      return {
+        ok: true,
+        data: await c.exchangeRates.list({
+          quote: flag(parsed, "--quote"),
+          date: flag(parsed, "--date"),
+        }),
+      };
+    }
     if (cmd === "exchange-rates" && sub === "supported") {
       return { ok: true, data: await c.exchangeRates.supported() };
     }

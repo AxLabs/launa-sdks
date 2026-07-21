@@ -27,6 +27,7 @@
     "upstream_base_url": "https://upstream.example.com",
     "pay_to_mode": "user_wallet",
     "pay_to_address": "0x0000000000000000000000000000000000000001",
+    "cors_allowed_origins": ["http://localhost:5173"],
     "domains": [
       {
         "id": "507f1f77bcf86cd799439013",
@@ -118,7 +119,26 @@
     "currencies": ["usd", "eur"],
     "default": "usd"
   },
+  "exchangeRatesAll": {
+    "quote": "usd",
+    "rate_date": "2026-07-21",
+    "rates": [
+      {
+        "token_id": "eip155:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "symbol": "USDC",
+        "network": "eip155:8453",
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "price_token_id": "usd-coin",
+        "rate": "1",
+        "source": "cache"
+      }
+    ]
+  },
+  "apiCors": {
+    "origins": ["http://localhost:5173"]
+  },
   "settlements": [],
+  "webhookDeliveries": [],
   "batchSettlements": [],
   "supportedNetworks": { "kinds": [] },
   "domainPlan": {

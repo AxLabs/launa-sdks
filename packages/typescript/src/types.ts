@@ -224,7 +224,10 @@ export type API = {
   gateway_server_id?: string;
   gateway_server?: GatewayServerSummary;
   gateway_cname_target?: string;
+  webhook_url?: string;
+  webhook_configured?: boolean;
   domains: APIDomain[];
+  cors_allowed_origins?: string[];
 };
 
 export type CreateAPIInput = {
@@ -236,6 +239,32 @@ export type CreateAPIInput = {
   accept_all_tokens?: boolean;
   accepted_token_ids?: string[];
   upstream_auth?: UpstreamAuthInput;
+  webhook_url?: string;
+  webhook_secret?: string;
+  clear_webhook?: boolean;
+  cors_allowed_origins?: string[];
+};
+
+export type APICorsOrigins = {
+  origins: string[];
+};
+
+export type WebhookDelivery = {
+  id: string;
+  api_id: string;
+  user_id: string;
+  settlement_id?: string;
+  tx: string;
+  network: string;
+  delivery_id: string;
+  event: string;
+  status: "pending" | "success" | "failed" | string;
+  attempts: number;
+  next_attempt_at: string;
+  last_status_code?: number;
+  last_error?: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type UpstreamProbeResult = {
@@ -584,6 +613,22 @@ export type ExchangeRateLookup = {
   rate_date: string;
   source: string;
   quote: string;
+};
+
+export type TokenExchangeRate = {
+  token_id: string;
+  symbol: string;
+  network: string;
+  asset: string;
+  price_token_id: string;
+  rate: string;
+  source: string;
+};
+
+export type ExchangeRatesAll = {
+  quote: string;
+  rate_date: string;
+  rates: TokenExchangeRate[];
 };
 
 export type SellerIncomeEntry = {

@@ -20,6 +20,41 @@ type ExchangeRateLookup struct {
 	Quote        string `json:"quote"`
 }
 
+type TokenExchangeRate struct {
+	TokenID      string `json:"token_id"`
+	Symbol       string `json:"symbol"`
+	Network      string `json:"network"`
+	Asset        string `json:"asset"`
+	PriceTokenID string `json:"price_token_id"`
+	Rate         string `json:"rate"`
+	Source       string `json:"source"`
+}
+
+type ExchangeRatesAll struct {
+	Quote    string              `json:"quote"`
+	RateDate string              `json:"rate_date"`
+	Rates    []TokenExchangeRate `json:"rates"`
+}
+
+func (c *Client) ExchangeRatesAll(ctx context.Context, quote, date string) (*ExchangeRatesAll, error) {
+	params := url.Values{}
+	if quote != "" {
+		params.Set("quote", quote)
+	}
+	if date != "" {
+		params.Set("date", date)
+	}
+	path := "/exchange-rates"
+	if enc := params.Encode(); enc != "" {
+		path += "?" + enc
+	}
+	var out ExchangeRatesAll
+	if err := c.do(ctx, http.MethodGet, path, nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *Client) ExchangeRatesSupported(ctx context.Context) (*ExchangeRatesSupported, error) {
 	var out ExchangeRatesSupported
 	if err := c.do(ctx, http.MethodGet, "/exchange-rates/supported", nil, &out); err != nil {

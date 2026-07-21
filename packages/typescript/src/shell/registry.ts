@@ -14,12 +14,22 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--slug", required: true, type: "string" },
           { name: "--upstream", required: true, type: "url" },
           { name: "--pay-to", required: false, type: "address" },
+          { name: "--webhook-url", required: false, type: "url" },
+          { name: "--webhook-secret", required: false, type: "string" },
         ],
         sdkSnippet: `await client.apis.create({
   name: "My API",
   slug: "my-api",
   upstream_base_url: "https://api.example.com",
+  webhook_url: "https://app.example/webhooks/ax402/settlement",
+  webhook_secret: "whsec_...",
 })`,
+      },
+      {
+        id: "webhook-deliveries",
+        label: "Webhook deliveries",
+        flags: [{ name: "--id", required: true, type: "string" }],
+        sdkSnippet: 'await client.apis.listWebhookDeliveries("API_ID")',
       },
       {
         id: "get",
@@ -63,6 +73,39 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--path", required: false, type: "string" },
         ],
         sdkSnippet: 'await client.apis.probeUpstream("API_ID")',
+      },
+      {
+        id: "cors-list",
+        label: "List CORS origins",
+        flags: [{ name: "--api-id", required: true, type: "string" }],
+        sdkSnippet: 'await client.apis.getCors("API_ID")',
+      },
+      {
+        id: "cors-set",
+        label: "Set CORS origins",
+        flags: [
+          { name: "--api-id", required: true, type: "string" },
+          { name: "--origins", required: true, type: "string" },
+        ],
+        sdkSnippet: 'await client.apis.putCors("API_ID", ["http://localhost:5173"])',
+      },
+      {
+        id: "cors-add",
+        label: "Add CORS origin",
+        flags: [
+          { name: "--api-id", required: true, type: "string" },
+          { name: "--origin", required: true, type: "string" },
+        ],
+        sdkSnippet: 'await client.apis.addCorsOrigin("API_ID", "http://localhost:5173")',
+      },
+      {
+        id: "cors-remove",
+        label: "Remove CORS origin",
+        flags: [
+          { name: "--api-id", required: true, type: "string" },
+          { name: "--origin", required: true, type: "string" },
+        ],
+        sdkSnippet: 'await client.apis.removeCorsOrigin("API_ID", "http://localhost:5173")',
       },
     ],
   },
@@ -349,6 +392,15 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
     id: "exchange-rates",
     label: "Exchange rates",
     methods: [
+      {
+        id: "list",
+        label: "List all tokens",
+        flags: [
+          { name: "--quote", required: false, type: "string", defaultValue: "usd" },
+          { name: "--date", required: false, type: "string" },
+        ],
+        sdkSnippet: 'await client.exchangeRates.list({ quote: "usd" })',
+      },
       { id: "supported", label: "Supported", flags: [], sdkSnippet: "await client.exchangeRates.supported()" },
       {
         id: "lookup",

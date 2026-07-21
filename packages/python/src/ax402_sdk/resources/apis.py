@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..http import HttpTransport
-from ..models import API
+from ..models import API, APICorsOrigins, WebhookDelivery
 
 
 class APIsResource:
@@ -44,3 +44,25 @@ class APIsResource:
     ) -> dict[str, Any]:
         body = {"probes": probes} if probes else {}
         return self._http.request("POST", f"/apis/{api_id}/readiness/upstream", json_body=body)
+
+    def list_webhook_deliveries(self, api_id: str) -> list[WebhookDelivery]:
+        rows = self._http.request("GET", f"/apis/{api_id}/webhook-deliveries")
+        return [WebhookDelivery.model_validate(x) for x in rows]
+
+    def get_cors(self, api_id: str) -> APICorsOrigins:
+        return APICorsOrigins.model_validate(self._http.request("GET", f"/apis/{api_id}/cors"))
+
+    def put_cors(self, api_id: str, origins: list[str]) -> APICorsOrigins:
+        return APICorsOrigins.model_validate(
+            self._http.request("PUT", f"/apis/{api_id}/cors", json_body={"origins": origins})
+        )
+
+    def add_cors_origin(self, api_id: str, origin: str) -> APICorsOrigins:
+        return APICorsOrigins.model_validate(
+            self._http.request("POST", f"/apis/{api_id}/cors", json_body={"origin": origin})
+        )
+
+    def remove_cors_origin(self, api_id: str, origin: str) -> APICorsOrigins:
+        return APICorsOrigins.model_validate(
+            self._http.request("DELETE", f"/apis/{api_id}/cors", params={"origin": origin})
+        )

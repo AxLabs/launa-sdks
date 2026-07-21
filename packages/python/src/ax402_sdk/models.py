@@ -54,7 +54,32 @@ class API(BaseModel):
     upstream_base_url: str
     pay_to_mode: str = "user_wallet"
     pay_to_address: str | None = None
+    webhook_url: str | None = None
+    webhook_configured: bool | None = None
+    cors_allowed_origins: list[str] = Field(default_factory=list)
     domains: list[APIDomain] = Field(default_factory=list)
+
+
+class APICorsOrigins(BaseModel):
+    origins: list[str] = Field(default_factory=list)
+
+
+class WebhookDelivery(BaseModel):
+    id: str
+    api_id: str
+    user_id: str
+    settlement_id: str | None = None
+    tx: str
+    network: str
+    delivery_id: str
+    event: str
+    status: str
+    attempts: int = 0
+    next_attempt_at: str | None = None
+    last_status_code: int | None = None
+    last_error: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
 
 
 class Endpoint(BaseModel):
@@ -146,6 +171,22 @@ class ExchangeRateLookup(BaseModel):
     rate_date: str
     source: str
     quote: str
+
+
+class TokenExchangeRate(BaseModel):
+    token_id: str
+    symbol: str
+    network: str
+    asset: str
+    price_token_id: str
+    rate: str
+    source: str
+
+
+class ExchangeRatesAll(BaseModel):
+    quote: str
+    rate_date: str
+    rates: list[TokenExchangeRate] = Field(default_factory=list)
 
 
 SCOPE_PRESETS: dict[str, list[str]] = {

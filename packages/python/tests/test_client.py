@@ -31,6 +31,7 @@ ROUTES = [
     ("GET", "/domains/suggest", 200, "domainPlan", True),
     ("GET", "/supported-networks", 200, "supportedNetworks", True),
     ("GET", "/stats/overview", 200, "statsOverview", True),
+    ("GET", "/exchange-rates", 200, "exchangeRatesAll", True),
     ("GET", "/exchange-rates/supported", 200, "exchangeRatesSupported", True),
     ("POST", "/openapi/parse", 200, "parsedOpenAPI", True),
     ("GET", "/apis", 200, "api", True),
@@ -38,6 +39,10 @@ ROUTES = [
     ("GET", "/apis/api1", 200, "api", True),
     ("PUT", "/apis/api1", 200, "api", True),
     ("DELETE", "/apis/api1", 204, None, True),
+    ("GET", "/apis/api1/cors", 200, "apiCors", True),
+    ("PUT", "/apis/api1/cors", 200, "apiCors", True),
+    ("POST", "/apis/api1/cors", 200, "apiCors", True),
+    ("DELETE", "/apis/api1/cors", 200, "apiCors", True),
     ("GET", "/apis/api1/endpoints", 200, "endpoint", True),
     ("POST", "/apis/api1/endpoints", 201, "endpoint", True),
     ("PUT", "/apis/api1/endpoints/ep1", 200, "endpoint", True),
@@ -115,11 +120,16 @@ def test_all_routes(client: Ax402Client) -> None:
     assert overview.display_currency == "usd"
     assert overview.total_earnings_fiat == "2.50"
     assert client.exchange_rates.supported().default == "usd"
+    assert client.exchange_rates.list().quote == "usd"
     client.openapi.parse_spec("openapi: 3")
     assert len(client.apis.list()) == 1
     client.apis.create({"name": "n", "slug": "s", "upstream_base_url": "https://x.com"})
     client.apis.get("api1")
     client.apis.update("api1", {"name": "n"})
+    assert client.apis.get_cors("api1").origins == ["http://localhost:5173"]
+    client.apis.put_cors("api1", ["http://localhost:5173"])
+    client.apis.add_cors_origin("api1", "http://localhost:3000")
+    client.apis.remove_cors_origin("api1", "http://localhost:3000")
     client.apis.delete("api1")
     assert len(client.endpoints.list("api1")) == 1
     body = {"method": "GET", "path_pattern": "/v1/*", "accepts": []}

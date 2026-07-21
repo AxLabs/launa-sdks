@@ -1,6 +1,7 @@
 import { HttpClient } from "./http.js";
 import type {
   API,
+  APICorsOrigins,
   APIKey,
   APIStats,
   BatchIntervals,
@@ -16,10 +17,11 @@ import type {
   DomainPlan,
   DomainSetup,
   Endpoint,
+  ExchangeRateLookup,
+  ExchangeRatesAll,
+  ExchangeRatesSupported,
   IncomeLedgerPage,
   IncomeSummary,
-  ExchangeRatesSupported,
-  ExchangeRateLookup,
   OpenAPIImportInput,
   OpenAPIImportResult,
   ParsedOpenAPI,
@@ -43,6 +45,7 @@ import type {
   FacilitatorStats,
   SupportedResponse,
   UserPasskey,
+  WebhookDelivery,
 } from "./types.js";
 
 export type Ax402ClientOptions = ClientOptions & {
@@ -342,6 +345,33 @@ class APIsResource {
       body: JSON.stringify(body),
     });
   }
+
+  listWebhookDeliveries(apiId: string) {
+    return this.http.request<WebhookDelivery[]>(`/apis/${apiId}/webhook-deliveries`);
+  }
+
+  getCors(apiId: string) {
+    return this.http.request<APICorsOrigins>(`/apis/${apiId}/cors`);
+  }
+
+  putCors(apiId: string, origins: string[]) {
+    return this.http.request<APICorsOrigins>(`/apis/${apiId}/cors`, {
+      method: "PUT",
+      body: JSON.stringify({ origins }),
+    });
+  }
+
+  addCorsOrigin(apiId: string, origin: string) {
+    return this.http.request<APICorsOrigins>(`/apis/${apiId}/cors`, {
+      method: "POST",
+      body: JSON.stringify({ origin }),
+    });
+  }
+
+  removeCorsOrigin(apiId: string, origin: string) {
+    const q = new URLSearchParams({ origin });
+    return this.http.request<APICorsOrigins>(`/apis/${apiId}/cors?${q}`, { method: "DELETE" });
+  }
 }
 
 class EndpointsResource {
@@ -516,6 +546,15 @@ class IncomeResource {
 
 class ExchangeRatesResource {
   constructor(private http: HttpClient) {}
+
+  /** Rates for all enabled platform payment tokens (default quote: usd). */
+  list(query: { quote?: string; date?: string } = {}) {
+    const q = new URLSearchParams();
+    if (query.quote) q.set("quote", query.quote);
+    if (query.date) q.set("date", query.date);
+    const suffix = q.size ? `?${q}` : "";
+    return this.http.request<ExchangeRatesAll>(`/exchange-rates${suffix}`);
+  }
 
   supported() {
     return this.http.request<ExchangeRatesSupported>("/exchange-rates/supported");

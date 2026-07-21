@@ -88,6 +88,10 @@ ax402 apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to
 ax402 apis delete --id ID [--json]
 ax402 apis slug-check --slug SLUG [--exclude-api-id ID] [--json]
 ax402 apis probe-upstream --api-id ID [--endpoint-id EP] [--path PATH] [--json]
+ax402 apis cors-list --api-id ID [--json]
+ax402 apis cors-set --api-id ID --origins ORIGIN[,ORIGIN...] [--json]
+ax402 apis cors-add --api-id ID --origin ORIGIN [--json]
+ax402 apis cors-remove --api-id ID --origin ORIGIN [--json]
 
 ax402 endpoints list --api-id ID [--json]
 ax402 endpoints create --api-id ID --path "/v1/*" [--method GET] [--price-usdc 0.10] [--scheme exact|batch-settlement] [--json]
@@ -138,6 +142,7 @@ ax402 networks supported [--json]
 ax402 scopes presets [--json]
 ax402 scopes list [--json]                              # JWT only
 
+ax402 exchange-rates list [--quote usd] [--date YYYY-MM-DD] [--json]
 ax402 exchange-rates supported [--json]
 ax402 exchange-rates lookup --network NET --asset ADDR [--quote USD] [--date YYYY-MM-DD] [--json]
 

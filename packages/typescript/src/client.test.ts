@@ -34,11 +34,16 @@ describe("Ax402Client integration", () => {
       total_earnings_fiat: "2.50",
     });
     expect(await client.exchangeRates.supported()).toMatchObject({ default: "usd" });
+    expect(await client.exchangeRates.list()).toMatchObject({ quote: "usd" });
     await client.openapi.parseSpec("openapi: 3");
     expect(await client.apis.list()).toHaveLength(1);
     await client.apis.create({ name: "n", slug: "s", upstream_base_url: "https://x.com" });
     await client.apis.get("api1");
     await client.apis.update("api1", { name: "n" });
+    expect(await client.apis.getCors("api1")).toMatchObject({ origins: ["http://localhost:5173"] });
+    await client.apis.putCors("api1", ["http://localhost:5173"]);
+    await client.apis.addCorsOrigin("api1", "http://localhost:3000");
+    await client.apis.removeCorsOrigin("api1", "http://localhost:3000");
     await client.apis.delete("api1");
     expect(await client.endpoints.list("api1")).toHaveLength(1);
     await client.endpoints.create("api1", {
@@ -57,6 +62,14 @@ describe("Ax402Client integration", () => {
     await client.exchangeRates.supported();
     await client.settlements.list("api1");
     await client.settlements.listBatch("api1");
+    expect(await client.apis.listWebhookDeliveries("api1")).toEqual([]);
+    await client.apis.create({
+      name: "n",
+      slug: "s2",
+      upstream_base_url: "https://x.com",
+      webhook_url: "https://app.example/hooks",
+      webhook_secret: "whsec_test",
+    });
 
     await mock.close();
   });

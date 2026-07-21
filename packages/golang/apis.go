@@ -72,3 +72,47 @@ func (c *Client) ProbeUpstream(ctx context.Context, apiID string, probes []Upstr
 	}
 	return out, nil
 }
+
+func (c *Client) ListWebhookDeliveries(ctx context.Context, apiID string) ([]WebhookDelivery, error) {
+	var out []WebhookDelivery
+	if err := c.do(ctx, http.MethodGet, "/apis/"+apiID+"/webhook-deliveries", nil, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *Client) GetAPICORS(ctx context.Context, apiID string) (*APICorsOrigins, error) {
+	var out APICorsOrigins
+	if err := c.do(ctx, http.MethodGet, "/apis/"+apiID+"/cors", nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) PutAPICORS(ctx context.Context, apiID string, origins []string) (*APICorsOrigins, error) {
+	if origins == nil {
+		origins = []string{}
+	}
+	var out APICorsOrigins
+	if err := c.do(ctx, http.MethodPut, "/apis/"+apiID+"/cors", map[string]any{"origins": origins}, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) AddAPICORSOrigin(ctx context.Context, apiID, origin string) (*APICorsOrigins, error) {
+	var out APICorsOrigins
+	if err := c.do(ctx, http.MethodPost, "/apis/"+apiID+"/cors", map[string]any{"origin": origin}, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) RemoveAPICORSOrigin(ctx context.Context, apiID, origin string) (*APICorsOrigins, error) {
+	q := url.Values{"origin": {origin}}
+	var out APICorsOrigins
+	if err := c.do(ctx, http.MethodDelete, "/apis/"+apiID+"/cors?"+q.Encode(), nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}

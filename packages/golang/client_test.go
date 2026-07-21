@@ -53,6 +53,7 @@ func loadMockRoutes() []mockRoute {
 		{"GET", "/domains/suggest", 200, "domainPlan", false, true},
 		{"GET", "/supported-networks", 200, "supportedNetworks", false, true},
 		{"GET", "/stats/overview", 200, "statsOverview", false, true},
+		{"GET", "/exchange-rates", 200, "exchangeRatesAll", false, true},
 		{"GET", "/exchange-rates/supported", 200, "exchangeRatesSupported", false, true},
 		{"POST", "/openapi/parse", 200, "parsedOpenAPI", false, true},
 		{"GET", "/apis", 200, `[` + string(fixtures["api"]) + `]`, false, true},
@@ -60,6 +61,10 @@ func loadMockRoutes() []mockRoute {
 		{"GET", "/apis/api1", 200, "api", false, true},
 		{"PUT", "/apis/api1", 200, "api", false, true},
 		{"DELETE", "/apis/api1", 204, "", true, true},
+		{"GET", "/apis/api1/cors", 200, "apiCors", false, true},
+		{"PUT", "/apis/api1/cors", 200, "apiCors", false, true},
+		{"POST", "/apis/api1/cors", 200, "apiCors", false, true},
+		{"DELETE", "/apis/api1/cors", 200, "apiCors", false, true},
 		{"GET", "/apis/api1/endpoints", 200, `[` + string(fixtures["endpoint"]) + `]`, false, true},
 		{"POST", "/apis/api1/endpoints", 201, "endpoint", false, true},
 		{"PUT", "/apis/api1/endpoints/ep1", 200, "endpoint", false, true},
@@ -71,6 +76,7 @@ func loadMockRoutes() []mockRoute {
 		{"DELETE", "/apis/api1/domains/dom1", 204, "", true, true},
 		{"GET", "/apis/api1/stats", 200, "statsOverview", false, true},
 		{"GET", "/apis/api1/settlements", 200, "settlements", false, true},
+		{"GET", "/apis/api1/webhook-deliveries", 200, "[]", false, true},
 		{"GET", "/apis/api1/batch-settlements", 200, "batchSettlements", false, true},
 	}
 	var routes []mockRoute
@@ -199,6 +205,9 @@ func TestAllRoutes(t *testing.T) {
 	if _, err := cl.ExchangeRatesSupported(ctx); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := cl.ExchangeRatesAll(ctx, "usd", ""); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := cl.ParseOpenAPI(ctx, "openapi: 3"); err != nil {
 		t.Fatal(err)
 	}
@@ -212,6 +221,18 @@ func TestAllRoutes(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, err := cl.UpdateAPI(ctx, "api1", CreateAPIInput{Name: "n", Slug: "s", UpstreamBaseURL: "https://x.com"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.GetAPICORS(ctx, "api1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.PutAPICORS(ctx, "api1", []string{"http://localhost:5173"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.AddAPICORSOrigin(ctx, "api1", "http://localhost:3000"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.RemoveAPICORSOrigin(ctx, "api1", "http://localhost:3000"); err != nil {
 		t.Fatal(err)
 	}
 	if err := cl.DeleteAPI(ctx, "api1"); err != nil {
@@ -252,6 +273,9 @@ func TestAllRoutes(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, err := cl.ListSettlements(ctx, "api1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.ListWebhookDeliveries(ctx, "api1"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := cl.ListBatchSettlements(ctx, "api1"); err != nil {

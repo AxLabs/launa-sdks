@@ -40,16 +40,19 @@ type GatewayServerSummary struct {
 }
 
 type API struct {
-	ID                  string                 `json:"id"`
-	Name                string                 `json:"name"`
-	Slug                string                 `json:"slug"`
-	UpstreamBaseURL     string                 `json:"upstream_base_url"`
-	PayToMode           string                 `json:"pay_to_mode"`
-	PayToAddress        string                 `json:"pay_to_address,omitempty"`
-	GatewayServerID     string                 `json:"gateway_server_id,omitempty"`
-	GatewayServer       *GatewayServerSummary  `json:"gateway_server,omitempty"`
-	GatewayCNAMETarget  string                 `json:"gateway_cname_target,omitempty"`
-	Domains             []APIDomain            `json:"domains"`
+	ID                 string                `json:"id"`
+	Name               string                `json:"name"`
+	Slug               string                `json:"slug"`
+	UpstreamBaseURL    string                `json:"upstream_base_url"`
+	PayToMode          string                `json:"pay_to_mode"`
+	PayToAddress       string                `json:"pay_to_address,omitempty"`
+	GatewayServerID    string                `json:"gateway_server_id,omitempty"`
+	GatewayServer      *GatewayServerSummary `json:"gateway_server,omitempty"`
+	GatewayCNAMETarget string                `json:"gateway_cname_target,omitempty"`
+	WebhookURL         string                `json:"webhook_url,omitempty"`
+	WebhookConfigured  bool                  `json:"webhook_configured,omitempty"`
+	CORSAllowedOrigins []string              `json:"cors_allowed_origins,omitempty"`
+	Domains            []APIDomain           `json:"domains"`
 }
 
 type APIDomain struct {
@@ -58,11 +61,37 @@ type APIDomain struct {
 }
 
 type CreateAPIInput struct {
-	Name            string `json:"name"`
-	Slug            string `json:"slug"`
-	UpstreamBaseURL string `json:"upstream_base_url"`
-	PayToMode       string `json:"pay_to_mode,omitempty"`
-	PayToAddress    string `json:"pay_to_address,omitempty"`
+	Name               string   `json:"name"`
+	Slug               string   `json:"slug"`
+	UpstreamBaseURL    string   `json:"upstream_base_url"`
+	PayToMode          string   `json:"pay_to_mode,omitempty"`
+	PayToAddress       string   `json:"pay_to_address,omitempty"`
+	WebhookURL         string   `json:"webhook_url,omitempty"`
+	WebhookSecret      string   `json:"webhook_secret,omitempty"`
+	ClearWebhook       bool     `json:"clear_webhook,omitempty"`
+	CORSAllowedOrigins []string `json:"cors_allowed_origins,omitempty"`
+}
+
+type APICorsOrigins struct {
+	Origins []string `json:"origins"`
+}
+
+type WebhookDelivery struct {
+	ID             string `json:"id"`
+	APIID          string `json:"api_id"`
+	UserID         string `json:"user_id"`
+	SettlementID   string `json:"settlement_id,omitempty"`
+	Tx             string `json:"tx"`
+	Network        string `json:"network"`
+	DeliveryID     string `json:"delivery_id"`
+	Event          string `json:"event"`
+	Status         string `json:"status"`
+	Attempts       int    `json:"attempts"`
+	NextAttemptAt  string `json:"next_attempt_at"`
+	LastStatusCode int    `json:"last_status_code,omitempty"`
+	LastError      string `json:"last_error,omitempty"`
+	CreatedAt      string `json:"created_at"`
+	UpdatedAt      string `json:"updated_at"`
 }
 
 type Endpoint struct {
