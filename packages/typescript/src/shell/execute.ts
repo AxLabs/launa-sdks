@@ -151,9 +151,20 @@ export async function runShellCommand(
       const path = flag(parsed, "--path");
       const price = flag(parsed, "--price-usdc") ?? "0.10";
       const scheme = (flag(parsed, "--scheme") ?? "exact") as PaymentScheme;
+      const ttlRaw = flag(parsed, "--ttl");
       if (!apiId || !path) return usage("--api-id and --path required");
       const accepts = [buildUsdcAccept(scheme, usdcToAtomic(price))];
-      return { ok: true, data: await c.endpoints.create(apiId, { method, path_pattern: path, accepts }) };
+      const body: { method: string; path_pattern: string; accepts: ReturnType<typeof buildUsdcAccept>[]; ttl?: number } = {
+        method,
+        path_pattern: path,
+        accepts,
+      };
+      if (ttlRaw !== undefined) {
+        const ttl = parseInt(ttlRaw, 10);
+        if (!Number.isFinite(ttl) || ttl <= 0) return usage("--ttl must be a positive number of seconds");
+        body.ttl = ttl;
+      }
+      return { ok: true, data: await c.endpoints.create(apiId, body) };
     }
     if (cmd === "endpoints" && sub === "update") {
       const apiId = flag(parsed, "--api-id");

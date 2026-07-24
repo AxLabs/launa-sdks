@@ -53,6 +53,23 @@
       }
     ]
   },
+  "endpointEphemeral": {
+    "id": "507f1f77bcf86cd799439017",
+    "api_id": "507f1f77bcf86cd799439012",
+    "method": "POST",
+    "path_pattern": "/quotes/abc123",
+    "enabled": true,
+    "ttl": 1800,
+    "expires_at": "2026-07-24T13:30:00Z",
+    "accepts": [
+      {
+        "scheme": "exact",
+        "network": "eip155:84532",
+        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "amount": "500000"
+      }
+    ]
+  },
   "endpoints": [],
   "domainSetup": {
     "id": "507f1f77bcf86cd799439015",

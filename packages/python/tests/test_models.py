@@ -22,5 +22,11 @@ def test_endpoint_model() -> None:
     Endpoint.model_validate(FIXTURES["endpoint"])
 
 
+def test_ephemeral_endpoint_model() -> None:
+    ep = Endpoint.model_validate(FIXTURES["endpointEphemeral"])
+    assert ep.ttl == 1800
+    assert ep.expires_at == "2026-07-24T13:30:00Z"
+
+
 def test_stats_overview_model() -> None:
     StatsOverview.model_validate(FIXTURES["statsOverview"])

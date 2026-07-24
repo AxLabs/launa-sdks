@@ -60,13 +60,14 @@ server.tool(
 
 server.tool(
   "ax402_add_endpoint",
-  "Add paid endpoint. Requires endpoints:write.",
+  "Add paid endpoint. Requires endpoints:write. Optional ttl (seconds) for one-time/ephemeral routes.",
   {
     api_id: z.string(),
     method: z.string(),
     path_pattern: z.string(),
     price_usdc: z.string().default("0.10"),
     scheme: z.enum(["exact", "batch-settlement"]).optional(),
+    ttl: z.number().int().positive().optional(),
   },
   async (args) =>
     text(
@@ -76,6 +77,7 @@ server.tool(
         args.path_pattern,
         args.price_usdc,
         args.scheme ?? "exact",
+        args.ttl,
       ),
     ),
 );

@@ -90,6 +90,8 @@ class Endpoint(BaseModel):
     enabled: bool = True
     accepts: list[AcceptOption]
     description: str | None = None
+    ttl: int | None = None
+    expires_at: str | None = None
 
 
 class DomainSetup(BaseModel):

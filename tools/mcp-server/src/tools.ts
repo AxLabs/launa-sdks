@@ -13,11 +13,13 @@ export function createToolHandlers(getClient: () => Ax402Client) {
       path_pattern: string,
       price_usdc: string,
       scheme: PaymentScheme = "exact",
+      ttl?: number,
     ) =>
       getClient().endpoints.create(api_id, {
         method,
         path_pattern,
         accepts: [buildUsdcAccept(scheme, usdcToAtomic(price_usdc))],
+        ...(ttl != null ? { ttl } : {}),
       }),
     listEndpoints: async (api_id: string) => getClient().endpoints.list(api_id),
     importOpenapi: async (api_id: string, spec: string, price_usdc: string) =>

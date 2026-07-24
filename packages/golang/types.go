@@ -102,6 +102,8 @@ type Endpoint struct {
 	Enabled     bool           `json:"enabled"`
 	Accepts     []AcceptOption `json:"accepts"`
 	Description string         `json:"description,omitempty"`
+	TTL         *int           `json:"ttl,omitempty"`
+	ExpiresAt   string         `json:"expires_at,omitempty"`
 }
 
 type CreateEndpointInput struct {
@@ -110,6 +112,7 @@ type CreateEndpointInput struct {
 	Accepts     []AcceptOption `json:"accepts"`
 	Description string         `json:"description,omitempty"`
 	Enabled     *bool          `json:"enabled,omitempty"`
+	TTL         *int           `json:"ttl,omitempty"`
 }
 
 type UpdateEndpointInput struct {

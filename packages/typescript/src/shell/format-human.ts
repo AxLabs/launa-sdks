@@ -194,10 +194,15 @@ function formatApiList(apis: Record<string, unknown>[]): string {
 }
 
 function formatEndpoint(ep: Record<string, unknown>): string {
+  const ttlLine =
+    ep.ttl != null
+      ? `  ttl:     ${ep.ttl}s${ep.expires_at ? ` (expires ${ep.expires_at})` : ""}`
+      : null;
   return [
     `Endpoint  ${ep.method} ${ep.path_pattern}`,
     `  id:      ${ep.id}`,
     `  enabled: ${ep.enabled === false ? "no" : "yes"}`,
+    ttlLine,
     `  accepts: ${formatAccepts(ep.accepts)}`,
     ep.description ? `  note:    ${ep.description}` : null,
   ]
@@ -216,8 +221,10 @@ function formatEndpointList(eps: Record<string, unknown>[]): string {
     const price = Array.isArray(ep.accepts) && isRecord(ep.accepts[0]) && ep.accepts[0].amount != null
       ? `${atomicToUsdc(str(ep.accepts[0].amount))} USDC`
       : "—";
+    const status =
+      ep.enabled === false ? "disabled" : ep.ttl != null ? `ephemeral (${ep.ttl}s)` : "enabled";
     lines.push(
-      `  ${col(str(ep.method), wMethod)}${col(str(ep.path_pattern), wPath)}${col(price, wPrice)}${ep.enabled === false ? "disabled" : "enabled"}`,
+      `  ${col(str(ep.method), wMethod)}${col(str(ep.path_pattern), wPath)}${col(price, wPrice)}${status}`,
     );
   }
   return lines.join("\n");

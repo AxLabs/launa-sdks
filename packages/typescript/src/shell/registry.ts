@@ -128,11 +128,13 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--path", required: true, type: "string", placeholder: "/v1/*" },
           { name: "--price-usdc", required: false, type: "number", defaultValue: "0.10" },
           { name: "--scheme", required: false, type: "string", defaultValue: "exact" },
+          { name: "--ttl", required: false, type: "number", placeholder: "1800" },
         ],
         sdkSnippet: `await client.endpoints.create("API_ID", {
   method: "GET",
   path_pattern: "/v1/*",
   accepts: [buildUsdcAccept("exact", usdcToAtomic("0.10"))],
+  ttl: 1800, // optional — omit for permanent endpoints
 })`,
       },
       {

@@ -302,6 +302,8 @@ export type Endpoint = {
   enabled: boolean;
   accepts: AcceptOption[];
   upstream_auth?: UpstreamAuth;
+  ttl?: number;
+  expires_at?: string;
 };
 
 export type CreateEndpointInput = {
@@ -312,6 +314,7 @@ export type CreateEndpointInput = {
   accepts: AcceptOption[];
   upstream_auth?: UpstreamAuthInput;
   clear_upstream_auth?: boolean;
+  ttl?: number;
 };
 
 export type Settlement = {

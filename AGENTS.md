@@ -24,7 +24,8 @@ Seller control-plane reference for agents. API surface: public seller routes on 
 ```
 1. GET /config/platform
 2. POST /apis { name, slug, upstream_base_url, pay_to_mode, pay_to_address? }
-3. POST /apis/{id}/endpoints { method, path_pattern, accepts[] }
+3. POST /apis/{id}/endpoints { method, path_pattern, accepts[], ttl? }
+   - omit `ttl` for permanent endpoints; set `ttl` (seconds) for one-time/ephemeral routes
 4. Gateway URL: http://{slug}.{platform_domain}:{gateway_port}{path}
 ```
 
