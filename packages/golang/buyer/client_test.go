@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -35,6 +36,28 @@ func TestNewWithBatchOptions(t *testing.T) {
 
 func TestNewFromPrivateKeyInvalid(t *testing.T) {
 	_, err := NewFromPrivateKey("not-a-key")
+	if err == nil {
+		t.Fatal("expected error")
+	}
+}
+
+func TestNewFromEnvHederaUnsupported(t *testing.T) {
+	t.Setenv("AX402_EVM_PRIVATE_KEY", "")
+	t.Setenv("EVM_PRIVATE_KEY", "")
+	t.Setenv("HEDERA_ACCOUNT_ID", "0.0.1234")
+	t.Setenv("HEDERA_PRIVATE_KEY", "deadbeef")
+	_, err := NewFromEnv()
+	if err == nil || !strings.Contains(err.Error(), "hedera buyer signing is not supported") {
+		t.Fatalf("got %v", err)
+	}
+}
+
+func TestNewFromEnvMissing(t *testing.T) {
+	t.Setenv("AX402_EVM_PRIVATE_KEY", "")
+	t.Setenv("EVM_PRIVATE_KEY", "")
+	t.Setenv("HEDERA_ACCOUNT_ID", "")
+	t.Setenv("HEDERA_PRIVATE_KEY", "")
+	_, err := NewFromEnv()
 	if err == nil {
 		t.Fatal("expected error")
 	}

@@ -69,13 +69,28 @@ export {
   DEFAULT_BATCH_PAYWALL_NETWORK,
   DEFAULT_PAYWALL_NETWORK,
   DEFAULT_RPC_BY_NETWORK,
+  HASHSCAN_BASE_BY_NETWORK,
   NETWORK_BASE,
   NETWORK_BASE_SEPOLIA,
+  NETWORK_HEDERA_MAINNET,
+  NETWORK_HEDERA_TESTNET,
   NETWORK_NEOX_MAINNET,
   NETWORK_NEOX_TESTNET,
   SUPPORTED_PAYWALL_NETWORKS,
+  hashscanAccountUrl,
+  hashscanTransactionUrl,
+  isHederaNetwork,
+  prefersHederaNetwork,
   resolveFallbackNetwork,
 } from './networks.js'
+export {
+  connectHederaWalletConnect,
+  createPrivateKeyHederaSigner,
+  createWalletConnectHederaSigner,
+  parseHederaPrivateKey,
+  type HederaDAppTransactionSigner,
+  type HederaWalletConnectConfig,
+} from './hederaWallet.js'
 export {
   createBatchSettlementScheme,
   createLocalStorageChannelStorage,

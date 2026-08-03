@@ -154,6 +154,25 @@ export type WaitlistJoinResponse = {
   email: string;
 };
 
+export type LocalDevPaymentToken = {
+  symbol: string;
+  name: string;
+  asset: string;
+  decimals: number;
+  network: string;
+};
+
+export type LocalDevConfig = {
+  enabled: boolean;
+  chain_id?: number;
+  network?: string;
+  network_name?: string;
+  rpc_url?: string;
+  native_symbol?: string;
+  faucet_enabled?: boolean;
+  payment_token?: LocalDevPaymentToken;
+};
+
 export type DomainPlan = {
   gateway_hostname: string;
   upstream_base_url: string;
@@ -249,6 +268,9 @@ export type APICorsOrigins = {
   origins: string[];
 };
 
+/** Alias used by the seller dashboard; same shape as {@link APICorsOrigins}. */
+export type CorsConfig = APICorsOrigins;
+
 export type WebhookDelivery = {
   id: string;
   api_id: string;
@@ -284,6 +306,10 @@ export type UpstreamProbeResponse = {
   error?: string;
 };
 
+export type UpstreamProbeRequest = {
+  probes?: Array<{ endpoint_id: string; path?: string }>;
+};
+
 export type AcceptOption = {
   scheme: string;
   network: string;
@@ -302,6 +328,9 @@ export type Endpoint = {
   enabled: boolean;
   accepts: AcceptOption[];
   upstream_auth?: UpstreamAuth;
+  /** Present when the endpoint was created with a TTL (ephemeral / one-time). */
+  ttl?: number;
+  expires_at?: string;
 };
 
 export type CreateEndpointInput = {
@@ -312,6 +341,8 @@ export type CreateEndpointInput = {
   accepts: AcceptOption[];
   upstream_auth?: UpstreamAuthInput;
   clear_upstream_auth?: boolean;
+  /** Optional lifetime in seconds; endpoint is deleted after first settle or expiry. */
+  ttl?: number;
 };
 
 export type Settlement = {
@@ -644,6 +675,12 @@ export type SellerIncomeEntry = {
   pay_to?: string;
   pay_to_mode?: string;
   source_event_id?: string;
+  settlement_id?: string;
+  payout_request_id?: string;
+  idempotency_key?: string;
+  metadata?: Record<string, unknown>;
+  ledger_source?: string;
+  counts_toward_earnings?: boolean;
   custodial: boolean;
   balance_after?: number;
   reconciled_at?: string;
@@ -677,4 +714,16 @@ export type PayoutRequest = {
   sent_tx_hash?: string;
   confirmed_at?: string;
   rejection_reason?: string;
+};
+
+export type PlatformSandboxWallet = {
+  address: string;
+  private_key: string;
+  private_key_redacted: string;
+};
+
+export type NotificationPreferences = {
+  billing_alerts: boolean;
+  weekly_summary: boolean;
+  payout_alerts: boolean;
 };

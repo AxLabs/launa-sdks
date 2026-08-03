@@ -12,12 +12,16 @@ All three SDKs expose the same control-plane resources: `auth`, `keys`, `apis`, 
 
 ## Coverage
 
-SDKs target **seller automation** — APIs, endpoints, domains, stats, settlements, billing/income reads, and auth/key management. These public routes are **not** in the SDKs (use the dashboard or direct HTTP):
+SDKs target **seller automation** — APIs, endpoints, domains, stats, settlements, billing/income,
+auth/key management, and (TypeScript) account notifications, account deletion, income payout
+create/cancel, billing model switch, sandbox wallet, and local-dev config.
 
-- Billing checkout and portal (`POST /billing/checkout/*`, `portal`, `model`, `payg/setup`)
-- Income payout requests (`POST` / `DELETE /income/payout-requests`)
-- Account notifications and account deletion
-- Dev/sandbox helpers (`/dev/*`, `/sandbox-wallet`, `/config/local-dev`)
+These public routes are **not** yet in Go/Python SDKs (use the dashboard, TypeScript SDK, or direct
+HTTP):
+
+- Billing checkout and portal (`POST /billing/checkout/*`, `portal`, `payg/setup`)
+- Go/Python: income payout mutate (`POST` / `DELETE /income/payout-requests`), notifications,
+  account deletion, sandbox wallet, `/config/local-dev`
 
 TypeScript, Go, and Python include `checkSlugAvailability` / `probe_upstream` for slug checks and upstream readiness probes.
 

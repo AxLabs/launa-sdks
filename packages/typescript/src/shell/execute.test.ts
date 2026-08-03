@@ -27,6 +27,32 @@ describe("runShellCommand", () => {
     expect(client.apis.list).toHaveBeenCalled();
   });
 
+  it("apis update accepts positional id", async () => {
+    const update = vi.fn().mockResolvedValue({
+      id: "6a5a069930cbab77aee99e9d",
+      webhook_url: "https://app.example/hooks",
+      webhook_configured: true,
+    });
+    const client = mockClient({ apis: { update } } as Partial<Ax402Client>);
+    const result = await runShellCommand(
+      parseShellArgv([
+        "apis",
+        "update",
+        "6a5a069930cbab77aee99e9d",
+        "--webhook-url",
+        "https://app.example/hooks",
+        "--webhook-secret",
+        "whsec_test",
+      ]),
+      { client },
+    );
+    expect(result.ok).toBe(true);
+    expect(update).toHaveBeenCalledWith("6a5a069930cbab77aee99e9d", {
+      webhook_url: "https://app.example/hooks",
+      webhook_secret: "whsec_test",
+    });
+  });
+
   it("returns usage for missing flags", async () => {
     const result = await runShellCommand(parseShellArgv(["apis", "create"]), { client: mockClient() });
     expect(result.ok).toBe(false);
@@ -89,6 +115,75 @@ describe("runShellCommand", () => {
     const result = await runShellCommand(parseShellArgv(["config", "billing"]), { client });
     expect(result.ok).toBe(true);
     expect(billing).toHaveBeenCalled();
+  });
+
+  it("endpoints update sets accepts from network/asset/price", async () => {
+    const update = vi.fn().mockResolvedValue({ id: "ep1", accepts: [] });
+    const client = mockClient({
+      endpoints: { update },
+    } as Partial<Ax402Client>);
+    const result = await runShellCommand(
+      parseShellArgv([
+        "endpoints",
+        "update",
+        "--api-id",
+        "6a2be9d4faa4332cab0de81c",
+        "--endpoint-id",
+        "6a2be9d5faa4332cab0de81d",
+        "--network",
+        "hedera:testnet",
+        "--asset",
+        "0.0.429274",
+        "--price",
+        "0.10",
+        "--scheme",
+        "exact",
+      ]),
+      { client },
+    );
+    expect(result.ok).toBe(true);
+    expect(update).toHaveBeenCalledWith("6a2be9d4faa4332cab0de81c", "6a2be9d5faa4332cab0de81d", {
+      accepts: [
+        {
+          scheme: "exact",
+          network: "hedera:testnet",
+          asset: "0.0.429274",
+          amount: "100000",
+          max_timeout_seconds: 300,
+        },
+      ],
+    });
+  });
+
+  it("endpoints update accepts JSON", async () => {
+    const update = vi.fn().mockResolvedValue({ id: "ep1" });
+    const client = mockClient({ endpoints: { update } } as Partial<Ax402Client>);
+    const accepts = JSON.stringify([
+      {
+        scheme: "exact",
+        network: "hedera:testnet",
+        asset: "0.0.429274",
+        amount: "100000",
+        max_timeout_seconds: 300,
+      },
+    ]);
+    const result = await runShellCommand(
+      parseShellArgv([
+        "endpoints",
+        "update",
+        "--api-id",
+        "api1",
+        "--endpoint-id",
+        "ep1",
+        "--accepts",
+        accepts,
+      ]),
+      { client },
+    );
+    expect(result.ok).toBe(true);
+    expect(update).toHaveBeenCalledWith("api1", "ep1", {
+      accepts: JSON.parse(accepts),
+    });
   });
 
   it("billing overview", async () => {

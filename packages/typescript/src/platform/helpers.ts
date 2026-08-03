@@ -29,10 +29,16 @@ export const NETWORK_BASE = "eip155:8453" as const;
 export const NETWORK_BASE_SEPOLIA = "eip155:84532" as const;
 export const NETWORK_NEOX_MAINNET = "eip155:47763" as const;
 export const NETWORK_NEOX_TESTNET = "eip155:12227332" as const;
+export const NETWORK_HEDERA_MAINNET = "hedera:mainnet" as const;
+export const NETWORK_HEDERA_TESTNET = "hedera:testnet" as const;
 export const USDC_BASE_MAINNET = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 export const USDC_BASE_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
 export const ZCHF_BASE_MAINNET = "0xD4dD9e2F021BB459D5A5f6c24C12fE09c5D45553";
 export const XGAS_NEOX_MAINNET = "0x9a50C8804dC885F118835cD96d3Ea4D4A5131A01";
+/** Native HBAR asset id (tinybars). */
+export const HBAR = "0.0.0";
+export const USDC_HEDERA_TESTNET = "0.0.429274";
+export const USDC_HEDERA_MAINNET = "0.0.456858";
 
 export const DEFAULT_USDC_ACCEPT = {
   scheme: "exact",

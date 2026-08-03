@@ -61,6 +61,18 @@ export const MOCK_ROUTES: MockRoute[] = [
   { method: "GET", path: "/apis/api1/settlements", body: fixtures.settlements },
   { method: "GET", path: "/apis/api1/webhook-deliveries", body: fixtures.webhookDeliveries ?? [] },
   { method: "GET", path: "/apis/api1/batch-settlements", body: fixtures.batchSettlements },
+  { method: "DELETE", path: "/auth/me", status: 204, empty: true },
+  { method: "GET", path: "/auth/me/notifications", body: fixtures.notificationPreferences },
+  { method: "PATCH", path: "/auth/me/notifications", body: fixtures.notificationPreferences },
+  { method: "GET", path: "/sandbox-wallet", body: fixtures.sandboxWallet },
+  { method: "POST", path: "/sandbox-wallet/reset", body: fixtures.sandboxWallet },
+  { method: "GET", path: "/config/local-dev", body: fixtures.localDevConfig },
+  { method: "GET", path: "/billing", body: fixtures.billingOverview },
+  { method: "POST", path: "/billing/model", body: fixtures.billingOverview },
+  { method: "GET", path: "/income/summary", body: fixtures.incomeSummary },
+  { method: "GET", path: "/income/payout-requests", body: [fixtures.payoutRequest] },
+  { method: "POST", path: "/income/payout-requests", status: 201, body: fixtures.payoutRequest },
+  { method: "DELETE", path: "/income/payout-requests/payout1", status: 204, empty: true },
 ];
 
 function matchPath(pattern: string, actual: string): boolean {

@@ -5,10 +5,23 @@ export type BatchBuyerOptions = {
   depositMultiplier?: number;
 };
 
+/** Credentials for createClientHederaSigner (@x402/hedera). */
+export type HederaBuyerCredentials = {
+  accountId: string;
+  privateKey: string;
+  /** CAIP-2 network; defaults to hedera:testnet. */
+  network?: string;
+  nodeUrl?: string;
+};
+
 export type BuyerClientOptions = {
   fetch?: typeof fetch;
-  /** Register BatchSettlementEvmScheme alongside ExactEvmScheme. */
+  /** Register BatchSettlementEvmScheme alongside ExactEvmScheme (EVM only). */
   batch?: BatchBuyerOptions;
+  /** Pre-built ClientHederaSigner from @x402/hedera. */
+  hederaSigner?: unknown;
+  /** Or account credentials — builds a signer via createClientHederaSigner. */
+  hedera?: HederaBuyerCredentials;
 };
 
 export type PayOptions = {

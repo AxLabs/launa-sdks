@@ -41,7 +41,12 @@ ax402 inspect url --url "https://my-api.YOUR_PLATFORM_DOMAIN/v1/hello"
 ### Pay a gateway URL (buyer)
 
 ```bash
+# EVM
 export AX402_EVM_PRIVATE_KEY=0x...
+# and/or Hedera (native hedera:* networks)
+export HEDERA_ACCOUNT_ID=0.0.xxxx
+export HEDERA_PRIVATE_KEY=0x...
+
 ax402 pay url --url "https://my-api.example.com/v1/data" --json
 ```
 
@@ -52,7 +57,10 @@ ax402 pay url --url "https://my-api.example.com/v1/data" --json
 | `AX402_BASE_URL` | Control plane URL (default `https://api.ax402.io`) |
 | `AX402_API_KEY` | Scoped API key (`ax402_live_...`) for automation |
 | `AX402_JWT` | Session token from `auth login` — needed for `keys` and `scopes list` |
-| `AX402_EVM_PRIVATE_KEY` | Signs x402 payments for `pay url` (alias: `EVM_PRIVATE_KEY`) |
+| `AX402_EVM_PRIVATE_KEY` | Signs EVM x402 payments for `pay url` (alias: `EVM_PRIVATE_KEY`) |
+| `HEDERA_ACCOUNT_ID` | Hedera payer account for `pay url` |
+| `HEDERA_PRIVATE_KEY` | Hedera private key paired with `HEDERA_ACCOUNT_ID` |
+| `HEDERA_NETWORK` | Optional `hedera:testnet` (default) or `hedera:mainnet` |
 
 Add `--json` to any command for machine-readable output.
 
@@ -69,6 +77,15 @@ Add `--json` to any command for machine-readable output.
 | Billing & income | `billing overview`, `income summary` |
 | Config | `config platform`, `networks supported`, `scopes presets` |
 | Gateway | `inspect url`, `pay url` |
+
+`endpoints update` can replace accepts:
+
+```bash
+ax402 endpoints update \
+  --api-id API_ID --endpoint-id EP_ID \
+  --network hedera:testnet --asset 0.0.429274 --price 0.10 --scheme exact --json
+```
+
 
 Run `ax402` with no arguments to print the full command reference.
 

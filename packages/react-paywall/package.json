@@ -15,23 +15,33 @@
   "files": ["dist", "src/styles.css", "docs"],
   "scripts": {
     "build": "tsc && cp src/styles.css dist/styles.css",
-    "prepare": "pnpm run build"
-  },
-  "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0"
+    "prepare": "pnpm run build",
+    "test": "vitest run"
   },
   "dependencies": {
     "@x402/evm": "^2.14.0",
     "@x402/fetch": "^2.14.0",
+    "@x402/hedera": "^2.20.0",
+    "@hiero-ledger/sdk": "^2.70.0",
     "viem": "^2.49.3"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "@hashgraph/hedera-wallet-connect": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@hashgraph/hedera-wallet-connect": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "~3.0.9"
   },
   "license": "Apache-2.0",
   "repository": {

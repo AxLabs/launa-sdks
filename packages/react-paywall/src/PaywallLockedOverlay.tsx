@@ -11,8 +11,10 @@ export type PaywallLockedOverlayState = {
   error: string | null
   busy: boolean
   loading: 'inspect' | 'pay' | 'connect' | null
-  walletAddress: `0x${string}` | null
+  walletAddress: string | null
   connectedWalletName: string | null
+  /** When true, show Hedera connect instead of EIP-1193 wallet picker. */
+  hederaMode?: boolean
   showWalletPicker: boolean
   pickerWallets: DiscoveredWallet[]
   onConnect: () => void
@@ -28,6 +30,13 @@ export type PaywallLockedOverlayProps = {
   appearance?: Partial<PaywallAppearance>
   /** Replace the default card UI entirely. */
   renderOverlay?: (state: PaywallLockedOverlayState) => ReactNode
+}
+
+function formatWalletLabel(address: string): string {
+  if (address.startsWith('0x') && address.length >= 10) {
+    return `${address.slice(0, 6)}…${address.slice(-4)}`
+  }
+  return address
 }
 
 export function PaywallLockedOverlay({
@@ -60,6 +69,7 @@ export function PaywallLockedOverlay({
     loading,
     walletAddress,
     connectedWalletName,
+    hederaMode,
     showWalletPicker,
     pickerWallets,
     onConnect,
@@ -67,6 +77,15 @@ export function PaywallLockedOverlay({
     onWalletSelect,
     onPickerCancel,
   } = state
+
+  const connectLabel =
+    loading === 'connect'
+      ? hederaMode
+        ? labels.connectHederaWalletLoading
+        : labels.connectWalletLoading
+      : hederaMode
+        ? labels.connectHederaWallet
+        : labels.connectWallet
 
   return (
     <div className={slot('overlay', overlayClassName)} role="dialog" aria-label={title}>
@@ -77,7 +96,7 @@ export function PaywallLockedOverlay({
         {displayPrice ? <p className={slot('price')}>{displayPrice}</p> : null}
         {error ? <p className={slot('error')}>{error}</p> : null}
 
-        {showWalletPicker && pickerWallets.length > 0 ? (
+        {!hederaMode && showWalletPicker && pickerWallets.length > 0 ? (
           <WalletPicker
             wallets={pickerWallets}
             disabled={busy}
@@ -94,7 +113,7 @@ export function PaywallLockedOverlay({
                 disabled={busy}
                 onClick={onConnect}
               >
-                {loading === 'connect' ? labels.connectWalletLoading : labels.connectWallet}
+                {connectLabel}
               </button>
             ) : null}
             <button type="button" className={slot('btnPrimary')} disabled={busy} onClick={onPay}>
@@ -106,7 +125,7 @@ export function PaywallLockedOverlay({
         {walletAddress ? (
           <p className={slot('wallet')}>
             {connectedWalletName ? `${connectedWalletName} · ` : ''}
-            {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
+            {formatWalletLabel(walletAddress)}
           </p>
         ) : null}
       </div>

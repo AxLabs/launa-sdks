@@ -23,6 +23,22 @@ vi.mock("@x402/evm", () => ({
   registerExactEvmScheme: undefined,
 }));
 
+vi.mock("@x402/hedera", () => ({
+  ExactHederaScheme: vi.fn().mockImplementation((signer) => ({ signer, kind: "hedera-exact" })),
+  createClientHederaSigner: vi.fn((accountId: string) => ({
+    accountId,
+    createPartiallySignedTransferTransaction: vi.fn(),
+  })),
+  PrivateKey: {
+    fromStringECDSA: vi.fn((hex: string) => ({ type: "ecdsa", hex })),
+    fromString: vi.fn((s: string) => ({ type: "raw", s })),
+  },
+}));
+
+vi.mock("@x402/hedera/exact/client", () => ({
+  ExactHederaScheme: vi.fn().mockImplementation((signer) => ({ signer, scheme: "exact" })),
+}));
+
 describe("BuyerClient", () => {
   it("registers ExactEvmScheme and wraps fetch", async () => {
     const { x402Client } = await import("@x402/fetch");
@@ -34,6 +50,42 @@ describe("BuyerClient", () => {
     const x402 = vi.mocked(x402Client).mock.results[0]?.value;
     expect(x402.register).toHaveBeenCalledWith("eip155:*", expect.objectContaining({ kind: "exact" }));
     expect(ExactEvmScheme).toHaveBeenCalledWith(signer);
+  });
+
+  it("registers ExactHederaScheme from credentials", async () => {
+    const { x402Client } = await import("@x402/fetch");
+    const { createClientHederaSigner } = await import("@x402/hedera");
+    const { ExactHederaScheme } = await import("@x402/hedera/exact/client");
+    await BuyerClient.create(undefined, {
+      hedera: { accountId: "0.0.1001", privateKey: "a".repeat(64), network: "hedera:testnet" },
+    });
+    const x402 = vi.mocked(x402Client).mock.results.at(-1)?.value;
+    expect(createClientHederaSigner).toHaveBeenCalled();
+    expect(x402.register).toHaveBeenCalledWith(
+      "hedera:*",
+      expect.objectContaining({ scheme: "exact" }),
+    );
+    expect(ExactHederaScheme).toHaveBeenCalled();
+  });
+
+  it("registers both EVM and Hedera when both provided", async () => {
+    const { x402Client } = await import("@x402/fetch");
+    const signer = { address: "0x1" };
+    const hederaSigner = {
+      accountId: "0.0.1001",
+      createPartiallySignedTransferTransaction: vi.fn(),
+    };
+    await BuyerClient.create(signer, { hederaSigner });
+    const x402 = vi.mocked(x402Client).mock.results.at(-1)?.value;
+    expect(x402.register).toHaveBeenCalledWith("eip155:*", expect.objectContaining({ kind: "exact" }));
+    expect(x402.register).toHaveBeenCalledWith(
+      "hedera:*",
+      expect.objectContaining({ scheme: "exact" }),
+    );
+  });
+
+  it("rejects create with neither EVM nor Hedera", async () => {
+    await expect(BuyerClient.create(undefined, {})).rejects.toBeInstanceOf(BuyerDepsError);
   });
 
   it("pay returns response and payment metadata", async () => {

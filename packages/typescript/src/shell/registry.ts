@@ -52,8 +52,14 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--slug", required: false, type: "string" },
           { name: "--upstream", required: false, type: "url" },
           { name: "--pay-to", required: false, type: "address" },
+          { name: "--webhook-url", required: false, type: "url" },
+          { name: "--webhook-secret", required: false, type: "string" },
+          { name: "--clear-webhook", required: false, type: "boolean" },
         ],
-        sdkSnippet: 'await client.apis.update("API_ID", { name: "New name" })',
+        sdkSnippet: `await client.apis.update("API_ID", {
+  webhook_url: "https://app.example/webhooks/ax402/settlement",
+  webhook_secret: "whsec_...",
+})`,
       },
       {
         id: "slug-check",
@@ -127,12 +133,18 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--method", required: false, type: "string", defaultValue: "GET" },
           { name: "--path", required: true, type: "string", placeholder: "/v1/*" },
           { name: "--price-usdc", required: false, type: "number", defaultValue: "0.10" },
+          { name: "--price", required: false, type: "number", placeholder: "0.10" },
+          { name: "--network", required: false, type: "string", placeholder: "hedera:testnet" },
+          { name: "--asset", required: false, type: "string", placeholder: "0.0.429274" },
+          { name: "--decimals", required: false, type: "number", defaultValue: "6" },
           { name: "--scheme", required: false, type: "string", defaultValue: "exact" },
+          { name: "--ttl", required: false, type: "number", placeholder: "1800" },
         ],
         sdkSnippet: `await client.endpoints.create("API_ID", {
   method: "GET",
   path_pattern: "/v1/*",
   accepts: [buildUsdcAccept("exact", usdcToAtomic("0.10"))],
+  ttl: 1800,
 })`,
       },
       {
@@ -142,8 +154,17 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--api-id", required: true, type: "string" },
           { name: "--endpoint-id", required: true, type: "string" },
           { name: "--enabled", required: false, type: "boolean" },
+          { name: "--network", required: false, type: "string", placeholder: "hedera:testnet" },
+          { name: "--asset", required: false, type: "string", placeholder: "0.0.429274" },
+          { name: "--price", required: false, type: "number", placeholder: "0.10" },
+          { name: "--price-usdc", required: false, type: "number", placeholder: "0.10" },
+          { name: "--amount", required: false, type: "string", placeholder: "100000" },
+          { name: "--decimals", required: false, type: "number", defaultValue: "6" },
+          { name: "--scheme", required: false, type: "string", defaultValue: "exact" },
+          { name: "--accepts", required: false, type: "string", placeholder: '[{"scheme":"exact",...}]' },
         ],
-        sdkSnippet: 'await client.endpoints.update("API_ID", "ENDPOINT_ID", { enabled: true })',
+        sdkSnippet:
+          'await client.endpoints.update("API_ID", "ENDPOINT_ID", { accepts: [...], enabled: true })',
       },
       {
         id: "delete",
@@ -534,9 +555,11 @@ export function shellUsageText(): string {
     }
   }
   lines.push("  inspect url — gateway URL only (no API key)");
-  lines.push("  pay url — gateway URL + AX402_EVM_PRIVATE_KEY (no API key)");
+  lines.push("  pay url — gateway URL + EVM and/or Hedera buyer env (no API key)");
   lines.push("");
-  lines.push("Env: AX402_API_KEY or AX402_JWT (control plane), AX402_EVM_PRIVATE_KEY (pay url)");
+  lines.push(
+    "Env: AX402_API_KEY or AX402_JWT (control plane); pay url: AX402_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
+  );
   return lines.join("\n");
 }
 

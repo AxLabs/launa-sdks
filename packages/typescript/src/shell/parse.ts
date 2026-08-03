@@ -58,6 +58,7 @@ export function parseShellArgv(argv: string[]): ParsedShellCommand {
     json,
     cmd: positional[0] ?? "",
     sub: positional[1] ?? "",
+    args: positional.slice(2),
     flags,
   };
 }
@@ -65,19 +66,24 @@ export function parseShellArgv(argv: string[]): ParsedShellCommand {
 export function parseShellInput(input: string): ParsedShellCommand {
   const trimmed = input.trim();
   if (!trimmed) {
-    return { tokens: [], json: false, cmd: "", sub: "", flags: {} };
+    return { tokens: [], json: false, cmd: "", sub: "", args: [], flags: {} };
   }
   if (trimmed === "help" || trimmed === "?") {
-    return { tokens: ["help"], json: false, cmd: "help", sub: "", flags: {} };
+    return { tokens: ["help"], json: false, cmd: "help", sub: "", args: [], flags: {} };
   }
   if (trimmed === "clear") {
-    return { tokens: ["clear"], json: false, cmd: "clear", sub: "", flags: {} };
+    return { tokens: ["clear"], json: false, cmd: "clear", sub: "", args: [], flags: {} };
   }
   return parseShellArgv(tokenizeInput(trimmed));
 }
 
 export function flag(parsed: ParsedShellCommand, name: string): string | undefined {
   return parsed.flags[name];
+}
+
+/** `--id` or first positional after the subcommand. */
+export function idFlag(parsed: ParsedShellCommand): string | undefined {
+  return flag(parsed, "--id") ?? parsed.args[0];
 }
 
 /** Buyer and auth-login commands talk to gateway URLs or /auth/login — no API key. */

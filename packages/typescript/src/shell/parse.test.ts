@@ -27,6 +27,20 @@ describe("shell parse", () => {
     expect(p.flags["--path"]).toBe("/v1/*");
   });
 
+  it("captures positional args after cmd/sub", () => {
+    const p = parseShellArgv([
+      "apis",
+      "update",
+      "6a5a069930cbab77aee99e9d",
+      "--webhook-url",
+      "https://app.example/hooks",
+    ]);
+    expect(p.cmd).toBe("apis");
+    expect(p.sub).toBe("update");
+    expect(p.args).toEqual(["6a5a069930cbab77aee99e9d"]);
+    expect(p.flags["--webhook-url"]).toBe("https://app.example/hooks");
+  });
+
   it("maps help and clear", () => {
     expect(parseShellInput("help").cmd).toBe("help");
     expect(parseShellInput("clear").cmd).toBe("clear");

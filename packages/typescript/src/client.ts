@@ -7,6 +7,7 @@ import type {
   BatchIntervals,
   BatchOverview,
   BatchSettlement,
+  BillingModel,
   BillingOverview,
   BillingPackage,
   BillingPeriod,
@@ -22,6 +23,8 @@ import type {
   ExchangeRatesSupported,
   IncomeLedgerPage,
   IncomeSummary,
+  LocalDevConfig,
+  NotificationPreferences,
   OpenAPIImportInput,
   OpenAPIImportResult,
   ParsedOpenAPI,
@@ -29,7 +32,10 @@ import type {
   PaymentHistoryQuery,
   PayoutRequest,
   PlatformConfig,
+  PlatformSandboxWallet,
   PublicBillingCatalog,
+  SellerIncomeEntry,
+  UpstreamProbeRequest,
   UpstreamProbeResponse,
   WaitlistJoinInput,
   WaitlistJoinResponse,
@@ -67,6 +73,7 @@ export class Ax402Client {
   readonly income: IncomeResource;
   readonly exchangeRates: ExchangeRatesResource;
   readonly config: ConfigResource;
+  readonly sandboxWallet: SandboxWalletResource;
 
   constructor(opts: Ax402ClientOptions) {
     let credentials = opts.credentials;
@@ -86,6 +93,7 @@ export class Ax402Client {
     this.income = new IncomeResource(this.http);
     this.exchangeRates = new ExchangeRatesResource(this.http);
     this.config = new ConfigResource(this.http);
+    this.sandboxWallet = new SandboxWalletResource(this.http);
   }
 
   setApiKey(apiKey: string): void {
@@ -193,7 +201,7 @@ class AuthResource {
   }
 
   verifyEmail(token: string) {
-    return this.http.request<{ status: string }>("/auth/verify-email", {
+    return this.http.request<{ status: string; token: string; user: User }>("/auth/verify-email", {
       method: "POST",
       body: JSON.stringify({ token }),
     });
@@ -226,6 +234,24 @@ class AuthResource {
 
   patchPreferences(body: { display_currency?: string }) {
     return this.http.request<{ display_currency?: string; status?: string }>("/auth/me/preferences", {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+  }
+
+  deleteAccount(password: string, confirm_email: string) {
+    return this.http.request<void>("/auth/me", {
+      method: "DELETE",
+      body: JSON.stringify({ password, confirm_email }),
+    });
+  }
+
+  notificationPreferences() {
+    return this.http.request<NotificationPreferences>("/auth/me/notifications");
+  }
+
+  updateNotificationPreferences(body: Partial<NotificationPreferences>) {
+    return this.http.request<NotificationPreferences>("/auth/me/notifications", {
       method: "PATCH",
       body: JSON.stringify(body),
     });
@@ -335,14 +361,10 @@ class APIsResource {
     return this.http.request<{ available: boolean }>(`/apis/slug-availability?${q}`);
   }
 
-  probeUpstream(
-    apiId: string,
-    probes?: { endpoint_id: string; path?: string }[],
-  ) {
-    const body = probes?.length ? { probes } : {};
+  probeUpstream(apiId: string, body?: UpstreamProbeRequest) {
     return this.http.request<UpstreamProbeResponse>(`/apis/${apiId}/readiness/upstream`, {
       method: "POST",
-      body: JSON.stringify(body),
+      body: body ? JSON.stringify(body) : undefined,
     });
   }
 
@@ -516,6 +538,25 @@ class BillingResource {
   invoices() {
     return this.http.request<{ invoices: BillingPeriod[] }>("/billing/invoices");
   }
+
+  setModel(model: BillingModel) {
+    return this.http.request<BillingOverview>("/billing/model", {
+      method: "POST",
+      body: JSON.stringify({ model }),
+    });
+  }
+}
+
+class SandboxWalletResource {
+  constructor(private http: HttpClient) {}
+
+  get() {
+    return this.http.request<PlatformSandboxWallet>("/sandbox-wallet");
+  }
+
+  reset() {
+    return this.http.request<PlatformSandboxWallet>("/sandbox-wallet/reset", { method: "POST" });
+  }
 }
 
 class IncomeResource {
@@ -536,11 +577,27 @@ class IncomeResource {
   }
 
   ledgerEntry(entryId: string) {
-    return this.http.request<Record<string, unknown>>(`/income/ledger/${entryId}`);
+    return this.http.request<SellerIncomeEntry>(`/income/ledger/${entryId}`);
   }
 
   payoutRequests() {
     return this.http.request<PayoutRequest[]>("/income/payout-requests");
+  }
+
+  createPayoutRequest(body: {
+    network: string;
+    asset: string;
+    amount_atomic: number;
+    destination_address: string;
+  }) {
+    return this.http.request<PayoutRequest>("/income/payout-requests", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  cancelPayoutRequest(id: string) {
+    return this.http.request<void>(`/income/payout-requests/${id}`, { method: "DELETE" });
   }
 }
 
@@ -586,5 +643,9 @@ class ConfigResource {
       method: "POST",
       body: JSON.stringify(body),
     });
+  }
+
+  localDev() {
+    return this.http.request<LocalDevConfig>("/config/local-dev");
   }
 }

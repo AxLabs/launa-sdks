@@ -34,7 +34,12 @@ import {
 } from './batch.js'
 import { defaultPaywallLabels, type PaywallLabels } from './appearance.js'
 import { ensurePaymentPrerequisites } from './permit2.js'
-import { DEFAULT_BATCH_PAYWALL_NETWORK } from './networks.js'
+import {
+  DEFAULT_BATCH_PAYWALL_NETWORK,
+  isHederaNetwork,
+  prefersHederaNetwork,
+  resolveFallbackNetwork,
+} from './networks.js'
 import {
   wrapFetchWithPayment,
   x402Client,
@@ -42,6 +47,8 @@ import {
   type PaymentRequirements,
 } from '@x402/fetch'
 import { ExactEvmScheme } from '@x402/evm'
+import { ExactHederaScheme } from '@x402/hedera/exact/client'
+import type { ClientHederaSigner } from '@x402/hedera'
 import type { InspectResult, PaywallPolicy, RpcConfig, UnlockResult } from './types.js'
 import { privateKeyToAccount } from 'viem/accounts'
 import {
@@ -52,12 +59,25 @@ import {
   type Eip1193Provider,
   type PaywallSignTypedDataOptions,
 } from './wallet.js'
+import {
+  connectHederaWalletConnect,
+  createPrivateKeyHederaSigner,
+  type HederaWalletConnectConfig,
+} from './hederaWallet.js'
+
 export type PaywallProviderProps = {
   children: ReactNode
   policy?: PaywallPolicy
-  /** Batch-settlement channel options (registers BatchSettlementEvmScheme on eip155). */
+  /** Batch-settlement channel options (registers BatchSettlementEvmScheme on eip155; ignored for hedera). */
   batch?: BatchPaywallOptions
+  /** EVM private key (agents / local dev). */
   privateKey?: string
+  /** Hedera account id for private-key signing (agents / local dev). */
+  hederaAccountId?: string
+  /** Hedera private key paired with hederaAccountId. */
+  hederaPrivateKey?: string
+  /** Optional WalletConnect project config for human Hedera wallets. */
+  hederaWalletConnect?: HederaWalletConnectConfig
   rpc?: RpcConfig
   fetch?: typeof fetch
   /** Global theme, class names, labels, and brand for all paywall UI. */
@@ -73,12 +93,17 @@ export type PaywallProviderProps = {
 
 export type PaywallContextValue = {
   policy: PaywallPolicy
-  walletAddress: `0x${string}` | null
+  /** Connected EVM address or Hedera account id. */
+  walletAddress: string | null
   connectedWalletName: string | null
+  /** True when the active payment path is Hedera. */
+  hederaMode: boolean
   wallets: DiscoveredWallet[]
   walletsReady: boolean
   refreshWallets: (opts?: { timeoutMs?: number }) => Promise<DiscoveredWallet[]>
-  connectWallet: (walletId?: string) => Promise<`0x${string}`>
+  connectWallet: (walletId?: string) => Promise<string>
+  /** Connect Hedera via WalletConnect (when configured) or private-key props. */
+  connectHederaWallet: () => Promise<string>
   disconnectWallet: () => void
   inspect: (url: string, init?: RequestInit) => Promise<InspectResult>
   unlock: (url: string, init?: RequestInit) => Promise<UnlockResult>
@@ -107,6 +132,9 @@ export function PaywallProvider({
   policy: policyProp = {},
   batch: batchOptions = {},
   privateKey: privateKeyInput,
+  hederaAccountId: hederaAccountIdInput,
+  hederaPrivateKey: hederaPrivateKeyInput,
+  hederaWalletConnect,
   rpc,
   fetch: fetchOverride,
   appearance,
@@ -120,17 +148,22 @@ export function PaywallProvider({
       ? (privateKeyInput as `0x${string}`)
       : (`0x${privateKeyInput}` as `0x${string}`)
     : undefined
+  const hederaAccountId = hederaAccountIdInput?.trim() || undefined
+  const hederaPrivateKey = hederaPrivateKeyInput?.trim() || undefined
+  const hederaMode = prefersHederaNetwork(policy.preferredNetworks)
 
-  const [walletAddress, setWalletAddress] = useState<`0x${string}` | null>(null)
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [connectedWalletName, setConnectedWalletName] = useState<string | null>(null)
   const [provider, setProvider] = useState<Eip1193Provider | null>(null)
+  const [hederaSigner, setHederaSigner] = useState<ClientHederaSigner | null>(null)
+  const hederaDisconnectRef = useRef<(() => Promise<void>) | null>(null)
   const [wallets, setWallets] = useState<DiscoveredWallet[]>([])
   const [walletsReady, setWalletsReady] = useState(false)
   const selectedNetworkRef = useRef<string | undefined>(undefined)
   const batchStorageRef = useRef<BatchChannelStorage | undefined>(undefined)
   const batchSalt = (batchOptions.channelSalt ??
     '0x0000000000000000000000000000000000000000000000000000000000000000') as `0x${string}`
-  if (batchStorageRef.current === undefined && policyAllowsBatch(policy)) {
+  if (batchStorageRef.current === undefined && policyAllowsBatch(policy) && !hederaMode) {
     batchStorageRef.current = resolveBatchChannelStorage(batchOptions, true)
   }
   const batchWithdrawDelaySecs =
@@ -140,7 +173,7 @@ export function PaywallProvider({
 
   const refreshWallets = useCallback(
     async (opts?: { timeoutMs?: number }) => {
-      if (privateKey) {
+      if (privateKey || hederaMode) {
         setWallets([])
         setWalletsReady(true)
         return []
@@ -156,20 +189,56 @@ export function PaywallProvider({
       setWalletsReady(true)
       return found
     },
-    [privateKey, debugWallets],
+    [privateKey, hederaMode, debugWallets],
   )
 
   useEffect(() => {
     void refreshWallets()
   }, [refreshWallets])
 
+  const connectHederaWallet = useCallback(async () => {
+    if (hederaAccountId && hederaPrivateKey) {
+      const network = resolveFallbackNetwork(policy.preferredNetworks)
+      const signer = createPrivateKeyHederaSigner(hederaAccountId, hederaPrivateKey, network)
+      setHederaSigner(signer)
+      setWalletAddress(signer.accountId)
+      setConnectedWalletName('Hedera private key')
+      setProvider(null)
+      return signer.accountId
+    }
+
+    if (hederaWalletConnect?.projectId) {
+      const network =
+        hederaWalletConnect.network ?? resolveFallbackNetwork(policy.preferredNetworks)
+      const connected = await connectHederaWalletConnect({
+        ...hederaWalletConnect,
+        network,
+      })
+      hederaDisconnectRef.current = connected.disconnect
+      setHederaSigner(connected.signer)
+      setWalletAddress(connected.accountId)
+      setConnectedWalletName('Hedera WalletConnect')
+      setProvider(null)
+      return connected.accountId
+    }
+
+    throw new Error(
+      'Connect a Hedera wallet: pass hederaWalletConnect.projectId, or hederaAccountId + hederaPrivateKey.',
+    )
+  }, [hederaAccountId, hederaPrivateKey, hederaWalletConnect, policy.preferredNetworks])
+
   const connectWallet = useCallback(
     async (walletId?: string) => {
+      if (hederaMode) {
+        return connectHederaWallet()
+      }
+
       if (privateKey) {
         const address = privateKeyToAccount(privateKey).address
         setWalletAddress(address)
         setConnectedWalletName('Private key')
         setProvider(null)
+        setHederaSigner(null)
         return address
       }
 
@@ -194,13 +263,17 @@ export function PaywallProvider({
       setProvider(chosen.provider)
       setWalletAddress(address)
       setConnectedWalletName(chosen.name)
+      setHederaSigner(null)
       return address
     },
-    [privateKey, refreshWallets, wallets],
+    [privateKey, refreshWallets, hederaMode, connectHederaWallet],
   )
 
   const disconnectWallet = useCallback(() => {
+    void hederaDisconnectRef.current?.()
+    hederaDisconnectRef.current = null
     setProvider(null)
+    setHederaSigner(null)
     setWalletAddress(null)
     setConnectedWalletName(null)
   }, [])
@@ -214,11 +287,11 @@ export function PaywallProvider({
     [rpc, signTypedDataOptions],
   )
 
-  const buildSigner = useCallback(() => {
-    if (walletAddress && provider) {
+  const buildEvmSigner = useCallback(() => {
+    if (walletAddress && provider && walletAddress.startsWith('0x')) {
       return createBrowserWalletSigner(
         provider,
-        walletAddress,
+        walletAddress as `0x${string}`,
         () => selectedNetworkRef.current,
         rpc,
         signerEip712Options,
@@ -229,6 +302,22 @@ export function PaywallProvider({
     }
     throw new Error('Connect a wallet or provide privateKey to PaywallProvider.')
   }, [privateKey, provider, rpc, signerEip712Options, walletAddress])
+
+  const buildHederaSignerForPayment = useCallback((): ClientHederaSigner => {
+    if (hederaSigner) {
+      return hederaSigner
+    }
+    if (hederaAccountId && hederaPrivateKey) {
+      const network =
+        selectedNetworkRef.current && isHederaNetwork(selectedNetworkRef.current)
+          ? selectedNetworkRef.current
+          : resolveFallbackNetwork(policy.preferredNetworks)
+      return createPrivateKeyHederaSigner(hederaAccountId, hederaPrivateKey, network)
+    }
+    throw new Error(
+      'Connect a Hedera wallet or provide hederaAccountId + hederaPrivateKey to PaywallProvider.',
+    )
+  }, [hederaAccountId, hederaPrivateKey, hederaSigner, policy.preferredNetworks])
 
   const inspect = useCallback(
     async (url: string, init?: RequestInit): Promise<InspectResult> => {
@@ -256,11 +345,15 @@ export function PaywallProvider({
 
   const getBatchChannelStatusFn = useCallback(
     async (requirements: PaymentRequirements): Promise<BatchChannelStatus | null> => {
-      if (!isBatchSettlementScheme(requirements.scheme) || !batchStorageRef.current) {
+      if (
+        isHederaNetwork(requirements.network) ||
+        !isBatchSettlementScheme(requirements.scheme) ||
+        !batchStorageRef.current
+      ) {
         return null
       }
       try {
-        const signer = withReadContractSigner(buildSigner(), requirements.network, rpc)
+        const signer = withReadContractSigner(buildEvmSigner(), requirements.network, rpc)
         return await getBatchChannelStatus(
           signer,
           requirements,
@@ -277,22 +370,23 @@ export function PaywallProvider({
       batchOptions.debugChannel,
       batchSalt,
       batchWithdrawDelaySecs,
-      buildSigner,
-      privateKey,
-      provider,
+      buildEvmSigner,
       rpc,
-      walletAddress,
     ],
   )
 
   const resolveBatchPayButtonLabel = useCallback(
     async (requirements: PaymentRequirements, labels?: Partial<PaywallLabels>) => {
       const merged = { ...defaultPaywallLabels, ...labels }
-      if (!isBatchSettlementScheme(requirements.scheme) || !batchStorageRef.current) {
+      if (
+        isHederaNetwork(requirements.network) ||
+        !isBatchSettlementScheme(requirements.scheme) ||
+        !batchStorageRef.current
+      ) {
         return merged.payToRead
       }
       try {
-        const signer = buildSigner()
+        const signer = buildEvmSigner()
         const batchSigner = withReadContractSigner(signer, requirements.network, rpc)
         const kind = await resolveBatchPaymentKind(
           batchSigner,
@@ -311,11 +405,8 @@ export function PaywallProvider({
       batchOptions.debugChannel,
       batchSalt,
       batchWithdrawDelaySecs,
-      buildSigner,
-      privateKey,
-      provider,
+      buildEvmSigner,
       rpc,
-      walletAddress,
     ],
   )
 
@@ -335,17 +426,43 @@ export function PaywallProvider({
       }
 
       const client = new x402Client(selector)
-      const signer = buildSigner()
+      const selectedHint = resolveFallbackNetwork(policy.preferredNetworks)
+      const useHedera =
+        (selectedNetworkRef.current && isHederaNetwork(selectedNetworkRef.current)) ||
+        prefersHederaNetwork(policy.preferredNetworks)
+
+      if (useHedera || isHederaNetwork(selectedHint)) {
+        const hSigner = buildHederaSignerForPayment()
+        client.register('hedera:*', new ExactHederaScheme(hSigner))
+      }
+
+      // Always register EVM when an EVM signer is available so mixed accepts work.
+      let evmSigner: ReturnType<typeof buildEvmSigner> | null = null
+      try {
+        if (privateKey || (walletAddress && provider)) {
+          evmSigner = buildEvmSigner()
+          client.register('eip155:*', new ExactEvmScheme(evmSigner))
+        }
+      } catch {
+        evmSigner = null
+      }
 
       const batchDepositMultiplier = batchOptions.depositMultiplier ?? 5
 
       client.onBeforePaymentCreation(async (context) => {
         const req = context.selectedRequirements
+        selectedNetworkRef.current = req.network
+
+        if (isHederaNetwork(req.network)) {
+          // Exact Hedera only — no permit2 / batch-settlement.
+          return
+        }
+
         if (isBatchSettlementScheme(req.scheme) && policyAllowsBatch(policy)) {
           enrichBatchPaymentRequirements(req, batchWithdrawDelaySecs)
-          if (batchStorageRef.current) {
+          if (batchStorageRef.current && evmSigner) {
             seedBatchChannelFromRequirements(batchStorageRef.current, req)
-            const batchSigner = withReadContractSigner(signer, req.network, rpc)
+            const batchSigner = withReadContractSigner(evmSigner, req.network, rpc)
             await prepareBatchChannelForPayment(
               batchSigner,
               req,
@@ -357,7 +474,10 @@ export function PaywallProvider({
           }
         }
         await ensurePaymentPrerequisites(req, {
-          walletAddress: walletAddress ?? undefined,
+          walletAddress:
+            walletAddress && walletAddress.startsWith('0x')
+              ? (walletAddress as `0x${string}`)
+              : undefined,
           provider: provider ?? undefined,
           privateKey,
           rpc,
@@ -368,22 +488,30 @@ export function PaywallProvider({
         })
       })
 
-      client.register('eip155:*', new ExactEvmScheme(signer))
-      if (policyAllowsBatch(policy) && batchStorageRef.current) {
+      if (
+        evmSigner &&
+        policyAllowsBatch(policy) &&
+        batchStorageRef.current &&
+        !prefersHederaNetwork(policy.preferredNetworks)
+      ) {
         const batchNetwork =
-          selectedNetworkRef.current ??
-          policy.preferredNetworks?.split(',')[0]?.trim() ??
-          DEFAULT_BATCH_PAYWALL_NETWORK
-        const batchSigner = withReadContractSigner(signer, batchNetwork, rpc)
-        client.register(
-          'eip155:*',
-          createBatchSettlementScheme(batchSigner, {
-            ...batchOptions,
-            storage: batchOptions.storage ?? batchStorageRef.current,
-            persistChannels: true,
-          }),
-        )
+          selectedNetworkRef.current && !isHederaNetwork(selectedNetworkRef.current)
+            ? selectedNetworkRef.current
+            : (policy.preferredNetworks?.split(',').map((n) => n.trim()).find((n) => !isHederaNetwork(n)) ??
+              DEFAULT_BATCH_PAYWALL_NETWORK)
+        if (!isHederaNetwork(batchNetwork)) {
+          const batchSigner = withReadContractSigner(evmSigner, batchNetwork, rpc)
+          client.register(
+            'eip155:*',
+            createBatchSettlementScheme(batchSigner, {
+              ...batchOptions,
+              storage: batchOptions.storage ?? batchStorageRef.current,
+              persistChannels: true,
+            }),
+          )
+        }
       }
+
       const paymentHttpClient = new x402HTTPClient(client)
       const paymentFetch = wrapFetchWithPayment(baseFetch, paymentHttpClient)
 
@@ -405,7 +533,7 @@ export function PaywallProvider({
         selection = createSelectionResult(paymentRequired.accepts, policy)
         if (batchStorageRef.current) {
           for (const accept of paymentRequired.accepts) {
-            if (isBatchSettlementScheme(accept.scheme)) {
+            if (isBatchSettlementScheme(accept.scheme) && !isHederaNetwork(accept.network)) {
               seedBatchChannelFromRequirements(batchStorageRef.current, accept)
             }
           }
@@ -422,15 +550,17 @@ export function PaywallProvider({
     },
     [
       baseFetch,
-      buildSigner,
+      buildEvmSigner,
+      buildHederaSignerForPayment,
       parserClient,
       policy,
       privateKey,
       provider,
       rpc,
       walletAddress,
-      selectedNetworkRef,
       batchOptions,
+      batchSalt,
+      batchWithdrawDelaySecs,
     ],
   )
 
@@ -439,10 +569,12 @@ export function PaywallProvider({
       policy,
       walletAddress,
       connectedWalletName,
+      hederaMode,
       wallets,
       walletsReady,
       refreshWallets,
       connectWallet,
+      connectHederaWallet,
       disconnectWallet,
       inspect,
       unlock,
@@ -453,10 +585,12 @@ export function PaywallProvider({
       policy,
       walletAddress,
       connectedWalletName,
+      hederaMode,
       wallets,
       walletsReady,
       refreshWallets,
       connectWallet,
+      connectHederaWallet,
       disconnectWallet,
       inspect,
       unlock,
