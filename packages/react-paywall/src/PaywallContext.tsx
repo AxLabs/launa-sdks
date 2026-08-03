@@ -208,8 +208,11 @@ export function PaywallProvider({
     }
 
     if (hederaWalletConnect?.projectId) {
+      const selected = selectedNetworkRef.current
       const network =
-        hederaWalletConnect.network ?? resolveFallbackNetwork(policy.preferredNetworks)
+        (selected && isHederaNetwork(selected) ? selected : undefined) ??
+        hederaWalletConnect.network ??
+        resolveFallbackNetwork(policy.preferredNetworks)
       const connected = await connectHederaWalletConnect({
         ...hederaWalletConnect,
         network,

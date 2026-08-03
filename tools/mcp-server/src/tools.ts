@@ -41,7 +41,7 @@ export function createToolHandlers(getClient: () => Ax402Client) {
     probeUpstream: async (api_id: string, endpoint_id?: string, path?: string) =>
       getClient().apis.probeUpstream(
         api_id,
-        endpoint_id ? [{ endpoint_id, path }] : undefined,
+        endpoint_id ? { probes: [{ endpoint_id, path }] } : undefined,
       ),
     listScopes: async () => getClient().keys.listScopes(),
     facilitatorStats: async (days = 30) => getClient().auth.facilitatorStats(days),

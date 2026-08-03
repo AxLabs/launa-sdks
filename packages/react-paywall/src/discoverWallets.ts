@@ -217,6 +217,15 @@ function discoverLegacyProviders(debug: boolean): DiscoveredWallet[] {
   return out
 }
 
+function isNonEvmInjectedWallet(wallet: DiscoveredWallet): boolean {
+  // NeoLine is a Neo N3 wallet; it still announces via EIP-6963 / ethereum.providers
+  // and its orphaned content script throws "Extension context invalidated".
+  const key = walletIdentityKey(wallet)
+  if (key === 'neoline') return true
+  const name = wallet.name.toLowerCase()
+  return name.includes('neoline') || name.includes('neo line') || name === 'neon'
+}
+
 function mergeDiscovered(
   eip6963: DiscoveredWallet[],
   legacy: DiscoveredWallet[],
@@ -235,9 +244,17 @@ function mergeDiscovered(
   )
 
   for (const wallet of eip6963) {
+    if (isNonEvmInjectedWallet(wallet)) {
+      walletDebugLog(debug, 'merge: skip non-EVM wallet', { name: wallet.name, rdns: wallet.rdns })
+      continue
+    }
     upsertWallet(byIdentity, wallet)
   }
   for (const wallet of legacy) {
+    if (isNonEvmInjectedWallet(wallet)) {
+      walletDebugLog(debug, 'merge: skip non-EVM legacy wallet', { name: wallet.name })
+      continue
+    }
     const key = walletIdentityKey(wallet)
     const flags = legacyProviderFlags(wallet.provider as LegacyProvider)
     if (announcedKeys.has(key)) {

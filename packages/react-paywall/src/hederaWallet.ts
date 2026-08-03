@@ -27,7 +27,37 @@ export type HederaWalletConnectConfig = {
 /** Minimal WalletConnect DApp signer surface used by the adapter. */
 export type HederaDAppTransactionSigner = {
   getAccountId(): { toString(): string }
+  getLedgerId?(): { equals?(other: unknown): boolean; toString(): string }
   signTransaction<T>(transaction: T): Promise<T>
+}
+
+type HederaClientLike = {
+  setMaxNodesPerTransaction?: (n: number) => unknown
+  close: () => void
+}
+
+/**
+ * Stable consensus node present in both JS and Go SDK mainnet/testnet maps.
+ * Object.values(client.network)[0] is unsafe: JS may pick a stale id (e.g. 0.0.31)
+ * that the facilitator's Go ClientForMainnet() cannot resolve.
+ */
+const WALLETCONNECT_NODE_ACCOUNT_ID = '0.0.3'
+
+/**
+ * WalletConnect `hedera_signTransaction` signs a single TransactionBody. DAppSigner then
+ * attaches that signature to every node variant in the frozen TransactionList. Go
+ * PublicKey.VerifyTransaction requires the sig to verify against *every* variant — so a
+ * multi-node freeze makes HashPack approvals fail facilitator verify. Keep one node.
+ */
+function freezeTransferForWalletConnect(
+  tx: TransferTransaction,
+  client: HederaClientLike,
+  feePayer: string,
+): void {
+  client.setMaxNodesPerTransaction?.(1)
+  tx.setNodeAccountIds([AccountId.fromString(WALLETCONNECT_NODE_ACCOUNT_ID)])
+  tx.setTransactionId(TransactionId.generate(AccountId.fromString(feePayer)))
+  tx.freezeWith(client as Parameters<TransferTransaction['freezeWith']>[0])
 }
 
 function toBase64(bytes: Uint8Array): string {
@@ -98,10 +128,10 @@ export function createWalletConnectHederaSigner(
         tx.addTokenTransfer(tokenId, parsedAccountId, -amount)
         tx.addTokenTransfer(tokenId, payTo, amount)
       }
-      tx.setTransactionId(TransactionId.generate(AccountId.fromString(feePayer)))
-      const client = createHederaClient(network, nodeUrl)
+      // Do not freezeWithSigner: DAppSigner.populateTransaction overwrites feePayer TransactionId.
+      const client = createHederaClient(network, nodeUrl) as HederaClientLike
       try {
-        tx.freezeWith(client)
+        freezeTransferForWalletConnect(tx, client, feePayer)
         const signed = await dappSigner.signTransaction(tx)
         const bytes =
           typeof (signed as { toBytes?: () => Uint8Array }).toBytes === 'function'
@@ -126,9 +156,29 @@ type DAppConnectorLike = {
 
 type LedgerIdEnum = { MAINNET: unknown; TESTNET: unknown }
 
+function signerMatchesLedger(signer: HederaDAppTransactionSigner, ledgerId: unknown): boolean {
+  const lid = signer.getLedgerId?.()
+  if (!lid) return false
+  if (typeof lid.equals === 'function') return Boolean(lid.equals(ledgerId))
+  return String(lid).toLowerCase() === String(ledgerId).toLowerCase()
+}
+
+/** Prefer the most recently connected signer on the requested ledger. */
+function pickSignerForLedger(
+  signers: HederaDAppTransactionSigner[],
+  ledgerId: unknown,
+): HederaDAppTransactionSigner | undefined {
+  const matching = signers.filter((s) => signerMatchesLedger(s, ledgerId))
+  return matching[matching.length - 1]
+}
+
 /**
  * Connect via @hashgraph/hedera-wallet-connect DAppConnector and return a
  * ClientHederaSigner. Requires the optional peer package to be installed.
+ *
+ * DAppConnector.init() restores *all* prior WC sessions into `signers` (any
+ * ledger). Always selecting signers[0] therefore sticks to an old testnet
+ * account after the user approves mainnet — pick by LedgerId instead.
  */
 export async function connectHederaWalletConnect(
   config: HederaWalletConnectConfig,
@@ -169,11 +219,33 @@ export async function connectHederaWalletConnect(
 
   const connector = new DAppConnector(metadata, ledgerId, config.projectId)
   await connector.init()
-  await connector.openModal(undefined, true)
-  const dappSigner = connector.signers[0]
+
+  let dappSigner = pickSignerForLedger(connector.signers, ledgerId)
   if (!dappSigner) {
-    throw new Error('Hedera WalletConnect session returned no signer')
+    // Drop stale sessions on the wrong ledger so HashPack cannot keep
+    // resurrecting a previous testnet/mainnet pairing as signers[0].
+    if (connector.signers.length > 0) {
+      await connector.disconnectAll?.()
+    }
+    await connector.openModal(undefined, true)
+    dappSigner = pickSignerForLedger(connector.signers, ledgerId)
   }
+
+  if (!dappSigner) {
+    const seen = connector.signers
+      .map((s) => {
+        const account = s.getAccountId().toString()
+        const chain = s.getLedgerId?.()?.toString() ?? 'unknown'
+        return `${account} (${chain})`
+      })
+      .join(', ')
+    throw new Error(
+      seen
+        ? `Hedera WalletConnect returned no ${network} account (got: ${seen}). In HashPack, select a ${network} wallet and reconnect.`
+        : `Hedera WalletConnect session returned no signer for ${network}`,
+    )
+  }
+
   const signer = createWalletConnectHederaSigner(dappSigner, network)
   return {
     signer,
