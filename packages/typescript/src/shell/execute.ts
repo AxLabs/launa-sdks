@@ -1,13 +1,79 @@
 import { Ax402Client } from "../client.js";
 import { SCOPE_PRESETS } from "../scopes.js";
-import { buildUsdcAccept, usdcToAtomic, type PaymentScheme } from "../platform/helpers.js";
-import { flag } from "./parse.js";
+import {
+  amountToAtomic,
+  buildUsdcAccept,
+  usdcToAtomic,
+  type PaymentScheme,
+} from "../platform/helpers.js";
+import type { AcceptOption } from "../types.js";
+import { flag, idFlag } from "./parse.js";
 import { shellUsageText } from "./registry.js";
 import { shellErrorFromUnknown } from "./format.js";
 import type { ParsedShellCommand, ShellExecuteContext, ShellResult } from "./types.js";
 
 function usage(msg: string): ShellResult {
   return { ok: false, kind: "usage", error: msg ? `${msg}\n\n${shellUsageText()}` : shellUsageText() };
+}
+
+function parseDecimals(raw: string | undefined, fallback = 6): number | ShellResult {
+  if (raw == null || raw === "") return fallback;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 0 || n > 18) {
+    return usage("--decimals must be an integer 0–18");
+  }
+  return n;
+}
+
+/** Build a single accept from CLI flags, or parse --accepts JSON. */
+function acceptsFromFlags(parsed: ParsedShellCommand): AcceptOption[] | ShellResult | undefined {
+  const acceptsRaw = flag(parsed, "--accepts");
+  if (acceptsRaw) {
+    try {
+      const parsedAccepts = JSON.parse(acceptsRaw) as unknown;
+      if (!Array.isArray(parsedAccepts) || parsedAccepts.length === 0) {
+        return usage("--accepts must be a non-empty JSON array");
+      }
+      return parsedAccepts as AcceptOption[];
+    } catch {
+      return usage("--accepts must be valid JSON");
+    }
+  }
+
+  const network = flag(parsed, "--network");
+  const asset = flag(parsed, "--asset");
+  const price = flag(parsed, "--price") ?? flag(parsed, "--price-usdc");
+  const amountAtomic = flag(parsed, "--amount");
+  const scheme = (flag(parsed, "--scheme") ?? "exact") as PaymentScheme;
+
+  const anyTokenFlag = network || asset || price || amountAtomic;
+  if (!anyTokenFlag) return undefined;
+  if (!network || !asset) {
+    return usage("--network and --asset required when setting accepts (or pass --accepts JSON)");
+  }
+  if (!price && !amountAtomic) {
+    return usage("--price / --price-usdc or --amount required when setting accepts");
+  }
+
+  const decimalsOrErr = parseDecimals(flag(parsed, "--decimals"));
+  if (typeof decimalsOrErr === "object") return decimalsOrErr;
+
+  let amount: string;
+  try {
+    amount = amountAtomic ?? amountToAtomic(price!, decimalsOrErr);
+  } catch (err) {
+    return usage(err instanceof Error ? err.message : String(err));
+  }
+
+  return [
+    {
+      scheme,
+      network,
+      asset,
+      amount,
+      max_timeout_seconds: 300,
+    },
+  ];
 }
 
 async function readSpec(
@@ -69,35 +135,47 @@ export async function runShellCommand(
       };
     }
     if (cmd === "apis" && sub === "webhook-deliveries") {
-      const id = flag(parsed, "--id");
-      if (!id) return usage("--id required");
+      const id = idFlag(parsed);
+      if (!id) return usage("--id required (or pass API id as a positional argument)");
       return { ok: true, data: await c.apis.listWebhookDeliveries(id) };
     }
     if (cmd === "apis" && sub === "get") {
-      const id = flag(parsed, "--id");
-      if (!id) return usage("--id required");
+      const id = idFlag(parsed);
+      if (!id) return usage("--id required (or pass API id as a positional argument)");
       return { ok: true, data: await c.apis.get(id) };
     }
     if (cmd === "apis" && sub === "delete") {
-      const id = flag(parsed, "--id");
-      if (!id) return usage("--id required");
+      const id = idFlag(parsed);
+      if (!id) return usage("--id required (or pass API id as a positional argument)");
       await c.apis.delete(id);
       return { ok: true, data: { status: "deleted" } };
     }
     if (cmd === "apis" && sub === "update") {
-      const id = flag(parsed, "--id");
-      if (!id) return usage("--id required");
+      const id = idFlag(parsed);
+      if (!id) return usage("--id required (or pass API id as a positional argument)");
       const body: Record<string, unknown> = {};
       const name = flag(parsed, "--name");
       const slug = flag(parsed, "--slug");
       const upstream = flag(parsed, "--upstream");
       const payTo = flag(parsed, "--pay-to");
+      const webhookUrl = flag(parsed, "--webhook-url");
+      const webhookSecret = flag(parsed, "--webhook-secret");
+      const clearWebhook = flag(parsed, "--clear-webhook");
       if (name) body.name = name;
       if (slug) body.slug = slug;
       if (upstream) body.upstream_base_url = upstream;
       if (payTo) {
         body.pay_to_mode = "user_wallet";
         body.pay_to_address = payTo;
+      }
+      if (clearWebhook === "true") {
+        body.clear_webhook = true;
+      } else {
+        if (webhookUrl !== undefined) body.webhook_url = webhookUrl;
+        if (webhookSecret !== undefined) body.webhook_secret = webhookSecret;
+      }
+      if (Object.keys(body).length === 0) {
+        return usage("at least one of --name, --slug, --upstream, --pay-to, --webhook-url, --webhook-secret, --clear-webhook required");
       }
       return { ok: true, data: await c.apis.update(id, body) };
     }
@@ -112,8 +190,10 @@ export async function runShellCommand(
       if (!apiId) return usage("--api-id required");
       const endpointId = flag(parsed, "--endpoint-id");
       const path = flag(parsed, "--path");
-      const probes = endpointId ? [{ endpoint_id: endpointId, path: path ?? undefined }] : undefined;
-      return { ok: true, data: await c.apis.probeUpstream(apiId, probes) };
+      const body = endpointId
+        ? { probes: [{ endpoint_id: endpointId, path: path ?? undefined }] }
+        : undefined;
+      return { ok: true, data: await c.apis.probeUpstream(apiId, body) };
     }
     if (cmd === "apis" && sub === "cors-list") {
       const apiId = flag(parsed, "--api-id");
@@ -149,17 +229,29 @@ export async function runShellCommand(
       const apiId = flag(parsed, "--api-id");
       const method = flag(parsed, "--method") ?? "GET";
       const path = flag(parsed, "--path");
-      const price = flag(parsed, "--price-usdc") ?? "0.10";
       const scheme = (flag(parsed, "--scheme") ?? "exact") as PaymentScheme;
       const ttlRaw = flag(parsed, "--ttl");
       if (!apiId || !path) return usage("--api-id and --path required");
-      const accepts = [buildUsdcAccept(scheme, usdcToAtomic(price))];
-      const body: { method: string; path_pattern: string; accepts: ReturnType<typeof buildUsdcAccept>[]; ttl?: number } = {
+      const fromFlags = acceptsFromFlags(parsed);
+      if (fromFlags && typeof fromFlags === "object" && "ok" in fromFlags) return fromFlags;
+      let accepts: AcceptOption[];
+      if (Array.isArray(fromFlags)) {
+        accepts = fromFlags;
+      } else {
+        const price = flag(parsed, "--price") ?? flag(parsed, "--price-usdc") ?? "0.10";
+        accepts = [buildUsdcAccept(scheme, usdcToAtomic(price))];
+      }
+      const body: {
+        method: string;
+        path_pattern: string;
+        accepts: AcceptOption[];
+        ttl?: number;
+      } = {
         method,
         path_pattern: path,
         accepts,
       };
-      if (ttlRaw !== undefined) {
+      if (ttlRaw !== undefined && ttlRaw !== "") {
         const ttl = parseInt(ttlRaw, 10);
         if (!Number.isFinite(ttl) || ttl <= 0) return usage("--ttl must be a positive number of seconds");
         body.ttl = ttl;
@@ -173,6 +265,14 @@ export async function runShellCommand(
       if (!apiId || !endpointId) return usage("--api-id and --endpoint-id required");
       const body: Record<string, unknown> = {};
       if (enabled !== undefined) body.enabled = enabled === "true";
+      const fromFlags = acceptsFromFlags(parsed);
+      if (fromFlags && typeof fromFlags === "object" && "ok" in fromFlags) return fromFlags;
+      if (Array.isArray(fromFlags)) body.accepts = fromFlags;
+      if (Object.keys(body).length === 0) {
+        return usage(
+          "at least one of --enabled, --network/--asset/--price, or --accepts required",
+        );
+      }
       return { ok: true, data: await c.endpoints.update(apiId, endpointId, body) };
     }
     if (cmd === "endpoints" && sub === "delete") {

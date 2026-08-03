@@ -45,10 +45,14 @@ async function main() {
     },
     runInspectUrl: inspectGatewayUrl,
     runPayUrl: async (url, method) => {
-      const pk = process.env.AX402_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
-      if (!pk) usage("AX402_EVM_PRIVATE_KEY required for pay url");
-      const { buyerClientFromPrivateKey } = await import("@ax402/sdk/buyer");
-      const buyer = await buyerClientFromPrivateKey(pk);
+      const { buyerClientFromEnv, BuyerDepsError } = await import("@ax402/sdk/buyer");
+      let buyer;
+      try {
+        buyer = await buyerClientFromEnv();
+      } catch (err) {
+        if (err instanceof BuyerDepsError) usage(err.message);
+        throw err;
+      }
       const payResult = await buyer.pay({ url, method });
       const body = await payResult.response.text();
       let parsedBody: unknown = body;

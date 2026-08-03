@@ -31,3 +31,12 @@ def test_buyer_client_with_batch() -> None:
     )
     client = BuyerClient(signer, batch=BatchBuyerOptions(deposit_multiplier=5))
     assert client is not None
+
+
+def test_from_env_hedera_unsupported(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("AX402_EVM_PRIVATE_KEY", raising=False)
+    monkeypatch.delenv("EVM_PRIVATE_KEY", raising=False)
+    monkeypatch.setenv("HEDERA_ACCOUNT_ID", "0.0.1234")
+    monkeypatch.setenv("HEDERA_PRIVATE_KEY", "deadbeef")
+    with pytest.raises(BuyerDepsError, match="Hedera buyer signing is not supported"):
+        BuyerClient.from_env()

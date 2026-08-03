@@ -35,3 +35,5 @@ Dashboard guides (gateway setup, DNS, domains, billing): [ax402.io/docs](https:/
 | `AX402_BASE_URL` | SDKs, CLI, MCP |
 | `AX402_API_KEY` | Automation (`ax402_live_...`) |
 | `AX402_EVM_PRIVATE_KEY` | Buyer CLI/MCP pay |
+| `HEDERA_ACCOUNT_ID` | Buyer Hedera account |
+| `HEDERA_PRIVATE_KEY` | Buyer Hedera key |

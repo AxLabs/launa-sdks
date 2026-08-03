@@ -9,14 +9,19 @@ import (
 const (
 	USDCDecimals = 6
 
-	NetworkBase         = "eip155:8453"
-	NetworkBaseSepolia  = "eip155:84532"
-	NetworkNeoXMainnet  = "eip155:47763"
-	NetworkNeoXTestnet  = "eip155:12227332"
-	USDCBaseMainnet     = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-	USDCBaseSepolia     = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
-	ZCHFBaseMainnet     = "0xD4dD9e2F021BB459D5A5f6c24C12fE09c5D45553"
-	XGASNeoXMainnet     = "0x9a50C8804dC885F118835cD96d3Ea4D4A5131A01"
+	NetworkBase           = "eip155:8453"
+	NetworkBaseSepolia    = "eip155:84532"
+	NetworkNeoXMainnet    = "eip155:47763"
+	NetworkNeoXTestnet    = "eip155:12227332"
+	NetworkHederaMainnet  = "hedera:mainnet"
+	NetworkHederaTestnet  = "hedera:testnet"
+	USDCBaseMainnet       = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+	USDCBaseSepolia       = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+	ZCHFBaseMainnet       = "0xD4dD9e2F021BB459D5A5f6c24C12fE09c5D45553"
+	XGASNeoXMainnet       = "0x9a50C8804dC885F118835cD96d3Ea4D4A5131A01"
+	HBAR                  = "0.0.0"
+	USDCHederaTestnet     = "0.0.429274"
+	USDCHederaMainnet     = "0.0.456858"
 	USDCNetworkMainnet  = NetworkBase
 	USDCNetworkSepolia  = NetworkBaseSepolia
 	USDCAssetMainnet    = USDCBaseMainnet

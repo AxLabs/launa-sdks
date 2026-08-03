@@ -24,7 +24,20 @@ api = client.apis.create({
 })
 ```
 
-Resource-style API: `client.auth`, `client.keys`, `client.apis`, `client.endpoints`, `client.domains`, `client.openapi`, `client.stats`, `client.settlements`, `client.billing`, `client.income`, `client.exchange_rates`, `client.config`. API helpers: `apis.check_slug_availability`, `apis.probe_upstream`.
+Resource-style API: `client.auth`, `client.keys`, `client.apis`, `client.endpoints`, `client.domains`, `client.openapi`, `client.stats`, `client.settlements`, `client.billing`, `client.income`, `client.exchange_rates`, `client.config`. API helpers: `apis.check_slug_availability`, `apis.probe_upstream`, `apis.list_webhook_deliveries`.
+
+Settlement webhooks:
+
+```python
+api = client.apis.create({
+    "name": "Shopify channel",
+    "slug": "acme-shop",
+    "upstream_base_url": "https://shopify-app.example",
+    "webhook_url": "https://shopify-app.example/webhooks/ax402/settlement",
+    "webhook_secret": "whsec_...",
+})
+deliveries = client.apis.list_webhook_deliveries(api.id)
+```
 
 Flat back-compat aliases (`list_apis`, `stats_overview`, etc.) remain on `Ax402Client`.
 
@@ -33,6 +46,8 @@ Helpers: `gateway_url`, `gateway_base_url`, `wrap_openapi`, `setup_api_with_defa
 ## Buyer
 
 Pay gateway URLs with EVM `exact` or `batch-settlement`. Full guide: [buyers](../buyers/README.md).
+
+Native Hedera (`hedera:*`) buyer signing is TypeScript-only (`@ax402/sdk/buyer`) until foundation ships a Python Hedera mechanism. Platform helpers expose `NETWORK_HEDERA_*` / `HBAR` / `USDC_HEDERA_*` for seller config.
 
 ```python
 from ax402_sdk.buyer import BuyerClient

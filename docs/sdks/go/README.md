@@ -16,7 +16,9 @@ apis, err := client.ListAPIs(ctx)
 api, err := client.CreateAPI(ctx, ax402.CreateAPIInput{...})
 ```
 
-Flat methods mirror the TypeScript resources: auth, keys, apis, endpoints, domains, openapi, stats, settlements, billing, income, exchange rates, and config. Includes `CheckSlugAvailability` and `ProbeUpstream`.
+Flat methods mirror the TypeScript resources: auth, keys, apis, endpoints, domains, openapi, stats, settlements, billing, income, exchange rates, and config. Includes `CheckSlugAvailability`, `ProbeUpstream`, and `ListWebhookDeliveries`.
+
+Settlement webhooks on `CreateAPIInput`: `WebhookURL`, `WebhookSecret`, `ClearWebhook`. Response includes `WebhookURL` and `WebhookConfigured` (secret is never returned).
 
 Helpers: `ax402.GatewayURL`, `ax402.BuildUsdcAccept`, `ax402.UsdcToAtomic`, `ax402.WrapOpenAPI`, `ax402.SetupAPIWithDefaultDomain`, `ax402.ScopePresets`.
 
@@ -24,10 +26,12 @@ Helpers: `ax402.GatewayURL`, `ax402.BuildUsdcAccept`, `ax402.UsdcToAtomic`, `ax4
 
 Pay gateway URLs with EVM `exact` and `batch-settlement`. Full guide: [buyers](../buyers/README.md).
 
+Native Hedera (`hedera:testnet` / `hedera:mainnet`) buyer signing is TypeScript-only (`@ax402/sdk/buyer` + `@x402/hedera`) until foundation ships a Go Hedera client scheme. Platform helpers still expose `NetworkHedera*` / `HBAR` / `USDCHedera*` for seller config.
+
 ```go
 import "github.com/AxLabs/ax402-sdks/go/buyer"
 
-c, err := buyer.NewFromPrivateKey(os.Getenv("AX402_EVM_PRIVATE_KEY"))
+c, err := buyer.NewFromEnv() // AX402_EVM_PRIVATE_KEY
 if err != nil { /* handle */ }
 
 resp, err := c.Get(ctx, "https://my-api.ax402.io/v1/echo?test=1")
@@ -36,7 +40,7 @@ defer resp.Body.Close()
 settle, _ := c.SettleResponseFrom(resp)
 ```
 
-Batch endpoints: pass `buyer.BatchOptions{DepositMultiplier: 5}` to `buyer.New` / `NewFromPrivateKey`.
+`NewFromPrivateKey` remains available. Batch endpoints: pass `buyer.BatchOptions{DepositMultiplier: 5}` to `buyer.New` / `NewFromPrivateKey` / `NewFromEnv`.
 
 Also: `PayURL(ctx, method, url, body)`, `Do(ctx, req)`, `HTTPClient()`.
 

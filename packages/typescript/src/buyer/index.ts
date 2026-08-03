@@ -1,5 +1,12 @@
-import type { BuyerClientOptions, BuyerSigner, PayOptions, PayResult, x402PaymentResult } from "./types.js";
+import type {
+  BuyerClientOptions,
+  BuyerSigner,
+  PayOptions,
+  PayResult,
+  x402PaymentResult,
+} from "./types.js";
 import { BuyerDepsError } from "./types.js";
+import { createHederaSignerFromCredentials } from "./signer.js";
 
 type FetchModule = {
   wrapFetchWithPayment: (f: typeof fetch, c: unknown) => typeof fetch;
@@ -16,14 +23,41 @@ type EvmModule = {
   registerExactEvmScheme?: (client: unknown, cfg: { signer: unknown }) => void;
 };
 
-async function loadDeps(): Promise<{ fetchMod: FetchModule; evmMod: EvmModule }> {
+type HederaModule = {
+  ExactHederaScheme: new (signer: unknown) => unknown;
+  createClientHederaSigner?: (
+    accountId: string,
+    privateKey: unknown,
+    config?: { network?: string; nodeUrl?: string },
+  ) => unknown;
+};
+
+async function loadFetch(): Promise<FetchModule> {
   try {
-    const fetchMod = (await import("@x402/fetch")) as FetchModule;
-    const evmMod = (await import("@x402/evm")) as EvmModule;
-    return { fetchMod, evmMod };
+    return (await import("@x402/fetch")) as FetchModule;
   } catch {
     throw new BuyerDepsError(
-      "Buyer helpers require optional deps: npm install @x402/fetch @x402/evm viem",
+      "Buyer helpers require optional deps: npm install @x402/fetch (@x402/evm viem and/or @x402/hedera)",
+    );
+  }
+}
+
+async function loadEvm(): Promise<EvmModule> {
+  try {
+    return (await import("@x402/evm")) as EvmModule;
+  } catch {
+    throw new BuyerDepsError(
+      "EVM buyer helpers require optional deps: npm install @x402/evm viem",
+    );
+  }
+}
+
+async function loadHedera(): Promise<HederaModule> {
+  try {
+    return (await import("@x402/hedera/exact/client")) as HederaModule;
+  } catch {
+    throw new BuyerDepsError(
+      "Hedera buyer helpers require optional deps: npm install @x402/hedera",
     );
   }
 }
@@ -64,6 +98,31 @@ function registerEvmSchemes(
   );
 }
 
+async function resolveHederaSigner(opts: BuyerClientOptions): Promise<BuyerSigner> {
+  if (opts.hederaSigner) {
+    return opts.hederaSigner;
+  }
+  if (opts.hedera) {
+    return createHederaSignerFromCredentials(opts.hedera);
+  }
+  throw new BuyerDepsError("hederaSigner or hedera credentials required for Hedera payments");
+}
+
+function registerHederaScheme(
+  client: { register: (pattern: string, scheme: unknown) => void },
+  hederaMod: HederaModule,
+  signer: BuyerSigner,
+): void {
+  if (!hederaMod.ExactHederaScheme) {
+    throw new BuyerDepsError("No ExactHederaScheme available in @x402/hedera");
+  }
+  client.register("hedera:*", new hederaMod.ExactHederaScheme(signer));
+}
+
+function hasHederaOpts(opts: BuyerClientOptions): boolean {
+  return Boolean(opts.hederaSigner || opts.hedera);
+}
+
 export class BuyerClient {
   readonly paymentFetch: typeof fetch;
   private readonly paymentHttpClient: {
@@ -78,11 +137,38 @@ export class BuyerClient {
     this.paymentHttpClient = paymentHttpClient;
   }
 
-  static async create(signer: BuyerSigner, opts: BuyerClientOptions = {}): Promise<BuyerClient> {
-    const { fetchMod, evmMod } = await loadDeps();
+  /**
+   * Create a payment-capable client.
+   * Pass an EVM signer and/or Hedera via `opts.hederaSigner` / `opts.hedera`.
+   * At least one chain must be configured.
+   */
+  static async create(
+    signer?: BuyerSigner | null,
+    opts: BuyerClientOptions = {},
+  ): Promise<BuyerClient> {
+    const wantEvm = signer != null;
+    const wantHedera = hasHederaOpts(opts);
+    if (!wantEvm && !wantHedera) {
+      throw new BuyerDepsError(
+        "BuyerClient.create requires an EVM signer and/or hederaSigner / hedera credentials",
+      );
+    }
+
+    const fetchMod = await loadFetch();
     const baseFetch = opts.fetch ?? globalThis.fetch;
     const client = new fetchMod.x402Client();
-    registerEvmSchemes(client, evmMod, signer, opts);
+
+    if (wantEvm) {
+      const evmMod = await loadEvm();
+      registerEvmSchemes(client, evmMod, signer!, opts);
+    }
+
+    if (wantHedera) {
+      const hederaMod = await loadHedera();
+      const hederaSigner = await resolveHederaSigner(opts);
+      registerHederaScheme(client, hederaMod, hederaSigner);
+    }
+
     const paymentHttpClient = new fetchMod.x402HTTPClient(client);
     const paymentFetch = fetchMod.wrapFetchWithPayment(baseFetch, paymentHttpClient);
     return new BuyerClient(paymentFetch, paymentHttpClient);
@@ -113,22 +199,26 @@ export class BuyerClient {
 }
 
 export async function createBuyerClient(
-  signer: BuyerSigner,
+  signer?: BuyerSigner | null,
   opts?: BuyerClientOptions,
 ): Promise<BuyerClient> {
   return BuyerClient.create(signer, opts);
 }
 
 export async function createPaymentFetch(
-  signer: BuyerSigner,
+  signer?: BuyerSigner | null,
   opts?: BuyerClientOptions,
 ): Promise<typeof fetch> {
   const client = await BuyerClient.create(signer, opts);
   return client.paymentFetch;
 }
 
-export async function payAndFetch(signer: BuyerSigner, opts: PayOptions): Promise<Response> {
-  const client = await BuyerClient.create(signer);
+export async function payAndFetch(
+  signer: BuyerSigner | null | undefined,
+  opts: PayOptions,
+  clientOpts?: BuyerClientOptions,
+): Promise<Response> {
+  const client = await BuyerClient.create(signer, clientOpts);
   const result = await client.pay(opts);
   return result.response;
 }
@@ -138,6 +228,7 @@ export type {
   BatchBuyerOptions,
   BuyerClientOptions,
   BuyerSigner,
+  HederaBuyerCredentials,
   PayOptions,
   PayOptions as PayAndFetchOptions,
   PayResult,
@@ -147,6 +238,9 @@ export { BuyerDepsError } from "./types.js";
 export {
   createEvmSignerFromPrivateKey,
   createEvmSignerFromBrowserProvider,
+  createHederaSignerFromCredentials,
+  parseHederaPrivateKey,
   buyerClientFromPrivateKey,
+  buyerClientFromHederaCredentials,
   buyerClientFromEnv,
 } from "./signer.js";

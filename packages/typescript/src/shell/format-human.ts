@@ -177,6 +177,11 @@ function formatApiSummary(api: Record<string, unknown>, index?: number): string[
     `  upstream:    ${api.upstream_base_url}`,
     `  pay to:      ${formatPayTo(api)}`,
   ];
+  if (api.webhook_url || api.webhook_configured) {
+    lines.push(
+      `  webhook:     ${api.webhook_url ?? "—"} (${api.webhook_configured ? "secret set" : "no secret"})`,
+    );
+  }
   const gateway = formatApiGateway(api);
   if (gateway) lines.push(`  gateway:     ${gateway}`);
   lines.push(...formatApiDomains(api));
@@ -204,6 +209,7 @@ function formatEndpoint(ep: Record<string, unknown>): string {
     `  enabled: ${ep.enabled === false ? "no" : "yes"}`,
     ttlLine,
     `  accepts: ${formatAccepts(ep.accepts)}`,
+    ep.ttl != null ? `  ttl:     ${ep.ttl}s (expires ${ep.expires_at ?? "—"})` : null,
     ep.description ? `  note:    ${ep.description}` : null,
   ]
     .filter(Boolean)
@@ -504,7 +510,7 @@ function formatSupportedNetworks(data: unknown): string {
 function formatByCommand(cmd: string, sub: string, data: unknown): string | null {
   const key = `${cmd} ${sub}`;
   if (key === "apis list") return formatApiList(asRecords(data));
-  if (key === "apis get" || key === "apis create") return isRecord(data) ? formatApi(data) : null;
+  if (key === "apis get" || key === "apis create" || key === "apis update") return isRecord(data) ? formatApi(data) : null;
   if (key === "endpoints list") return formatEndpointList(asRecords(data));
   if (key === "endpoints create" || key === "endpoints update") return isRecord(data) ? formatEndpoint(data) : null;
   if (key === "keys list") return formatKeyList(asRecords(data));

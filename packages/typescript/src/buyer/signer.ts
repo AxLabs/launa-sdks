@@ -1,4 +1,4 @@
-import type { BuyerClientOptions, BuyerSigner } from "./types.js";
+import type { BuyerClientOptions, BuyerSigner, HederaBuyerCredentials } from "./types.js";
 import { BuyerDepsError } from "./types.js";
 
 type Eip1193Provider = {
@@ -84,6 +84,51 @@ export async function createEvmSignerFromBrowserProvider(
   }
 }
 
+export async function parseHederaPrivateKey(raw: string): Promise<unknown> {
+  try {
+    const hederaMod = (await import("@x402/hedera")) as {
+      PrivateKey: {
+        fromStringECDSA: (hex: string) => unknown;
+        fromString: (s: string) => unknown;
+      };
+    };
+    const trimmed = raw.trim();
+    const hex = trimmed.replace(/^0x/i, "");
+    if (/^[0-9a-fA-F]{64}$/.test(hex)) {
+      return hederaMod.PrivateKey.fromStringECDSA(hex);
+    }
+    return hederaMod.PrivateKey.fromString(trimmed);
+  } catch {
+    throw new BuyerDepsError(
+      "Hedera signer requires optional deps: npm install @x402/hedera",
+    );
+  }
+}
+
+export async function createHederaSignerFromCredentials(
+  creds: HederaBuyerCredentials,
+): Promise<BuyerSigner> {
+  try {
+    const hederaMod = (await import("@x402/hedera")) as {
+      createClientHederaSigner: (
+        accountId: string,
+        privateKey: unknown,
+        config?: { network?: string; nodeUrl?: string },
+      ) => BuyerSigner;
+    };
+    const privateKey = await parseHederaPrivateKey(creds.privateKey);
+    return hederaMod.createClientHederaSigner(creds.accountId, privateKey, {
+      network: creds.network,
+      nodeUrl: creds.nodeUrl,
+    });
+  } catch (err) {
+    if (err instanceof BuyerDepsError) throw err;
+    throw new BuyerDepsError(
+      "Hedera signer requires optional deps: npm install @x402/hedera",
+    );
+  }
+}
+
 export async function buyerClientFromPrivateKey(
   privateKey: string,
   opts?: BuyerClientOptions,
@@ -93,10 +138,44 @@ export async function buyerClientFromPrivateKey(
   return BuyerClient.create(signer, opts);
 }
 
+export async function buyerClientFromHederaCredentials(
+  creds: HederaBuyerCredentials,
+  opts?: BuyerClientOptions,
+) {
+  const { BuyerClient } = await import("./index.js");
+  return BuyerClient.create(undefined, { ...opts, hedera: creds });
+}
+
 export async function buyerClientFromEnv(opts?: BuyerClientOptions) {
-  const key = process.env.AX402_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
-  if (!key) {
-    throw new BuyerDepsError("AX402_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required");
+  const evmKey = process.env.AX402_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
+  const hederaAccountId = process.env.HEDERA_ACCOUNT_ID?.trim();
+  const hederaPrivateKey = process.env.HEDERA_PRIVATE_KEY?.trim();
+  const hederaNetwork = process.env.HEDERA_NETWORK?.trim();
+
+  const envHedera =
+    hederaAccountId && hederaPrivateKey
+      ? {
+          accountId: hederaAccountId,
+          privateKey: hederaPrivateKey,
+          ...(hederaNetwork ? { network: hederaNetwork } : {}),
+        }
+      : undefined;
+
+  const merged: BuyerClientOptions = {
+    ...opts,
+    hedera: opts?.hedera ?? envHedera,
+  };
+
+  if (evmKey) {
+    const signer = await createEvmSignerFromPrivateKey(evmKey);
+    return (await import("./index.js")).BuyerClient.create(signer, merged);
   }
-  return buyerClientFromPrivateKey(key, opts);
+
+  if (merged.hederaSigner || merged.hedera) {
+    return (await import("./index.js")).BuyerClient.create(undefined, merged);
+  }
+
+  throw new BuyerDepsError(
+    "AX402_EVM_PRIVATE_KEY (or EVM_PRIVATE_KEY) and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY required",
+  );
 }

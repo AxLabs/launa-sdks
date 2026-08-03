@@ -223,7 +223,7 @@ server.tool("ax402_platform_config", "Platform domain and gateway settings (publ
 
 server.tool(
   "ax402_pay_url",
-  "Pay for a gateway URL via x402. Requires AX402_EVM_PRIVATE_KEY; signs and retries on HTTP 402.",
+  "Pay for a gateway URL via x402. Requires AX402_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY; signs and retries on HTTP 402.",
   { url: z.string().url(), method: z.string().optional() },
   async ({ url, method }) => text(await handlers.payUrl(url, method)),
 );

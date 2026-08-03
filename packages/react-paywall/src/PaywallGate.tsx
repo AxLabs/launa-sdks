@@ -65,6 +65,7 @@ export function PaywallGate({
     resolveBatchPayButtonLabel,
     walletAddress,
     connectedWalletName,
+    hederaMode,
     wallets,
     refreshWallets,
     connectWallet,
@@ -150,6 +151,10 @@ export function PaywallGate({
   }, [inspectOnMount, runInspect])
 
   const openWalletPicker = async () => {
+    if (hederaMode) {
+      await connectWallet()
+      return
+    }
     const list = await refreshWallets({ timeoutMs: 1500 })
     if (list.length === 0) {
       throw new Error('No browser wallet detected. Install an EIP-1193 wallet extension.')
@@ -247,6 +252,7 @@ export function PaywallGate({
     loading,
     walletAddress,
     connectedWalletName,
+    hederaMode,
     showWalletPicker,
     pickerWallets,
     onConnect: () => void handleConnectClick(),

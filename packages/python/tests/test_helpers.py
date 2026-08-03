@@ -1,4 +1,9 @@
 from ax402_sdk import (
+    HBAR,
+    NETWORK_HEDERA_MAINNET,
+    NETWORK_HEDERA_TESTNET,
+    USDC_HEDERA_MAINNET,
+    USDC_HEDERA_TESTNET,
     atomic_to_usdc,
     build_usdc_accept,
     gateway_base_url,
@@ -45,3 +50,11 @@ def test_amount_helpers() -> None:
 
 def test_format_withdraw_delay() -> None:
     assert format_withdraw_delay(900) == "15 minutes"
+
+
+def test_hedera_constants() -> None:
+    assert NETWORK_HEDERA_MAINNET == "hedera:mainnet"
+    assert NETWORK_HEDERA_TESTNET == "hedera:testnet"
+    assert HBAR == "0.0.0"
+    assert USDC_HEDERA_TESTNET == "0.0.429274"
+    assert USDC_HEDERA_MAINNET == "0.0.456858"

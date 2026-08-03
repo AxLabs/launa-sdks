@@ -38,6 +38,18 @@ func TestFormatWithdrawDelay(t *testing.T) {
 	}
 }
 
+func TestHederaNetworkAssetConstants(t *testing.T) {
+	if NetworkHederaMainnet != "hedera:mainnet" || NetworkHederaTestnet != "hedera:testnet" {
+		t.Fatalf("networks: %s %s", NetworkHederaMainnet, NetworkHederaTestnet)
+	}
+	if HBAR != "0.0.0" {
+		t.Fatalf("HBAR=%s", HBAR)
+	}
+	if USDCHederaTestnet != "0.0.429274" || USDCHederaMainnet != "0.0.456858" {
+		t.Fatalf("usdc: %s %s", USDCHederaTestnet, USDCHederaMainnet)
+	}
+}
+
 func TestExportPaymentHistoryURL(t *testing.T) {
 	got := ExportPaymentHistoryURL(PaymentHistoryQuery{Days: 30, APIID: "api1"}, "csv")
 	if got != "/settlements?api_id=api1&days=30&format=csv" && got != "/settlements?days=30&api_id=api1&format=csv" {

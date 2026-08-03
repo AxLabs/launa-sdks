@@ -18,6 +18,9 @@ You never configure a facilitator URL in buyer code — the gateway handles veri
 | Variable | Purpose |
 |----------|---------|
 | `AX402_EVM_PRIVATE_KEY` | Hex EVM key with USDC on the gateway's network (legacy: `EVM_PRIVATE_KEY`) |
+| `HEDERA_ACCOUNT_ID` | Hedera payer account id (e.g. `0.0.1234`) for native `hedera:*` payments |
+| `HEDERA_PRIVATE_KEY` | Hedera private key (ECDSA hex or DER string) paired with `HEDERA_ACCOUNT_ID` |
+| `HEDERA_NETWORK` | Optional CAIP-2 network (`hedera:testnet` default, or `hedera:mainnet`) |
 
 Fund the wallet with USDC on the network shown in the gateway's payment requirements.
 
@@ -32,11 +35,12 @@ https://my-api.ax402.io/v1/echo?test=1
 | Capability | TypeScript | Go | Python |
 |------------|:----------:|:--:|:------:|
 | EVM `exact` scheme | ✓ | ✓ | ✓ |
+| Native Hedera `exact` | ✓ (`@x402/hedera`) | — | — |
 | `batch-settlement` scheme | ✓ | ✓ | ✓ |
 | Browser wallet signer | ✓ | — | — |
 | Async client | — | — | ✓ (`AsyncBuyerClient`) |
 | Settlement metadata | `pay()` → `payment` | `SettleResponseFrom(resp)` | `PayResult.settlement` |
-| Env factory | `buyerClientFromEnv` | — | `BuyerClient.from_env` |
+| Env factory | `buyerClientFromEnv` | `NewFromEnv` (EVM) | `BuyerClient.from_env` (EVM) |
 | `upto` scheme | — | — | — |
 
 Control-plane clients (seller automation) are documented per language in [sdks/](../sdks/README.md).
@@ -47,6 +51,8 @@ Install buyer deps (optional extras on the main package):
 
 ```bash
 pnpm add @ax402/sdk @x402/fetch @x402/evm viem
+# optional Hedera:
+pnpm add @x402/hedera
 ```
 
 ### Private key (scripts, CI, agents)
@@ -111,10 +117,12 @@ const res = await client.fetch("https://myapi.example.com/v1/data");
 
 Module: `github.com/AxLabs/ax402-sdks/go/buyer`. Underlying protocol: `github.com/x402-foundation/x402/go`.
 
+EVM only — Hedera buyer signing is TypeScript (`buyerClientFromEnv` / `HEDERA_*`). `NewFromEnv` returns a clear error if only Hedera credentials are set.
+
 ```go
 import "github.com/AxLabs/ax402-sdks/go/buyer"
 
-c, err := buyer.NewFromPrivateKey(os.Getenv("AX402_EVM_PRIVATE_KEY"))
+c, err := buyer.NewFromEnv() // or NewFromPrivateKey(...)
 if err != nil { /* handle */ }
 
 resp, err := c.Get(ctx, "https://my-api.ax402.io/v1/echo?test=1")
@@ -141,6 +149,8 @@ Install the buyer extra:
 ```bash
 pip install "ax402-sdk[buyer]"
 ```
+
+EVM only — Hedera buyer signing is TypeScript (`buyerClientFromEnv` / `HEDERA_*`). `BuyerClient.from_env()` raises if only Hedera credentials are set.
 
 ### Sync
 
@@ -175,20 +185,20 @@ result = BuyerClient.from_env(batch=BatchBuyerOptions(deposit_multiplier=5)).get
 ## CLI and MCP
 
 ```bash
-export AX402_EVM_PRIVATE_KEY=0x...
+export AX402_EVM_PRIVATE_KEY=0x...   # and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY
 ax402 inspect url --url https://my-api.ax402.io/v1/echo?test=1 --json
 ax402 pay url --url https://my-api.ax402.io/v1/echo?test=1 --json
 ```
 
-MCP tool `ax402_pay_url` uses the same env var when set. See [mcp](../mcp/README.md).
+MCP tool `ax402_pay_url` uses the same buyer env vars. See [mcp](../mcp/README.md).
 
 ## When to use what
 
 | Runtime | Recommendation |
 |---------|----------------|
-| Node / TS agent or backend | `@ax402/sdk/buyer` |
-| Go service or CI | `go/buyer` |
-| Python script or async service | `ax402_sdk.buyer` |
+| Node / TS agent or backend | `@ax402/sdk/buyer` (EVM + Hedera) |
+| Go service or CI | `go/buyer` (EVM; Hedera via TypeScript) |
+| Python script or async service | `ax402_sdk.buyer` (EVM; Hedera via TypeScript) |
 | Browser SPA with wallet UI | `@ax402/react-paywall` |
 | Shell / Cursor agent | `ax402 pay url` or MCP `ax402_pay_url` |
 

@@ -8,7 +8,7 @@ describe("Ax402Client integration", () => {
     const mock = await startMockServer();
     const client = new Ax402Client({
       baseUrl: mock.url,
-      apiKey: "ax402_live_test",
+      apiKey: "test",
     });
 
     await client.auth.signup("a@b.com", "password1");
@@ -70,6 +70,24 @@ describe("Ax402Client integration", () => {
       webhook_url: "https://app.example/hooks",
       webhook_secret: "whsec_test",
     });
+
+    expect(await client.auth.notificationPreferences()).toMatchObject({ billing_alerts: true });
+    await client.auth.updateNotificationPreferences({ weekly_summary: true });
+    expect(await client.sandboxWallet.get()).toHaveProperty("address");
+    await client.sandboxWallet.reset();
+    expect(await client.config.localDev()).toMatchObject({ enabled: true });
+    expect(await client.billing.overview()).toMatchObject({ model: "free" });
+    await client.billing.setModel("payg");
+    expect(await client.income.summary()).toMatchObject({ income_enabled: true });
+    expect(await client.income.payoutRequests()).toHaveLength(1);
+    await client.income.createPayoutRequest({
+      network: "eip155:84532",
+      asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      amount_atomic: 1000000,
+      destination_address: "0x0000000000000000000000000000000000000001",
+    });
+    await client.income.cancelPayoutRequest("payout1");
+    await client.auth.deleteAccount("password1", "a@b.com");
 
     await mock.close();
   });

@@ -14,7 +14,7 @@ Requires Node.js 18+.
 
 ## Configuration
 
-Set `AX402_API_KEY` (scoped `ax402_live_...` key from the Ax402 dashboard). Optional: `AX402_BASE_URL` (default `https://api.ax402.io`). For paying gateway URLs, set `AX402_EVM_PRIVATE_KEY`.
+Set `AX402_API_KEY` (scoped `ax402_live_...` key from the Ax402 dashboard). Optional: `AX402_BASE_URL` (default `https://api.ax402.io`). For paying gateway URLs, set `AX402_EVM_PRIVATE_KEY` and/or `HEDERA_ACCOUNT_ID` + `HEDERA_PRIVATE_KEY`.
 
 ### Cursor
 
@@ -35,7 +35,7 @@ Add to `.cursor/mcp.json` or Cursor MCP settings:
 }
 ```
 
-To enable `ax402_pay_url`, add `AX402_EVM_PRIVATE_KEY` to `env`.
+To enable `ax402_pay_url`, add `AX402_EVM_PRIVATE_KEY` and/or `HEDERA_ACCOUNT_ID` + `HEDERA_PRIVATE_KEY` to `env`.
 
 Example config: [examples/agent-mcp/cursor-mcp.json.example](https://github.com/AxLabs/ax402-sdks/blob/main/examples/agent-mcp/cursor-mcp.json.example).
 
@@ -78,6 +78,8 @@ Tool access follows your API key scopes. Create keys with the permissions you ne
 | `AX402_API_KEY` | Yes | Control-plane API key |
 | `AX402_BASE_URL` | No | API base URL (default `https://api.ax402.io`) |
 | `AX402_EVM_PRIVATE_KEY` | For `ax402_pay_url` | EVM key with funds on the gateway network |
+| `HEDERA_ACCOUNT_ID` | For `ax402_pay_url` | Hedera payer account id |
+| `HEDERA_PRIVATE_KEY` | For `ax402_pay_url` | Hedera private key |
 
 ## Links
 

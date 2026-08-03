@@ -10,6 +10,7 @@ export {
   parseShellArgv,
   parseShellInput,
   flag,
+  idFlag,
   shellCommandNeedsCredentials,
 } from "./parse.js";
 export { runShellCommand } from "./execute.js";

@@ -14,6 +14,8 @@ Buyer helpers (optional):
 
 ```bash
 npm install @x402/fetch @x402/evm viem
+# optional Hedera:
+npm install @x402/hedera
 ```
 
 ## Quick start
@@ -73,6 +75,9 @@ Browser wallet: `createEvmSignerFromBrowserProvider()` + `BuyerClient.create(sig
 | `AX402_BASE_URL` | Control plane URL (default `https://api.ax402.io`) |
 | `AX402_API_KEY` | Scoped API key (`ax402_live_...`) |
 | `AX402_EVM_PRIVATE_KEY` | Signs x402 payments for buyer helpers |
+| `HEDERA_ACCOUNT_ID` | Hedera payer account for buyer helpers |
+| `HEDERA_PRIVATE_KEY` | Hedera private key for buyer helpers |
+| `HEDERA_NETWORK` | Optional `hedera:testnet` / `hedera:mainnet` |
 
 ## Links
 

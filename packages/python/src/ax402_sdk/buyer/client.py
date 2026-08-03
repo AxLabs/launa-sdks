@@ -117,6 +117,11 @@ class BuyerClient:
         import os
 
         key = os.environ.get("AX402_EVM_PRIVATE_KEY") or os.environ.get("EVM_PRIVATE_KEY")
-        if not key:
-            raise BuyerDepsError("AX402_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required")
-        return cls.from_private_key(key, batch=batch)
+        if key:
+            return cls.from_private_key(key, batch=batch)
+        if os.environ.get("HEDERA_ACCOUNT_ID") or os.environ.get("HEDERA_PRIVATE_KEY"):
+            raise BuyerDepsError(
+                "Hedera buyer signing is not supported in the Python SDK; "
+                "use TypeScript @ax402/sdk/buyer with HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY"
+            )
+        raise BuyerDepsError("AX402_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required")

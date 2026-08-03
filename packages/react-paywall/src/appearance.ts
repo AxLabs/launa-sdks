@@ -55,6 +55,9 @@ export type PaywallClassNames = {
 export type PaywallLabels = {
   connectWallet?: string
   connectWalletLoading?: string
+  /** Hedera WalletConnect / connect button. */
+  connectHederaWallet?: string
+  connectHederaWalletLoading?: string
   payToRead?: string
   /** Batch: first deposit to open a channel. */
   payToReadDeposit?: string
@@ -81,6 +84,8 @@ export type PaywallAppearance = {
 export const defaultPaywallLabels: Required<PaywallLabels> = {
   connectWallet: 'Connect wallet',
   connectWalletLoading: 'Connecting…',
+  connectHederaWallet: 'Connect Hedera wallet',
+  connectHederaWalletLoading: 'Connecting Hedera…',
   payToRead: 'Pay to read',
   payToReadDeposit: 'Deposit & unlock',
   payToReadTopUp: 'Top up & unlock',

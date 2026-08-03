@@ -28,6 +28,8 @@ export type ParsedShellCommand = {
   json: boolean;
   cmd: string;
   sub: string;
+  /** Positional args after cmd/sub (e.g. API id for `apis get <id>`). */
+  args: string[];
   flags: Record<string, string>;
 };
 

@@ -61,7 +61,10 @@ Run `ax402 config platform --json` for `platform_domain` and gateway hostname pa
 | `AX402_BASE_URL` | Control plane URL (default `https://api.ax402.io`) |
 | `AX402_API_KEY` | Scoped API key (`ax402_live_...`) for automation |
 | `AX402_JWT` | Session token from `auth login` — alternative to API key |
-| `AX402_EVM_PRIVATE_KEY` | `pay url` only — signs x402 payments (legacy alias: `EVM_PRIVATE_KEY`) |
+| `AX402_EVM_PRIVATE_KEY` | `pay url` — EVM signer (legacy alias: `EVM_PRIVATE_KEY`) |
+| `HEDERA_ACCOUNT_ID` | `pay url` — Hedera payer account |
+| `HEDERA_PRIVATE_KEY` | `pay url` — Hedera private key |
+| `HEDERA_NETWORK` | Optional `hedera:testnet` / `hedera:mainnet` |
 
 Global flag: `--json` on any command.
 
@@ -82,9 +85,10 @@ Without `--json`, commands print human-readable tables and summaries. With `--js
 
 ```bash
 ax402 apis list [--json]
-ax402 apis create --name NAME --slug SLUG --upstream URL [--pay-to 0x...] [--json]
+ax402 apis create --name NAME --slug SLUG --upstream URL [--pay-to 0x...] [--webhook-url URL] [--webhook-secret SECRET] [--json]
 ax402 apis get --id ID [--json]
-ax402 apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to 0x...] [--json]
+ax402 apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to 0x...] [--webhook-url URL] [--webhook-secret SECRET] [--clear-webhook] [--json]
+ax402 apis webhook-deliveries --id ID [--json]
 ax402 apis delete --id ID [--json]
 ax402 apis slug-check --slug SLUG [--exclude-api-id ID] [--json]
 ax402 apis probe-upstream --api-id ID [--endpoint-id EP] [--path PATH] [--json]
@@ -94,8 +98,8 @@ ax402 apis cors-add --api-id ID --origin ORIGIN [--json]
 ax402 apis cors-remove --api-id ID --origin ORIGIN [--json]
 
 ax402 endpoints list --api-id ID [--json]
-ax402 endpoints create --api-id ID --path "/v1/*" [--method GET] [--price-usdc 0.10] [--scheme exact|batch-settlement] [--json]
-ax402 endpoints update --api-id ID --endpoint-id EP [--enabled true|false] [--json]
+ax402 endpoints create --api-id ID --path "/v1/*" [--method GET] [--price-usdc 0.10] [--scheme exact|batch-settlement] [--network CAIP2] [--asset ADDR] [--decimals N] [--json]
+ax402 endpoints update --api-id ID --endpoint-id EP [--enabled true|false] [--network CAIP2 --asset ADDR --price 0.10] [--accepts JSON] [--json]
 ax402 endpoints delete --api-id ID --endpoint-id EP [--json]
 
 ax402 domains suggest --apex example.com [--prefix x402] [--json]
