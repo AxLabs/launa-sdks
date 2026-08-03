@@ -1,6 +1,6 @@
 {
   "name": "@ax402/react-paywall",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Embeddable React paywall overlay for x402 micropayments",
   "type": "module",
   "main": "./dist/index.js",
@@ -12,7 +12,11 @@
     },
     "./styles.css": "./src/styles.css"
   },
-  "files": ["dist", "src/styles.css", "docs"],
+  "files": [
+    "dist",
+    "src/styles.css",
+    "docs"
+  ],
   "scripts": {
     "build": "tsc && cp src/styles.css dist/styles.css",
     "prepare": "pnpm run build",

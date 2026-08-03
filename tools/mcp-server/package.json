@@ -1,6 +1,6 @@
 {
   "name": "@ax402/mcp-server",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Ax402 MCP server for Cursor and Claude",
   "type": "module",
   "license": "Apache-2.0",
@@ -12,7 +12,9 @@
   "bin": {
     "ax402-mcp": "./dist/index.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "vitest run",

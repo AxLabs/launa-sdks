@@ -27,7 +27,10 @@
       "import": "./dist/shell/index.js"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "prepare": "pnpm run build",
