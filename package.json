@@ -1,7 +1,7 @@
 {
   "name": "ax402-sdks",
   "private": true,
-  "version": "0.0.4",
+  "version": "0.0.5",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "build": "pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server --filter @ax402/react-paywall build",
