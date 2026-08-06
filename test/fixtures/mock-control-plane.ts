@@ -42,6 +42,7 @@ export const MOCK_ROUTES: MockRoute[] = [
   { method: "GET", path: "/apis", body: [fixtures.api] },
   { method: "POST", path: "/apis", status: 201, body: fixtures.api },
   { method: "GET", path: "/apis/api1", body: fixtures.api },
+  { method: "GET", path: "/apis/api1/discovery", body: fixtures.discoveryURLs },
   { method: "PUT", path: "/apis/api1", body: fixtures.api },
   { method: "DELETE", path: "/apis/api1", status: 204, empty: true },
   { method: "GET", path: "/apis/api1/cors", body: fixtures.apiCors },

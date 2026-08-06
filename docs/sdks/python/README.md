@@ -39,7 +39,24 @@ api = client.apis.create({
 deliveries = client.apis.list_webhook_deliveries(api.id)
 ```
 
-Flat back-compat aliases (`list_apis`, `stats_overview`, etc.) remain on `Ax402Client`.
+### Discovery
+
+```python
+api = client.apis.create({
+    "name": "Search",
+    "slug": "search",
+    "upstream_base_url": "https://upstream.example.com",
+    "discovery_guidance": "Use POST /search with a query field.",
+    "discovery_contact_email": "support@example.com",
+})
+urls = client.apis.discovery(api.id)
+client.endpoints.update(api.id, endpoint_id, {
+    "request_schema": {"type": "object", "properties": {"query": {"type": "string"}}},
+    "response_schema": {"type": "object", "additionalProperties": True},
+})
+```
+
+Resource-style API includes `apis.discovery`. Flat back-compat aliases (`list_apis`, `stats_overview`, etc.) remain on `Ax402Client`.
 
 Helpers: `gateway_url`, `gateway_base_url`, `wrap_openapi`, `setup_api_with_default_domain`, `SCOPE_PRESETS`, `usdc_to_atomic`, `build_usdc_accept`.
 

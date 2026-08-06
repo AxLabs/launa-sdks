@@ -192,6 +192,32 @@ function formatApi(api: Record<string, unknown>): string {
   return ["API", ...formatApiSummary(api)].join("\n");
 }
 
+function formatDiscoveryURLs(data: Record<string, unknown>): string {
+  const lines = ["Discovery"];
+  if (typeof data.primary_host === "string" && data.primary_host) {
+    lines.push(`  primary: ${data.primary_host}`);
+  }
+  if (typeof data.openapi_url === "string" && data.openapi_url) {
+    lines.push(`  openapi: ${data.openapi_url}`);
+  }
+  if (typeof data.well_known_url === "string" && data.well_known_url) {
+    lines.push(`  well-known: ${data.well_known_url}`);
+  }
+  if (typeof data.endpoint_count === "number") {
+    lines.push(`  endpoints: ${data.endpoint_count} (${data.discoverable_endpoint_count ?? 0} discoverable)`);
+  }
+  if (Array.isArray(data.host_urls)) {
+    for (const row of data.host_urls) {
+      if (!isRecord(row) || typeof row.host !== "string") continue;
+      const mark = row.is_primary ? " (primary)" : "";
+      lines.push(`  host ${row.host}${mark}`);
+      if (typeof row.openapi_url === "string") lines.push(`    openapi: ${row.openapi_url}`);
+      if (typeof row.well_known_url === "string") lines.push(`    well-known: ${row.well_known_url}`);
+    }
+  }
+  return lines.join("\n");
+}
+
 function formatApiList(apis: Record<string, unknown>[]): string {
   if (apis.length === 0) return "No APIs.";
   const blocks = apis.map((api, i) => formatApiSummary(api, i + 1).join("\n"));
@@ -511,6 +537,14 @@ function formatByCommand(cmd: string, sub: string, data: unknown): string | null
   const key = `${cmd} ${sub}`;
   if (key === "apis list") return formatApiList(asRecords(data));
   if (key === "apis get" || key === "apis create" || key === "apis update") return isRecord(data) ? formatApi(data) : null;
+  if (key === "apis discovery" || key === "discovery urls") return isRecord(data) ? formatDiscoveryURLs(data) : null;
+  if (key === "discovery check") {
+    return isRecord(data) && typeof data.command === "string"
+      ? ["AgentCash discovery check", `  ${data.command}`, typeof data.hint === "string" ? `  ${data.hint}` : ""]
+          .filter(Boolean)
+          .join("\n")
+      : null;
+  }
   if (key === "endpoints list") return formatEndpointList(asRecords(data));
   if (key === "endpoints create" || key === "endpoints update") return isRecord(data) ? formatEndpoint(data) : null;
   if (key === "keys list") return formatKeyList(asRecords(data));

@@ -64,7 +64,7 @@ Run `ax402 config platform --json` for `platform_domain` and gateway hostname pa
 | `AX402_EVM_PRIVATE_KEY` | `pay url` — EVM signer (legacy alias: `EVM_PRIVATE_KEY`) |
 | `HEDERA_ACCOUNT_ID` | `pay url` — Hedera payer account |
 | `HEDERA_PRIVATE_KEY` | `pay url` — Hedera private key |
-| `HEDERA_NETWORK` | Optional `hedera:testnet` / `hedera:mainnet` |
+| `HEDERA_NETWORK` | Optional Hedera network (`hedera:mainnet`) |
 
 Global flag: `--json` on any command.
 
@@ -85,9 +85,10 @@ Without `--json`, commands print human-readable tables and summaries. With `--js
 
 ```bash
 ax402 apis list [--json]
-ax402 apis create --name NAME --slug SLUG --upstream URL [--pay-to 0x...] [--webhook-url URL] [--webhook-secret SECRET] [--json]
+ax402 apis create --name NAME --slug SLUG --upstream URL [--pay-to 0x...] [--webhook-url URL] [--webhook-secret SECRET] [--discovery-guidance TEXT] [--discovery-contact-email EMAIL] [--openapi-version VER] [--json]
 ax402 apis get --id ID [--json]
-ax402 apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to 0x...] [--webhook-url URL] [--webhook-secret SECRET] [--clear-webhook] [--json]
+ax402 apis discovery --id ID [--json]
+ax402 apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to 0x...] [--webhook-url URL] [--webhook-secret SECRET] [--clear-webhook] [--discovery-guidance TEXT] [--discovery-contact-email EMAIL] [--openapi-version VER] [--json]
 ax402 apis webhook-deliveries --id ID [--json]
 ax402 apis delete --id ID [--json]
 ax402 apis slug-check --slug SLUG [--exclude-api-id ID] [--json]
@@ -98,9 +99,12 @@ ax402 apis cors-add --api-id ID --origin ORIGIN [--json]
 ax402 apis cors-remove --api-id ID --origin ORIGIN [--json]
 
 ax402 endpoints list --api-id ID [--json]
-ax402 endpoints create --api-id ID --path "/v1/*" [--method GET] [--price-usdc 0.10] [--scheme exact|batch-settlement] [--network CAIP2] [--asset ADDR] [--decimals N] [--json]
-ax402 endpoints update --api-id ID --endpoint-id EP [--enabled true|false] [--network CAIP2 --asset ADDR --price 0.10] [--accepts JSON] [--json]
+ax402 endpoints create --api-id ID --path "/v1/*" [--method GET] [--price-usdc 0.10] [--scheme exact|batch-settlement] [--network CAIP2] [--asset ADDR] [--decimals N] [--ttl SECONDS] [--request-schema JSON] [--response-schema JSON] [--json]
+ax402 endpoints update --api-id ID --endpoint-id EP [--enabled true|false] [--network CAIP2 --asset ADDR --price 0.10] [--accepts JSON] [--request-schema JSON] [--response-schema JSON] [--clear-schemas] [--json]
 ax402 endpoints delete --api-id ID --endpoint-id EP [--json]
+
+ax402 discovery urls --api-id ID [--json]
+ax402 discovery check --url "https://myapi.example.com" [--json]
 
 ax402 domains suggest --apex example.com [--prefix x402] [--json]
 ax402 domains add --api-id ID --hostname HOST [--json]
@@ -155,6 +159,13 @@ ax402 pay url --url GATEWAY_URL [--method GET] [--json]
 ```
 
 `apis create --pay-to` is required when the account uses `user_wallet` payout mode (typical for seller accounts).
+
+Discovery: `apis discovery` / `discovery urls` return gateway OpenAPI and well-known URLs. Validate with AgentCash:
+
+```bash
+npx -y @agentcash/discovery@latest check "https://myapi.example.com/"
+npx -y @agentcash/discovery@latest discover "https://myapi.example.com/"
+```
 
 Exit codes: 0 success, 1 API error, 2 usage error.
 

@@ -38,15 +38,75 @@ server.tool(
 );
 
 server.tool(
+  "ax402_discovery_urls",
+  "Get gateway discovery URLs (openapi.json and /.well-known/x402.json) for an API. Requires apis:read.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.discoveryUrls(api_id)),
+);
+
+server.tool(
+  "ax402_set_discovery_guidance",
+  "Set discovery_guidance, optional discovery_contact_email, and optional openapi_version on an API. Requires apis:write.",
+  {
+    api_id: z.string(),
+    discovery_guidance: z.string().optional(),
+    discovery_contact_email: z.string().email().optional(),
+    openapi_version: z.string().optional(),
+  },
+  async ({ api_id, discovery_guidance, discovery_contact_email, openapi_version }) =>
+    text(
+      await handlers.setDiscoveryGuidance(
+        api_id,
+        discovery_guidance,
+        discovery_contact_email,
+        openapi_version,
+      ),
+    ),
+);
+
+server.tool(
+  "ax402_update_endpoint_schemas",
+  "Update request/response JSON schemas for an endpoint (AgentCash discovery). Requires endpoints:write.",
+  {
+    api_id: z.string(),
+    endpoint_id: z.string(),
+    request_schema: z.record(z.unknown()).optional(),
+    response_schema: z.record(z.unknown()).optional(),
+    clear_schemas: z.boolean().optional(),
+  },
+  async ({ api_id, endpoint_id, request_schema, response_schema, clear_schemas }) =>
+    text(
+      await handlers.updateEndpointSchemas(
+        api_id,
+        endpoint_id,
+        request_schema,
+        response_schema,
+        clear_schemas,
+      ),
+    ),
+);
+
+server.tool(
   "ax402_create_api",
-  "Create API with default subdomain. Requires apis:write and verified email.",
+  "Create API with default subdomain. Optional discovery_guidance / discovery_contact_email / openapi_version. Requires apis:write and verified email.",
   {
     name: z.string(),
     slug: z.string(),
     upstream_base_url: z.string().url(),
     pay_to_address: z.string().optional(),
+    discovery_guidance: z.string().optional(),
+    discovery_contact_email: z.string().email().optional(),
+    openapi_version: z.string().optional(),
   },
-  async ({ name, slug, upstream_base_url, pay_to_address }) =>
+  async ({
+    name,
+    slug,
+    upstream_base_url,
+    pay_to_address,
+    discovery_guidance,
+    discovery_contact_email,
+    openapi_version,
+  }) =>
     text(
       await handlers.createApi({
         name,
@@ -54,6 +114,9 @@ server.tool(
         upstream_base_url,
         pay_to_mode: pay_to_address ? "user_wallet" : undefined,
         pay_to_address,
+        discovery_guidance,
+        discovery_contact_email,
+        openapi_version,
       }),
     ),
 );

@@ -31,6 +31,15 @@ func (c *Client) GetAPI(ctx context.Context, id string) (*API, error) {
 	return &out, nil
 }
 
+// GetAPIDiscovery returns computed gateway discovery URLs for all verified hosts.
+func (c *Client) GetAPIDiscovery(ctx context.Context, id string) (*DiscoveryURLs, error) {
+	var out DiscoveryURLs
+	if err := c.do(ctx, http.MethodGet, "/apis/"+id+"/discovery", nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *Client) UpdateAPI(ctx context.Context, id string, in CreateAPIInput) (*API, error) {
 	var out API
 	if err := c.do(ctx, http.MethodPut, "/apis/"+id, in, &out); err != nil {

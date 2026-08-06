@@ -31,10 +31,10 @@ export function ArticleRoute() {
   return (
     <PaywallProvider
       policy={{
-        preferredNetworks: 'eip155:84532',
-        allowedAssets: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+        preferredNetworks: 'eip155:8453',
+        allowedAssets: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
       }}
-      rpc={{ defaultUrl: 'https://sepolia.base.org' }}
+      rpc={{ defaultUrl: 'https://mainnet.base.org' }}
     >
       <PaywallGate
         resourceUrl="https://my-api.ax402.io/v1/echo?test=1"

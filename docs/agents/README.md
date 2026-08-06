@@ -18,10 +18,13 @@ Full tool list: [../mcp/README.md](../mcp/README.md).
 npm install -g @ax402/cli
 export AX402_API_KEY=ax402_live_...
 ax402 apis list --json
+ax402 apis create --name "My API" --slug my-api --upstream https://api.example.com \
+  --discovery-guidance "Use GET /v1/*." --json
+ax402 discovery urls --api-id ID --json
 ax402 endpoints create --api-id ID --method GET --path "/wp-json/wp/v2/posts" --price-usdc 0.01 --json
 ```
 
-See [../cli/README.md](../cli/README.md).
+See [../cli/README.md](../cli/README.md). Discovery: seller [API discovery](https://ax402.io/docs/guides/discovery).
 
 ## Scope presets
 

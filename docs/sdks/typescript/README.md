@@ -42,6 +42,26 @@ await client.apis.create({
 await client.apis.listWebhookDeliveries(apiId);
 ```
 
+### Discovery
+
+```typescript
+await client.apis.create({
+  name: "Search",
+  slug: "search",
+  upstream_base_url: "https://upstream.example.com",
+  discovery_guidance: "Use POST /search with a query field.",
+  discovery_contact_email: "support@example.com",
+  openapi_version: "1.0.0",
+});
+const urls = await client.apis.discovery(apiId); // openapi_url, well_known_url, host_urls
+await client.endpoints.update(apiId, endpointId, {
+  request_schema: { type: "object", properties: { query: { type: "string" } } },
+  response_schema: { type: "object", additionalProperties: true },
+});
+```
+
+Gateway hosts also serve unpaid `GET /openapi.json` and `GET /.well-known/x402.json`.
+
 ## Buyer
 
 Pay gateway URLs — not the control plane. Full guide: [buyers](../buyers/README.md).
@@ -63,7 +83,7 @@ const client = await buyerClientFromEnv({ batch: { depositMultiplier: 5 } });
 
 Browser wallet: `createEvmSignerFromBrowserProvider()` + `BuyerClient.create(signer)`.
 
-Hedera (`hedera:testnet` / `hedera:mainnet`):
+Hedera (`hedera:mainnet`):
 
 ```bash
 pnpm add @x402/hedera
@@ -77,7 +97,7 @@ import { buyerClientFromHederaCredentials, BuyerClient } from "@ax402/sdk/buyer"
 const client = await buyerClientFromHederaCredentials({
   accountId: process.env.HEDERA_ACCOUNT_ID!,
   privateKey: process.env.HEDERA_PRIVATE_KEY!,
-  network: "hedera:testnet",
+  network: "hedera:mainnet",
 });
 // Or combined with EVM: BuyerClient.create(evmSigner, { hedera: { ... } })
 ```

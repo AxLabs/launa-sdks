@@ -32,9 +32,20 @@ Seller control-plane reference for agents. API surface: public seller routes on 
 ### Import OpenAPI
 
 ```
-1. POST /openapi/parse { spec: "<yaml or json>" }  → operations[]
+1. POST /openapi/parse { spec: "<yaml or json>" }  → operations[] (includes request_schema/response_schema when present)
 2. POST /apis/{id}/openapi/import { operations[], accepts[] }
 ```
+
+### Discovery
+
+```
+1. GET /apis/{id}/discovery → openapi_url, well_known_url for all verified hosts
+2. GET https://{host}/openapi.json  (AgentCash)
+3. GET https://{host}/.well-known/x402.json
+4. npx -y @agentcash/discovery@latest check "https://{host}/"
+```
+
+Optional on create/update: `discovery_guidance`, `discovery_contact_email`, `openapi_version`. Endpoint schemas: `request_schema`, `response_schema`.
 
 ### Custom domain
 
@@ -51,7 +62,12 @@ Install: `npx @ax402/mcp-server` (or build from repo). Example config: [examples
 | Tool | Scope |
 |------|-------|
 | `ax402_list_apis` | `apis:read` |
-| `ax402_create_api` | `apis:write` + verified email |
+| `ax402_get_api` | `apis:read` |
+| `ax402_discovery_urls` | `apis:read` |
+| `ax402_set_discovery_guidance` | `apis:write` |
+| `ax402_list_endpoints` | `endpoints:read` |
+| `ax402_update_endpoint_schemas` | `endpoints:write` |
+| `ax402_create_api` | `apis:write` + verified email (optional discovery fields) |
 | `ax402_add_endpoint` | `endpoints:write` |
 | `ax402_import_openapi` | `openapi:read` |
 | `ax402_add_domain` | `domains:write` |
@@ -68,9 +84,12 @@ Install: `npm install -g @ax402/cli`
 
 ```bash
 ax402 apis list --json
-ax402 apis create --name "My API" --slug my-api --upstream https://api.example.com --json
+ax402 apis create --name "My API" --slug my-api --upstream https://api.example.com \
+  --discovery-guidance "Use GET /v1/*." --json
+ax402 apis discovery --id ID --json
+ax402 discovery urls --api-id ID --json
 ax402 endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json
-ax402 endpoints update --api-id ID --endpoint-id EP --enabled true --json
+ax402 endpoints update --api-id ID --endpoint-id EP --request-schema '{"type":"object"}' --json
 ax402 endpoints delete --api-id ID --endpoint-id EP --json
 ax402 domains suggest --apex example.com --json
 ax402 domains add --api-id ID --hostname api.example.com --json

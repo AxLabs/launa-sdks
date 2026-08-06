@@ -117,16 +117,20 @@ def wrap_openapi(
     api_id: str,
     spec: str,
     accepts: list[dict],
-    filter_fn: Callable[[dict[str, str]], bool] | None = None,
+    filter_fn: Callable[[dict[str, Any]], bool] | None = None,
 ) -> dict:
     parsed = client.openapi.parse_spec(spec)
     operations = []
     for op in parsed.operations:
-        row = {
+        row: dict[str, Any] = {
             "method": op.method,
             "path_pattern": op.path_pattern,
             "description": op.summary or op.description,
         }
+        if op.request_schema is not None:
+            row["request_schema"] = op.request_schema
+        if op.response_schema is not None:
+            row["response_schema"] = op.response_schema
         if filter_fn and not filter_fn(row):
             continue
         operations.append(row)

@@ -57,6 +57,9 @@ class API(BaseModel):
     webhook_url: str | None = None
     webhook_configured: bool | None = None
     cors_allowed_origins: list[str] = Field(default_factory=list)
+    discovery_guidance: str | None = None
+    discovery_contact_email: str | None = None
+    openapi_version: str | None = None
     domains: list[APIDomain] = Field(default_factory=list)
 
 
@@ -90,8 +93,28 @@ class Endpoint(BaseModel):
     enabled: bool = True
     accepts: list[AcceptOption]
     description: str | None = None
+    request_schema: dict[str, Any] | None = None
+    response_schema: dict[str, Any] | None = None
+    schema_source: str | None = None
     ttl: int | None = None
     expires_at: str | None = None
+
+
+class DiscoveryHostURLs(BaseModel):
+    host: str
+    openapi_url: str
+    well_known_url: str
+    is_primary: bool = False
+
+
+class DiscoveryURLs(BaseModel):
+    primary_host: str = ""
+    hosts: list[str] = Field(default_factory=list)
+    openapi_url: str = ""
+    well_known_url: str = ""
+    endpoint_count: int = 0
+    discoverable_endpoint_count: int = 0
+    host_urls: list[DiscoveryHostURLs] = Field(default_factory=list)
 
 
 class DomainSetup(BaseModel):
@@ -130,6 +153,8 @@ class ParsedOpenAPIOperation(BaseModel):
     path_pattern: str
     summary: str | None = None
     description: str | None = None
+    request_schema: dict[str, Any] | None = None
+    response_schema: dict[str, Any] | None = None
 
 
 class ParsedOpenAPI(BaseModel):

@@ -186,6 +186,85 @@ describe("runShellCommand", () => {
     });
   });
 
+  it("apis create includes discovery fields", async () => {
+    const create = vi.fn().mockResolvedValue({ id: "api1" });
+    const client = mockClient({ apis: { create } } as Partial<Ax402Client>);
+    const result = await runShellCommand(
+      parseShellArgv([
+        "apis",
+        "create",
+        "--name",
+        "Search",
+        "--slug",
+        "search",
+        "--upstream",
+        "https://upstream.example.com",
+        "--discovery-guidance",
+        "Use POST /search.",
+        "--discovery-contact-email",
+        "seller@example.com",
+        "--openapi-version",
+        "1.2.0",
+      ]),
+      { client },
+    );
+    expect(result.ok).toBe(true);
+    expect(create).toHaveBeenCalledWith({
+      name: "Search",
+      slug: "search",
+      upstream_base_url: "https://upstream.example.com",
+      pay_to_mode: undefined,
+      pay_to_address: undefined,
+      webhook_url: undefined,
+      webhook_secret: undefined,
+      discovery_guidance: "Use POST /search.",
+      discovery_contact_email: "seller@example.com",
+      openapi_version: "1.2.0",
+    });
+  });
+
+  it("apis discovery", async () => {
+    const discovery = vi.fn().mockResolvedValue({
+      primary_host: "api.example.com",
+      openapi_url: "https://api.example.com/openapi.json",
+      well_known_url: "https://api.example.com/.well-known/x402.json",
+    });
+    const client = mockClient({ apis: { discovery } } as Partial<Ax402Client>);
+    const result = await runShellCommand(parseShellArgv(["apis", "discovery", "--id", "api1"]), { client });
+    expect(result.ok).toBe(true);
+    expect(discovery).toHaveBeenCalledWith("api1");
+  });
+
+  it("discovery urls", async () => {
+    const discovery = vi.fn().mockResolvedValue({ openapi_url: "https://x/openapi.json" });
+    const client = mockClient({ apis: { discovery } } as Partial<Ax402Client>);
+    const result = await runShellCommand(parseShellArgv(["discovery", "urls", "--api-id", "api1"]), { client });
+    expect(result.ok).toBe(true);
+    expect(discovery).toHaveBeenCalledWith("api1");
+  });
+
+  it("apis update discovery fields", async () => {
+    const update = vi.fn().mockResolvedValue({ id: "api1" });
+    const client = mockClient({ apis: { update } } as Partial<Ax402Client>);
+    const result = await runShellCommand(
+      parseShellArgv([
+        "apis",
+        "update",
+        "api1",
+        "--discovery-guidance",
+        "Use POST /search.",
+        "--discovery-contact-email",
+        "seller@example.com",
+      ]),
+      { client },
+    );
+    expect(result.ok).toBe(true);
+    expect(update).toHaveBeenCalledWith("api1", {
+      discovery_guidance: "Use POST /search.",
+      discovery_contact_email: "seller@example.com",
+    });
+  });
+
   it("billing overview", async () => {
     const client = mockClient({
       billing: { overview: vi.fn().mockResolvedValue({ model: "payg" }) },

@@ -78,3 +78,5 @@ client = Ax402Client.from_env()
 ## Tools
 
 Same control-plane surface as [CLI](../cli/README.md) and [MCP](../mcp/README.md). Buyer parity: [buyers](../buyers/README.md).
+
+Gateway discovery (AgentCash OpenAPI + well-known): seller docs [API discovery](https://ax402.io/docs/guides/discovery).

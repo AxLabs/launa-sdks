@@ -28,6 +28,9 @@
     "pay_to_mode": "user_wallet",
     "pay_to_address": "0x0000000000000000000000000000000000000001",
     "cors_allowed_origins": ["http://localhost:5173"],
+    "discovery_guidance": "Use GET /v1/*.",
+    "discovery_contact_email": "seller@example.com",
+    "openapi_version": "1.0.0",
     "domains": [
       {
         "id": "507f1f77bcf86cd799439013",
@@ -38,12 +41,33 @@
     ]
   },
   "apis": [],
+  "discoveryURLs": {
+    "primary_host": "test-api.example.com",
+    "hosts": ["test-api.example.com"],
+    "openapi_url": "https://test-api.example.com/openapi.json",
+    "well_known_url": "https://test-api.example.com/.well-known/x402.json",
+    "endpoint_count": 1,
+    "discoverable_endpoint_count": 1,
+    "host_urls": [
+      {
+        "host": "test-api.example.com",
+        "openapi_url": "https://test-api.example.com/openapi.json",
+        "well_known_url": "https://test-api.example.com/.well-known/x402.json",
+        "is_primary": true
+      }
+    ]
+  },
   "endpoint": {
     "id": "507f1f77bcf86cd799439014",
     "api_id": "507f1f77bcf86cd799439012",
     "method": "GET",
     "path_pattern": "/v1/*",
     "enabled": true,
+    "schema_source": "inferred",
+    "response_schema": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "accepts": [
       {
         "scheme": "exact",
@@ -89,7 +113,11 @@
         "id": "GET /v1/foo",
         "method": "GET",
         "path": "/v1/foo",
-        "path_pattern": "/v1/foo"
+        "path_pattern": "/v1/foo",
+        "response_schema": {
+          "type": "object",
+          "additionalProperties": true
+        }
       }
     ]
   },

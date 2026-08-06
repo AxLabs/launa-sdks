@@ -45,10 +45,13 @@ Example config: [examples/agent-mcp/cursor-mcp.json.example](https://github.com/
 |------|-------------|
 | `ax402_list_apis` | List wrapped APIs |
 | `ax402_get_api` | Get API by ID |
-| `ax402_create_api` | Create API with default subdomain |
+| `ax402_discovery_urls` | Gateway OpenAPI / well-known discovery URLs |
+| `ax402_set_discovery_guidance` | Set discovery guidance / contact / OpenAPI version |
+| `ax402_create_api` | Create API with default subdomain (optional discovery fields) |
 | `ax402_list_endpoints` | List endpoints for an API |
+| `ax402_update_endpoint_schemas` | Set request/response JSON Schema on an endpoint |
 | `ax402_add_endpoint` | Add a paid route |
-| `ax402_import_openapi` | Import OpenAPI spec as endpoints |
+| `ax402_import_openapi` | Import OpenAPI spec as endpoints (schemas when present) |
 | `ax402_add_domain` | Add custom domain (returns DNS steps) |
 | `ax402_list_domains` | List domains for an API |
 | `ax402_verify_domain` | Verify domain DNS TXT |

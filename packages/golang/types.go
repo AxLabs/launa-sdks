@@ -40,19 +40,22 @@ type GatewayServerSummary struct {
 }
 
 type API struct {
-	ID                 string                `json:"id"`
-	Name               string                `json:"name"`
-	Slug               string                `json:"slug"`
-	UpstreamBaseURL    string                `json:"upstream_base_url"`
-	PayToMode          string                `json:"pay_to_mode"`
-	PayToAddress       string                `json:"pay_to_address,omitempty"`
-	GatewayServerID    string                `json:"gateway_server_id,omitempty"`
-	GatewayServer      *GatewayServerSummary `json:"gateway_server,omitempty"`
-	GatewayCNAMETarget string                `json:"gateway_cname_target,omitempty"`
-	WebhookURL         string                `json:"webhook_url,omitempty"`
-	WebhookConfigured  bool                  `json:"webhook_configured,omitempty"`
-	CORSAllowedOrigins []string              `json:"cors_allowed_origins,omitempty"`
-	Domains            []APIDomain           `json:"domains"`
+	ID                    string                `json:"id"`
+	Name                  string                `json:"name"`
+	Slug                  string                `json:"slug"`
+	UpstreamBaseURL       string                `json:"upstream_base_url"`
+	PayToMode             string                `json:"pay_to_mode"`
+	PayToAddress          string                `json:"pay_to_address,omitempty"`
+	GatewayServerID       string                `json:"gateway_server_id,omitempty"`
+	GatewayServer         *GatewayServerSummary `json:"gateway_server,omitempty"`
+	GatewayCNAMETarget    string                `json:"gateway_cname_target,omitempty"`
+	WebhookURL            string                `json:"webhook_url,omitempty"`
+	WebhookConfigured     bool                  `json:"webhook_configured,omitempty"`
+	CORSAllowedOrigins    []string              `json:"cors_allowed_origins,omitempty"`
+	DiscoveryGuidance     string                `json:"discovery_guidance,omitempty"`
+	DiscoveryContactEmail string                `json:"discovery_contact_email,omitempty"`
+	OpenAPIVersion        string                `json:"openapi_version,omitempty"`
+	Domains               []APIDomain           `json:"domains"`
 }
 
 type APIDomain struct {
@@ -61,15 +64,18 @@ type APIDomain struct {
 }
 
 type CreateAPIInput struct {
-	Name               string   `json:"name"`
-	Slug               string   `json:"slug"`
-	UpstreamBaseURL    string   `json:"upstream_base_url"`
-	PayToMode          string   `json:"pay_to_mode,omitempty"`
-	PayToAddress       string   `json:"pay_to_address,omitempty"`
-	WebhookURL         string   `json:"webhook_url,omitempty"`
-	WebhookSecret      string   `json:"webhook_secret,omitempty"`
-	ClearWebhook       bool     `json:"clear_webhook,omitempty"`
-	CORSAllowedOrigins []string `json:"cors_allowed_origins,omitempty"`
+	Name                  string   `json:"name"`
+	Slug                  string   `json:"slug"`
+	UpstreamBaseURL       string   `json:"upstream_base_url"`
+	PayToMode             string   `json:"pay_to_mode,omitempty"`
+	PayToAddress          string   `json:"pay_to_address,omitempty"`
+	WebhookURL            string   `json:"webhook_url,omitempty"`
+	WebhookSecret         string   `json:"webhook_secret,omitempty"`
+	ClearWebhook          bool     `json:"clear_webhook,omitempty"`
+	CORSAllowedOrigins    []string `json:"cors_allowed_origins,omitempty"`
+	DiscoveryGuidance     string   `json:"discovery_guidance,omitempty"`
+	DiscoveryContactEmail string   `json:"discovery_contact_email,omitempty"`
+	OpenAPIVersion        string   `json:"openapi_version,omitempty"`
 }
 
 type APICorsOrigins struct {
@@ -95,32 +101,60 @@ type WebhookDelivery struct {
 }
 
 type Endpoint struct {
-	ID          string         `json:"id"`
-	APIID       string         `json:"api_id"`
-	Method      string         `json:"method"`
-	PathPattern string         `json:"path_pattern"`
-	Enabled     bool           `json:"enabled"`
-	Accepts     []AcceptOption `json:"accepts"`
-	Description string         `json:"description,omitempty"`
-	TTL         *int           `json:"ttl,omitempty"`
-	ExpiresAt   string         `json:"expires_at,omitempty"`
+	ID             string         `json:"id"`
+	APIID          string         `json:"api_id"`
+	Method         string         `json:"method"`
+	PathPattern    string         `json:"path_pattern"`
+	Enabled        bool           `json:"enabled"`
+	Accepts        []AcceptOption `json:"accepts"`
+	Description    string         `json:"description,omitempty"`
+	RequestSchema  map[string]any `json:"request_schema,omitempty"`
+	ResponseSchema map[string]any `json:"response_schema,omitempty"`
+	SchemaSource   string         `json:"schema_source,omitempty"`
+	TTL            *int           `json:"ttl,omitempty"`
+	ExpiresAt      string         `json:"expires_at,omitempty"`
 }
 
 type CreateEndpointInput struct {
-	Method      string         `json:"method"`
-	PathPattern string         `json:"path_pattern"`
-	Accepts     []AcceptOption `json:"accepts"`
-	Description string         `json:"description,omitempty"`
-	Enabled     *bool          `json:"enabled,omitempty"`
-	TTL         *int           `json:"ttl,omitempty"`
+	Method         string         `json:"method"`
+	PathPattern    string         `json:"path_pattern"`
+	Accepts        []AcceptOption `json:"accepts"`
+	Description    string         `json:"description,omitempty"`
+	Enabled        *bool          `json:"enabled,omitempty"`
+	RequestSchema  map[string]any `json:"request_schema,omitempty"`
+	ResponseSchema map[string]any `json:"response_schema,omitempty"`
+	ClearSchemas   *bool          `json:"clear_schemas,omitempty"`
+	TTL            *int           `json:"ttl,omitempty"`
 }
 
 type UpdateEndpointInput struct {
-	Method      string         `json:"method,omitempty"`
-	PathPattern string         `json:"path_pattern,omitempty"`
-	Accepts     []AcceptOption `json:"accepts,omitempty"`
-	Description string         `json:"description,omitempty"`
-	Enabled     *bool          `json:"enabled,omitempty"`
+	Method         string         `json:"method,omitempty"`
+	PathPattern    string         `json:"path_pattern,omitempty"`
+	Accepts        []AcceptOption `json:"accepts,omitempty"`
+	Description    string         `json:"description,omitempty"`
+	Enabled        *bool          `json:"enabled,omitempty"`
+	RequestSchema  map[string]any `json:"request_schema,omitempty"`
+	ResponseSchema map[string]any `json:"response_schema,omitempty"`
+	ClearSchemas   *bool          `json:"clear_schemas,omitempty"`
+}
+
+// DiscoveryHostURLs is one verified host's discovery document URLs.
+type DiscoveryHostURLs struct {
+	Host         string `json:"host"`
+	OpenAPIURL   string `json:"openapi_url"`
+	WellKnownURL string `json:"well_known_url"`
+	IsPrimary    bool   `json:"is_primary"`
+}
+
+// DiscoveryURLs is the control-plane GET /apis/{id}/discovery response.
+type DiscoveryURLs struct {
+	PrimaryHost               string              `json:"primary_host"`
+	Hosts                     []string            `json:"hosts"`
+	OpenAPIURL                string              `json:"openapi_url"`
+	WellKnownURL              string              `json:"well_known_url"`
+	EndpointCount             int                 `json:"endpoint_count"`
+	DiscoverableEndpointCount int                 `json:"discoverable_endpoint_count"`
+	HostURLs                  []DiscoveryHostURLs `json:"host_urls,omitempty"`
 }
 
 type DomainSetup struct {
@@ -148,10 +182,21 @@ type ParsedOpenAPI struct {
 }
 
 type ParsedOpenAPIOperation struct {
-	Method      string `json:"method"`
-	PathPattern string `json:"path_pattern"`
-	Summary     string `json:"summary,omitempty"`
-	Description string `json:"description,omitempty"`
+	Method         string         `json:"method"`
+	PathPattern    string         `json:"path_pattern"`
+	Summary        string         `json:"summary,omitempty"`
+	Description    string         `json:"description,omitempty"`
+	RequestSchema  map[string]any `json:"request_schema,omitempty"`
+	ResponseSchema map[string]any `json:"response_schema,omitempty"`
+}
+
+// OpenAPIImportOperation is one operation for POST /apis/{id}/openapi/import.
+type OpenAPIImportOperation struct {
+	Method         string         `json:"method"`
+	PathPattern    string         `json:"path_pattern"`
+	Description    string         `json:"description,omitempty"`
+	RequestSchema  map[string]any `json:"request_schema,omitempty"`
+	ResponseSchema map[string]any `json:"response_schema,omitempty"`
 }
 
 type APIKey struct {

@@ -38,7 +38,19 @@ describe("Ax402Client integration", () => {
     await client.openapi.parseSpec("openapi: 3");
     expect(await client.apis.list()).toHaveLength(1);
     await client.apis.create({ name: "n", slug: "s", upstream_base_url: "https://x.com" });
+    await client.apis.create({
+      name: "n2",
+      slug: "s2",
+      upstream_base_url: "https://x.com",
+      discovery_guidance: "Use GET /v1/*.",
+      discovery_contact_email: "seller@example.com",
+      openapi_version: "1.0.0",
+    });
     await client.apis.get("api1");
+    expect(await client.apis.discovery("api1")).toMatchObject({
+      openapi_url: expect.stringContaining("/openapi.json"),
+      well_known_url: expect.stringContaining("/.well-known/x402.json"),
+    });
     await client.apis.update("api1", { name: "n" });
     expect(await client.apis.getCors("api1")).toMatchObject({ origins: ["http://localhost:5173"] });
     await client.apis.putCors("api1", ["http://localhost:5173"]);

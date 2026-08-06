@@ -1,9 +1,8 @@
 import json
 from pathlib import Path
 
-import pytest
+from ax402_sdk.models import API, DiscoveryURLs, Endpoint, StatsOverview, User
 
-from ax402_sdk.models import API, Endpoint, StatsOverview, User
 
 FIXTURES = json.loads(
     (Path(__file__).resolve().parents[3] / "test" / "fixtures" / "responses.json").read_text()
@@ -15,11 +14,19 @@ def test_user_model() -> None:
 
 
 def test_api_model() -> None:
-    API.model_validate(FIXTURES["api"])
+    api = API.model_validate(FIXTURES["api"])
+    assert api.discovery_guidance == "Use GET /v1/*."
+
+
+def test_discovery_urls_model() -> None:
+    disc = DiscoveryURLs.model_validate(FIXTURES["discoveryURLs"])
+    assert disc.openapi_url.endswith("/openapi.json")
+    assert disc.well_known_url.endswith("/.well-known/x402.json")
 
 
 def test_endpoint_model() -> None:
-    Endpoint.model_validate(FIXTURES["endpoint"])
+    ep = Endpoint.model_validate(FIXTURES["endpoint"])
+    assert ep.schema_source == "inferred"
 
 
 def test_ephemeral_endpoint_model() -> None:

@@ -121,6 +121,9 @@ export async function runShellCommand(
       const payTo = flag(parsed, "--pay-to");
       const webhookUrl = flag(parsed, "--webhook-url");
       const webhookSecret = flag(parsed, "--webhook-secret");
+      const discoveryGuidance = flag(parsed, "--discovery-guidance");
+      const discoveryContactEmail = flag(parsed, "--discovery-contact-email");
+      const openapiVersion = flag(parsed, "--openapi-version");
       return {
         ok: true,
         data: await c.apis.create({
@@ -131,6 +134,9 @@ export async function runShellCommand(
           pay_to_address: payTo,
           webhook_url: webhookUrl,
           webhook_secret: webhookSecret,
+          discovery_guidance: discoveryGuidance,
+          discovery_contact_email: discoveryContactEmail,
+          openapi_version: openapiVersion,
         }),
       };
     }
@@ -143,6 +149,11 @@ export async function runShellCommand(
       const id = idFlag(parsed);
       if (!id) return usage("--id required (or pass API id as a positional argument)");
       return { ok: true, data: await c.apis.get(id) };
+    }
+    if (cmd === "apis" && sub === "discovery") {
+      const id = idFlag(parsed);
+      if (!id) return usage("--id required (or pass API id as a positional argument)");
+      return { ok: true, data: await c.apis.discovery(id) };
     }
     if (cmd === "apis" && sub === "delete") {
       const id = idFlag(parsed);
@@ -161,6 +172,9 @@ export async function runShellCommand(
       const webhookUrl = flag(parsed, "--webhook-url");
       const webhookSecret = flag(parsed, "--webhook-secret");
       const clearWebhook = flag(parsed, "--clear-webhook");
+      const discoveryGuidance = flag(parsed, "--discovery-guidance");
+      const discoveryContactEmail = flag(parsed, "--discovery-contact-email");
+      const openapiVersion = flag(parsed, "--openapi-version");
       if (name) body.name = name;
       if (slug) body.slug = slug;
       if (upstream) body.upstream_base_url = upstream;
@@ -174,8 +188,13 @@ export async function runShellCommand(
         if (webhookUrl !== undefined) body.webhook_url = webhookUrl;
         if (webhookSecret !== undefined) body.webhook_secret = webhookSecret;
       }
+      if (discoveryGuidance !== undefined) body.discovery_guidance = discoveryGuidance;
+      if (discoveryContactEmail !== undefined) body.discovery_contact_email = discoveryContactEmail;
+      if (openapiVersion !== undefined) body.openapi_version = openapiVersion;
       if (Object.keys(body).length === 0) {
-        return usage("at least one of --name, --slug, --upstream, --pay-to, --webhook-url, --webhook-secret, --clear-webhook required");
+        return usage(
+          "at least one of --name, --slug, --upstream, --pay-to, --webhook-url, --webhook-secret, --clear-webhook, --discovery-guidance, --discovery-contact-email, --openapi-version required",
+        );
       }
       return { ok: true, data: await c.apis.update(id, body) };
     }
@@ -246,6 +265,8 @@ export async function runShellCommand(
         path_pattern: string;
         accepts: AcceptOption[];
         ttl?: number;
+        request_schema?: Record<string, unknown>;
+        response_schema?: Record<string, unknown>;
       } = {
         method,
         path_pattern: path,
@@ -255,6 +276,22 @@ export async function runShellCommand(
         const ttl = parseInt(ttlRaw, 10);
         if (!Number.isFinite(ttl) || ttl <= 0) return usage("--ttl must be a positive number of seconds");
         body.ttl = ttl;
+      }
+      const reqSchemaRaw = flag(parsed, "--request-schema");
+      const resSchemaRaw = flag(parsed, "--response-schema");
+      if (reqSchemaRaw) {
+        try {
+          body.request_schema = JSON.parse(reqSchemaRaw);
+        } catch {
+          return usage("--request-schema must be valid JSON");
+        }
+      }
+      if (resSchemaRaw) {
+        try {
+          body.response_schema = JSON.parse(resSchemaRaw);
+        } catch {
+          return usage("--response-schema must be valid JSON");
+        }
       }
       return { ok: true, data: await c.endpoints.create(apiId, body) };
     }
@@ -268,9 +305,27 @@ export async function runShellCommand(
       const fromFlags = acceptsFromFlags(parsed);
       if (fromFlags && typeof fromFlags === "object" && "ok" in fromFlags) return fromFlags;
       if (Array.isArray(fromFlags)) body.accepts = fromFlags;
+      const reqSchemaRaw = flag(parsed, "--request-schema");
+      const resSchemaRaw = flag(parsed, "--response-schema");
+      const clearSchemas = flag(parsed, "--clear-schemas");
+      if (clearSchemas === "true") body.clear_schemas = true;
+      if (reqSchemaRaw) {
+        try {
+          body.request_schema = JSON.parse(reqSchemaRaw);
+        } catch {
+          return usage("--request-schema must be valid JSON");
+        }
+      }
+      if (resSchemaRaw) {
+        try {
+          body.response_schema = JSON.parse(resSchemaRaw);
+        } catch {
+          return usage("--response-schema must be valid JSON");
+        }
+      }
       if (Object.keys(body).length === 0) {
         return usage(
-          "at least one of --enabled, --network/--asset/--price, or --accepts required",
+          "at least one of --enabled, --network/--asset/--price, --accepts, --request-schema, --response-schema, or --clear-schemas required",
         );
       }
       return { ok: true, data: await c.endpoints.update(apiId, endpointId, body) };
@@ -281,6 +336,24 @@ export async function runShellCommand(
       if (!apiId || !endpointId) return usage("--api-id and --endpoint-id required");
       await c.endpoints.delete(apiId, endpointId);
       return { ok: true, data: { status: "deleted" } };
+    }
+
+    if (cmd === "discovery" && sub === "urls") {
+      const apiId = flag(parsed, "--api-id") ?? idFlag(parsed);
+      if (!apiId) return usage("--api-id required");
+      return { ok: true, data: await c.apis.discovery(apiId) };
+    }
+    if (cmd === "discovery" && sub === "check") {
+      const url = flag(parsed, "--url");
+      if (!url) return usage("--url required (gateway origin, e.g. https://myapi.example.com)");
+      return {
+        ok: true,
+        data: {
+          command: `npx -y @agentcash/discovery@latest check ${JSON.stringify(url)}`,
+          hint: "Run this against your gateway origin after endpoints are configured. Also try discover instead of check.",
+          url,
+        },
+      };
     }
 
     if (cmd === "domains" && sub === "suggest") {

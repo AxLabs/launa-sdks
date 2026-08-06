@@ -37,6 +37,7 @@ ROUTES = [
     ("GET", "/apis", 200, "api", True),
     ("POST", "/apis", 201, "api", True),
     ("GET", "/apis/api1", 200, "api", True),
+    ("GET", "/apis/api1/discovery", 200, "discoveryURLs", True),
     ("PUT", "/apis/api1", 200, "api", True),
     ("DELETE", "/apis/api1", 204, None, True),
     ("GET", "/apis/api1/cors", 200, "apiCors", True),
@@ -124,7 +125,20 @@ def test_all_routes(client: Ax402Client) -> None:
     client.openapi.parse_spec("openapi: 3")
     assert len(client.apis.list()) == 1
     client.apis.create({"name": "n", "slug": "s", "upstream_base_url": "https://x.com"})
+    client.apis.create(
+        {
+            "name": "n2",
+            "slug": "s2",
+            "upstream_base_url": "https://x.com",
+            "discovery_guidance": "Use GET /v1/*.",
+            "discovery_contact_email": "seller@example.com",
+            "openapi_version": "1.0.0",
+        }
+    )
     client.apis.get("api1")
+    disc = client.apis.discovery("api1")
+    assert disc.openapi_url.endswith("/openapi.json")
+    assert disc.well_known_url.endswith("/.well-known/x402.json")
     client.apis.update("api1", {"name": "n"})
     assert client.apis.get_cors("api1").origins == ["http://localhost:5173"]
     client.apis.put_cors("api1", ["http://localhost:5173"])

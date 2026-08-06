@@ -15,6 +15,7 @@ import type {
   CreateAPIInput,
   CreateEndpointInput,
   CreatedAPIKey,
+  DiscoveryURLs,
   DomainPlan,
   DomainSetup,
   Endpoint,
@@ -334,6 +335,11 @@ class APIsResource {
 
   get(id: string) {
     return this.http.request<API>(`/apis/${id}`);
+  }
+
+  /** Computed gateway discovery URLs for all verified hosts */
+  discovery(id: string) {
+    return this.http.request<DiscoveryURLs>(`/apis/${id}/discovery`);
   }
 
   update(id: string, body: Partial<CreateAPIInput>) {

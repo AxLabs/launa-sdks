@@ -1,4 +1,4 @@
-import type { AcceptOption, PaymentToken } from "../types.js";
+import type { AcceptOption, CreateAPIInput, PaymentToken } from "../types.js";
 import type { Ax402Client } from "../client.js";
 
 export const USDC_DECIMALS = 6;
@@ -181,16 +181,7 @@ export function gatewayURL(
   return `${base}${p}`;
 }
 
-export async function setupApiWithDefaultDomain(
-  client: Ax402Client,
-  input: {
-    name: string;
-    slug: string;
-    upstream_base_url: string;
-    pay_to_mode?: "user_wallet" | "platform_wallet";
-    pay_to_address?: string;
-  },
-) {
+export async function setupApiWithDefaultDomain(client: Ax402Client, input: CreateAPIInput) {
   const platform = await client.config.platform();
   const api = await client.apis.create(input);
   const host = `${input.slug}.${platform.platform_domain}`;
@@ -211,6 +202,8 @@ export async function wrapOpenAPI(
       method: op.method,
       path_pattern: op.path_pattern,
       description: op.summary ?? op.description,
+      request_schema: op.request_schema,
+      response_schema: op.response_schema,
     }));
   return client.openapi.import(apiId, { operations, accepts });
 }

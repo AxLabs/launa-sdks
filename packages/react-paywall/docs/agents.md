@@ -18,7 +18,7 @@ Agents should **not** click “Connect wallet”. They should use `@x402/fetch` 
 ```tsx
 <PaywallGate
   resourceUrl={url}
-  agentInstructions="This API requires x402. Use @x402/fetch with Base Sepolia USDC."
+  agentInstructions="This API requires x402. Use @x402/fetch with Base USDC."
   appearance={{ labels: { agentTitle: 'x402 API access' } }}
 />
 ```

@@ -245,6 +245,12 @@ export type API = {
   gateway_cname_target?: string;
   webhook_url?: string;
   webhook_configured?: boolean;
+  /** Agent-facing usage hints for generated OpenAPI info.x-guidance */
+  discovery_guidance?: string;
+  /** Overrides owner email in OpenAPI info.contact.email */
+  discovery_contact_email?: string;
+  /** Semver for generated OpenAPI info.version (default 1.0.0) */
+  openapi_version?: string;
   domains: APIDomain[];
   cors_allowed_origins?: string[];
 };
@@ -262,6 +268,9 @@ export type CreateAPIInput = {
   webhook_secret?: string;
   clear_webhook?: boolean;
   cors_allowed_origins?: string[];
+  discovery_guidance?: string;
+  discovery_contact_email?: string;
+  openapi_version?: string;
 };
 
 export type APICorsOrigins = {
@@ -328,6 +337,12 @@ export type Endpoint = {
   enabled: boolean;
   accepts: AcceptOption[];
   upstream_auth?: UpstreamAuth;
+  /** JSON Schema for OpenAPI requestBody / bazaar input */
+  request_schema?: Record<string, unknown>;
+  /** JSON Schema for OpenAPI 200 response / bazaar output */
+  response_schema?: Record<string, unknown>;
+  /** How schemas were produced: openapi import, inferred defaults, or manual */
+  schema_source?: "openapi" | "inferred" | "manual";
   /** Present when the endpoint was created with a TTL (ephemeral / one-time). */
   ttl?: number;
   expires_at?: string;
@@ -341,8 +356,30 @@ export type CreateEndpointInput = {
   accepts: AcceptOption[];
   upstream_auth?: UpstreamAuthInput;
   clear_upstream_auth?: boolean;
+  request_schema?: Record<string, unknown>;
+  response_schema?: Record<string, unknown>;
+  /** When true, clears schemas and re-infers defaults */
+  clear_schemas?: boolean;
   /** Optional lifetime in seconds; endpoint is deleted after first settle or expiry. */
   ttl?: number;
+};
+
+export type DiscoveryHostURLs = {
+  host: string;
+  openapi_url: string;
+  well_known_url: string;
+  is_primary: boolean;
+};
+
+/** Control-plane GET /apis/{id}/discovery response */
+export type DiscoveryURLs = {
+  primary_host: string;
+  hosts: string[];
+  openapi_url: string;
+  well_known_url: string;
+  endpoint_count: number;
+  discoverable_endpoint_count: number;
+  host_urls?: DiscoveryHostURLs[];
 };
 
 export type Settlement = {
@@ -409,6 +446,8 @@ export type ParsedOpenAPIOperation = {
   summary?: string;
   description?: string;
   tags?: string[];
+  request_schema?: Record<string, unknown>;
+  response_schema?: Record<string, unknown>;
 };
 
 export type ParsedOpenAPI = {
@@ -482,7 +521,13 @@ export type APIStats = {
 };
 
 export type OpenAPIImportInput = {
-  operations: { method: string; path_pattern: string; description?: string }[];
+  operations: {
+    method: string;
+    path_pattern: string;
+    description?: string;
+    request_schema?: Record<string, unknown>;
+    response_schema?: Record<string, unknown>;
+  }[];
   accepts: AcceptOption[];
 };
 

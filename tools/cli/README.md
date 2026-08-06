@@ -28,11 +28,13 @@ Create an API key in the [Ax402 dashboard](https://ax402.io) or via `auth login`
 ax402 apis create \
   --name "My API" --slug my-api \
   --upstream https://api.example.com \
-  --pay-to 0xYourWalletAddress --json
+  --pay-to 0xYourWalletAddress \
+  --discovery-guidance "Use GET /v1/*." --json
 
 ax402 endpoints create \
   --api-id API_ID --path "/v1/*" --price-usdc 0.10 --json
 
+ax402 apis discovery --id API_ID --json
 ax402 inspect url --url "https://my-api.YOUR_PLATFORM_DOMAIN/v1/hello"
 ```
 
@@ -60,7 +62,7 @@ ax402 pay url --url "https://my-api.example.com/v1/data" --json
 | `AX402_EVM_PRIVATE_KEY` | Signs EVM x402 payments for `pay url` (alias: `EVM_PRIVATE_KEY`) |
 | `HEDERA_ACCOUNT_ID` | Hedera payer account for `pay url` |
 | `HEDERA_PRIVATE_KEY` | Hedera private key paired with `HEDERA_ACCOUNT_ID` |
-| `HEDERA_NETWORK` | Optional `hedera:testnet` (default) or `hedera:mainnet` |
+| `HEDERA_NETWORK` | Optional Hedera network (`hedera:mainnet`) |
 
 Add `--json` to any command for machine-readable output.
 
@@ -68,8 +70,9 @@ Add `--json` to any command for machine-readable output.
 
 | Group | Examples |
 |-------|----------|
-| APIs | `apis list`, `apis create`, `apis slug-check`, `apis probe-upstream` |
-| Endpoints | `endpoints list`, `endpoints create`, `endpoints update` |
+| APIs | `apis list`, `apis create`, `apis discovery`, `apis slug-check`, `apis probe-upstream` |
+| Endpoints | `endpoints list`, `endpoints create`, `endpoints update` (incl. `--request-schema`) |
+| Discovery | `discovery urls`, `discovery check` |
 | Domains | `domains add`, `domains verify`, `domains suggest` |
 | Auth & keys | `auth login`, `auth me`, `keys create` (JWT) |
 | OpenAPI | `openapi parse`, `openapi import` |
@@ -83,9 +86,8 @@ Add `--json` to any command for machine-readable output.
 ```bash
 ax402 endpoints update \
   --api-id API_ID --endpoint-id EP_ID \
-  --network hedera:testnet --asset 0.0.429274 --price 0.10 --scheme exact --json
+  --network hedera:mainnet --asset 0.0.456858 --price 0.10 --scheme exact --json
 ```
-
 
 Run `ax402` with no arguments to print the full command reference.
 

@@ -77,7 +77,7 @@ Browser wallet: `createEvmSignerFromBrowserProvider()` + `BuyerClient.create(sig
 | `AX402_EVM_PRIVATE_KEY` | Signs x402 payments for buyer helpers |
 | `HEDERA_ACCOUNT_ID` | Hedera payer account for buyer helpers |
 | `HEDERA_PRIVATE_KEY` | Hedera private key for buyer helpers |
-| `HEDERA_NETWORK` | Optional `hedera:testnet` / `hedera:mainnet` |
+| `HEDERA_NETWORK` | Optional Hedera network (`hedera:mainnet`) |
 
 ## Links
 

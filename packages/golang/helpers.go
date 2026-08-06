@@ -195,7 +195,7 @@ func WrapOpenAPI(
 	if err != nil {
 		return nil, err
 	}
-	ops := make([]map[string]string, 0, len(parsed.Operations))
+	ops := make([]OpenAPIImportOperation, 0, len(parsed.Operations))
 	for _, op := range parsed.Operations {
 		if filter != nil && !filter(op) {
 			continue
@@ -204,8 +204,12 @@ func WrapOpenAPI(
 		if desc == "" {
 			desc = op.Description
 		}
-		ops = append(ops, map[string]string{
-			"method": op.Method, "path_pattern": op.PathPattern, "description": desc,
+		ops = append(ops, OpenAPIImportOperation{
+			Method:         op.Method,
+			PathPattern:    op.PathPattern,
+			Description:    desc,
+			RequestSchema:  op.RequestSchema,
+			ResponseSchema: op.ResponseSchema,
 		})
 	}
 	return client.ImportOpenAPI(ctx, apiID, ops, accepts)

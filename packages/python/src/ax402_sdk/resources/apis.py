@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..http import HttpTransport
-from ..models import API, APICorsOrigins, WebhookDelivery
+from ..models import API, APICorsOrigins, DiscoveryURLs, WebhookDelivery
 
 
 class APIsResource:
@@ -18,6 +18,9 @@ class APIsResource:
 
     def get(self, api_id: str) -> API:
         return API.model_validate(self._http.request("GET", f"/apis/{api_id}"))
+
+    def discovery(self, api_id: str) -> DiscoveryURLs:
+        return DiscoveryURLs.model_validate(self._http.request("GET", f"/apis/{api_id}/discovery"))
 
     def update(self, api_id: str, body: dict[str, Any]) -> API:
         return API.model_validate(self._http.request("PUT", f"/apis/{api_id}", json_body=body))

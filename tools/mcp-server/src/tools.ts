@@ -22,6 +22,30 @@ export function createToolHandlers(getClient: () => Ax402Client) {
         ...(ttl != null ? { ttl } : {}),
       }),
     listEndpoints: async (api_id: string) => getClient().endpoints.list(api_id),
+    updateEndpointSchemas: async (
+      api_id: string,
+      endpoint_id: string,
+      request_schema?: Record<string, unknown>,
+      response_schema?: Record<string, unknown>,
+      clear_schemas?: boolean,
+    ) =>
+      getClient().endpoints.update(api_id, endpoint_id, {
+        ...(request_schema ? { request_schema } : {}),
+        ...(response_schema ? { response_schema } : {}),
+        ...(clear_schemas ? { clear_schemas: true } : {}),
+      }),
+    discoveryUrls: async (api_id: string) => getClient().apis.discovery(api_id),
+    setDiscoveryGuidance: async (
+      api_id: string,
+      discovery_guidance?: string,
+      discovery_contact_email?: string,
+      openapi_version?: string,
+    ) =>
+      getClient().apis.update(api_id, {
+        ...(discovery_guidance != null ? { discovery_guidance } : {}),
+        ...(discovery_contact_email != null ? { discovery_contact_email } : {}),
+        ...(openapi_version != null ? { openapi_version } : {}),
+      }),
     importOpenapi: async (api_id: string, spec: string, price_usdc: string) =>
       wrapOpenAPI(getClient(), api_id, spec, [buildUsdcAccept("exact", usdcToAtomic(price_usdc))]),
     addDomain: async (api_id: string, hostname: string) => getClient().domains.add(api_id, hostname),

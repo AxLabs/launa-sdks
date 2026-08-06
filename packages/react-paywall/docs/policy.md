@@ -18,13 +18,13 @@ type PaywallPolicy = {
 }
 ```
 
-Example — Base Sepolia USDC, exact + batch:
+Example — Base USDC, exact + batch:
 
 ```tsx
 policy={{
   allowedSchemes: 'exact,batch-settlement',
-  preferredNetworks: 'eip155:84532',
-  allowedAssets: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+  preferredNetworks: 'eip155:8453',
+  allowedAssets: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   strategy: 'preference-first',
 }}
 ```
@@ -39,7 +39,7 @@ When the gateway accepts `batch-settlement`, pass `batch` on `PaywallProvider`:
 
 ```tsx
 <PaywallProvider
-  policy={{ allowedSchemes: 'batch-settlement', preferredNetworks: 'eip155:84532' }}
+  policy={{ allowedSchemes: 'batch-settlement', preferredNetworks: 'eip155:8453' }}
   batch={{
     channelSalt: '0x0000000000000000000000000000000000000000000000000000000000000000',
     depositMultiplier: 5,

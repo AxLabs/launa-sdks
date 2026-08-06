@@ -59,6 +59,7 @@ func loadMockRoutes() []mockRoute {
 		{"GET", "/apis", 200, `[` + string(fixtures["api"]) + `]`, false, true},
 		{"POST", "/apis", 201, "api", false, true},
 		{"GET", "/apis/api1", 200, "api", false, true},
+		{"GET", "/apis/api1/discovery", 200, "discoveryURLs", false, true},
 		{"PUT", "/apis/api1", 200, "api", false, true},
 		{"DELETE", "/apis/api1", 204, "", true, true},
 		{"GET", "/apis/api1/cors", 200, "apiCors", false, true},
@@ -217,8 +218,19 @@ func TestAllRoutes(t *testing.T) {
 	if _, err := cl.CreateAPI(ctx, CreateAPIInput{Name: "n", Slug: "s", UpstreamBaseURL: "https://x.com"}); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := cl.CreateAPI(ctx, CreateAPIInput{
+		Name: "n2", Slug: "s2", UpstreamBaseURL: "https://x.com",
+		DiscoveryGuidance: "Use GET /v1/*.", DiscoveryContactEmail: "seller@example.com", OpenAPIVersion: "1.0.0",
+	}); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := cl.GetAPI(ctx, "api1"); err != nil {
 		t.Fatal(err)
+	}
+	if disc, err := cl.GetAPIDiscovery(ctx, "api1"); err != nil {
+		t.Fatal(err)
+	} else if disc.OpenAPIURL == "" || disc.WellKnownURL == "" {
+		t.Fatalf("discovery urls: %+v", disc)
 	}
 	if _, err := cl.UpdateAPI(ctx, "api1", CreateAPIInput{Name: "n", Slug: "s", UpstreamBaseURL: "https://x.com"}); err != nil {
 		t.Fatal(err)
@@ -251,7 +263,7 @@ func TestAllRoutes(t *testing.T) {
 	if err := cl.DeleteEndpoint(ctx, "api1", "ep1"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := cl.ImportOpenAPI(ctx, "api1", []map[string]string{{"method": "GET", "path_pattern": "/v1/foo"}}, []AcceptOption{accept}); err != nil {
+	if _, err := cl.ImportOpenAPI(ctx, "api1", []OpenAPIImportOperation{{Method: "GET", PathPattern: "/v1/foo"}}, []AcceptOption{accept}); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := cl.ListDomains(ctx, "api1"); err != nil {

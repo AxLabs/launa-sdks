@@ -16,6 +16,9 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--pay-to", required: false, type: "address" },
           { name: "--webhook-url", required: false, type: "url" },
           { name: "--webhook-secret", required: false, type: "string" },
+          { name: "--discovery-guidance", required: false, type: "string" },
+          { name: "--discovery-contact-email", required: false, type: "string" },
+          { name: "--openapi-version", required: false, type: "string", placeholder: "1.0.0" },
         ],
         sdkSnippet: `await client.apis.create({
   name: "My API",
@@ -23,6 +26,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
   upstream_base_url: "https://api.example.com",
   webhook_url: "https://app.example/webhooks/ax402/settlement",
   webhook_secret: "whsec_...",
+  discovery_guidance: "Use POST /search with a query field.",
 })`,
       },
       {
@@ -36,6 +40,12 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
         label: "Get",
         flags: [{ name: "--id", required: true, type: "string" }],
         sdkSnippet: 'await client.apis.get("API_ID")',
+      },
+      {
+        id: "discovery",
+        label: "Discovery URLs",
+        flags: [{ name: "--id", required: true, type: "string" }],
+        sdkSnippet: 'await client.apis.discovery("API_ID")',
       },
       {
         id: "delete",
@@ -55,10 +65,13 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--webhook-url", required: false, type: "url" },
           { name: "--webhook-secret", required: false, type: "string" },
           { name: "--clear-webhook", required: false, type: "boolean" },
+          { name: "--discovery-guidance", required: false, type: "string" },
+          { name: "--discovery-contact-email", required: false, type: "string" },
+          { name: "--openapi-version", required: false, type: "string", placeholder: "1.0.0" },
         ],
         sdkSnippet: `await client.apis.update("API_ID", {
-  webhook_url: "https://app.example/webhooks/ax402/settlement",
-  webhook_secret: "whsec_...",
+  discovery_guidance: "Use POST /search with a query field.",
+  discovery_contact_email: "support@example.com",
 })`,
       },
       {
@@ -134,11 +147,13 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--path", required: true, type: "string", placeholder: "/v1/*" },
           { name: "--price-usdc", required: false, type: "number", defaultValue: "0.10" },
           { name: "--price", required: false, type: "number", placeholder: "0.10" },
-          { name: "--network", required: false, type: "string", placeholder: "hedera:testnet" },
+          { name: "--network", required: false, type: "string", placeholder: "hedera:mainnet" },
           { name: "--asset", required: false, type: "string", placeholder: "0.0.429274" },
           { name: "--decimals", required: false, type: "number", defaultValue: "6" },
           { name: "--scheme", required: false, type: "string", defaultValue: "exact" },
           { name: "--ttl", required: false, type: "number", placeholder: "1800" },
+          { name: "--request-schema", required: false, type: "string", placeholder: '{"type":"object",...}' },
+          { name: "--response-schema", required: false, type: "string", placeholder: '{"type":"object",...}' },
         ],
         sdkSnippet: `await client.endpoints.create("API_ID", {
   method: "GET",
@@ -154,7 +169,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--api-id", required: true, type: "string" },
           { name: "--endpoint-id", required: true, type: "string" },
           { name: "--enabled", required: false, type: "boolean" },
-          { name: "--network", required: false, type: "string", placeholder: "hedera:testnet" },
+          { name: "--network", required: false, type: "string", placeholder: "hedera:mainnet" },
           { name: "--asset", required: false, type: "string", placeholder: "0.0.429274" },
           { name: "--price", required: false, type: "number", placeholder: "0.10" },
           { name: "--price-usdc", required: false, type: "number", placeholder: "0.10" },
@@ -162,9 +177,12 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--decimals", required: false, type: "number", defaultValue: "6" },
           { name: "--scheme", required: false, type: "string", defaultValue: "exact" },
           { name: "--accepts", required: false, type: "string", placeholder: '[{"scheme":"exact",...}]' },
+          { name: "--request-schema", required: false, type: "string", placeholder: '{"type":"object",...}' },
+          { name: "--response-schema", required: false, type: "string", placeholder: '{"type":"object",...}' },
+          { name: "--clear-schemas", required: false, type: "boolean" },
         ],
         sdkSnippet:
-          'await client.endpoints.update("API_ID", "ENDPOINT_ID", { accepts: [...], enabled: true })',
+          'await client.endpoints.update("API_ID", "ENDPOINT_ID", { request_schema: {...}, response_schema: {...} })',
       },
       {
         id: "delete",
@@ -291,6 +309,32 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--price-usdc", required: false, type: "number", defaultValue: "0.10" },
         ],
         sdkSnippet: 'await client.openapi.import("API_ID", { operations, accepts })',
+      },
+    ],
+  },
+  {
+    id: "discovery",
+    label: "Discovery",
+    methods: [
+      {
+        id: "urls",
+        label: "URLs",
+        flags: [{ name: "--api-id", required: true, type: "string" }],
+        sdkSnippet: 'await client.apis.discovery("API_ID")',
+      },
+      {
+        id: "check",
+        label: "Check (AgentCash)",
+        flags: [
+          {
+            name: "--url",
+            required: true,
+            type: "string",
+            placeholder: "https://myapi.example.com",
+          },
+        ],
+        sdkSnippet:
+          'npx -y @agentcash/discovery@latest check "https://myapi.example.com"',
       },
     ],
   },

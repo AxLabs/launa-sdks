@@ -20,7 +20,7 @@ You never configure a facilitator URL in buyer code — the gateway handles veri
 | `AX402_EVM_PRIVATE_KEY` | Hex EVM key with USDC on the gateway's network (legacy: `EVM_PRIVATE_KEY`) |
 | `HEDERA_ACCOUNT_ID` | Hedera payer account id (e.g. `0.0.1234`) for native `hedera:*` payments |
 | `HEDERA_PRIVATE_KEY` | Hedera private key (ECDSA hex or DER string) paired with `HEDERA_ACCOUNT_ID` |
-| `HEDERA_NETWORK` | Optional CAIP-2 network (`hedera:testnet` default, or `hedera:mainnet`) |
+| `HEDERA_NETWORK` | Optional CAIP-2 network (`hedera:mainnet`) |
 
 Fund the wallet with USDC on the network shown in the gateway's payment requirements.
 
