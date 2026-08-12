@@ -15,10 +15,12 @@ type AuthResponse struct {
 }
 
 type PlatformConfig struct {
-	PlatformDomain     string `json:"platform_domain"`
-	GatewayCNAMETarget string `json:"gateway_cname_target"`
-	GatewayPort        int    `json:"gateway_port"`
-	AdminHost          string `json:"admin_host"`
+	PlatformDomain                  string `json:"platform_domain"`
+	GatewayCNAMETarget              string `json:"gateway_cname_target"`
+	GatewayPort                     int    `json:"gateway_port"`
+	AdminHost                       string `json:"admin_host"`
+	TestnetFacilitatorInternalURL   string `json:"testnet_facilitator_internal_url,omitempty"`
+	TestnetFacilitatorExternalURL   string `json:"testnet_facilitator_external_url,omitempty"`
 }
 
 type LocalDevPaymentToken struct {

@@ -140,6 +140,8 @@ export type PlatformConfig = {
   custom_domain_tls?: boolean;
   payment_tokens?: PaymentToken[];
   access?: PlatformAccess;
+  testnet_facilitator_internal_url?: string;
+  testnet_facilitator_external_url?: string;
 };
 
 export type WaitlistJoinInput = {

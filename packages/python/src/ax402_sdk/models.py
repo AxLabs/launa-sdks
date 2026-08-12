@@ -29,6 +29,8 @@ class PlatformConfig(BaseModel):
     gateway_cname_target: str
     gateway_port: int
     admin_host: str
+    testnet_facilitator_internal_url: str | None = None
+    testnet_facilitator_external_url: str | None = None
 
 
 class AcceptOption(BaseModel):
