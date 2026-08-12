@@ -11,6 +11,7 @@ const (
 
 	NetworkBase           = "eip155:8453"
 	NetworkBaseSepolia    = "eip155:84532"
+	NetworkSandboxFork    = "eip155:845320402" // Anvil Base mainnet fork (seller Sandbox)
 	NetworkNeoXMainnet    = "eip155:47763"
 	NetworkNeoXTestnet    = "eip155:12227332"
 	NetworkHederaMainnet  = "hedera:mainnet"
@@ -157,6 +158,29 @@ func BuildUsdcAccept(scheme, amountAtomic string, withdrawDelay ...int) AcceptOp
 		out.Extra["withdrawDelay"] = delay
 	}
 	return out
+}
+
+// BuildSandboxUsdcAccept builds an exact USDC accept for the seller Sandbox fork.
+func BuildSandboxUsdcAccept(scheme, amountAtomic string) (AcceptOption, error) {
+	if scheme == "batch-settlement" {
+		return AcceptOption{}, fmt.Errorf("sandbox fork supports exact scheme only")
+	}
+	if scheme == "" {
+		scheme = "exact"
+	}
+	if scheme != "exact" {
+		return AcceptOption{}, fmt.Errorf("sandbox fork supports exact scheme only")
+	}
+	return AcceptOption{
+		Scheme:            "exact",
+		Network:           NetworkSandboxFork,
+		Asset:             USDCBaseMainnet,
+		Amount:            amountAtomic,
+		MaxTimeoutSeconds: 300,
+		Extra: map[string]any{
+			"name": "USDC", "version": "2", "assetTransferMethod": "eip3009",
+		},
+	}, nil
 }
 
 type SetupAPIResult struct {

@@ -88,6 +88,13 @@ describe("Ax402Client integration", () => {
     expect(await client.sandboxWallet.get()).toHaveProperty("address");
     await client.sandboxWallet.reset();
     expect(await client.config.localDev()).toMatchObject({ enabled: true });
+    expect(await client.config.devBalances("0x00000000000000000000000000000000000000aa")).toMatchObject({
+      eth_wei: expect.any(String),
+      usdc_base: expect.any(String),
+    });
+    expect(await client.config.devFaucet("0x00000000000000000000000000000000000000aa")).toMatchObject({
+      status: "ok",
+    });
     expect(await client.billing.overview()).toMatchObject({ model: "free" });
     await client.billing.setModel("payg");
     expect(await client.income.summary()).toMatchObject({ income_enabled: true });

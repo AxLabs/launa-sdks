@@ -59,23 +59,41 @@ Run `ax402 config platform --json` for `platform_domain` and gateway hostname pa
 | Variable | Purpose |
 |----------|---------|
 | `AX402_BASE_URL` | Control plane URL (default `https://api.ax402.io`) |
-| `AX402_API_KEY` | Scoped API key (`ax402_live_...`) for automation |
+| `AX402_API_KEY` | Scoped API key (`ax402_live_...` or `ax402_test_...`) for automation |
 | `AX402_JWT` | Session token from `auth login` — alternative to API key |
+| `AX402_ENVIRONMENT` | `development` for Sandbox / Test mode (fork network) |
+| `AX402_SANDBOX` | `1` / `true` — alias for development environment |
 | `AX402_EVM_PRIVATE_KEY` | `pay url` — EVM signer (legacy alias: `EVM_PRIVATE_KEY`) |
 | `HEDERA_ACCOUNT_ID` | `pay url` — Hedera payer account |
 | `HEDERA_PRIVATE_KEY` | `pay url` — Hedera private key |
 | `HEDERA_NETWORK` | Optional Hedera network (`hedera:mainnet`) |
 
-Global flag: `--json` on any command.
+Global flags: `--json`, `--sandbox` (targets development + sandbox-fork USDC defaults).
+
+## Sandbox (Test mode)
+
+```bash
+# Create API + endpoint on the Anvil fork (eip155:845320402)
+export AX402_API_KEY=ax402_test_...   # or use AX402_JWT with --sandbox
+ax402 --sandbox apis create --name Demo --slug demo --upstream https://example.com --pay-to 0x... --json
+ax402 --sandbox endpoints create --api-id ID --path "/v1/*" --price-usdc 0.10 --json
+
+# Funded buyer wallet for pay url (JWT required)
+export AX402_JWT=$(ax402 auth login --email you@example.com --password '...')
+export AX402_EVM_PRIVATE_KEY=$(ax402 --sandbox sandbox-wallet get --json --wait | jq -r .private_key)
+ax402 pay url --url "https://demo.dev….ax402.io/v1/hello"
+```
+
+`sandbox-wallet get|reset` requires `AX402_JWT` and `--sandbox` (or `AX402_ENVIRONMENT=development`). Human output redacts the private key; `--json` includes the full key.
 
 ## Authentication
 
 | Credential | Use for |
 |------------|---------|
 | `AX402_API_KEY` | Automation — most commands (apis, endpoints, domains, stats, settlements, billing, income, openapi, config billing) |
-| `AX402_JWT` | Interactive session — **required** for `keys list/create/revoke`, `auth me`, and `scopes list` |
+| `AX402_JWT` | Interactive session — **required** for `keys list/create/revoke`, `auth me`, `scopes list`, and `sandbox-wallet` |
 
-Create keys in the dashboard or via `auth login` → `keys create`. Scope presets: `ax402 scopes presets --json`. See [agents](../agents/README.md) for bootstrap flow.
+Create keys in the dashboard or via `auth login` → `keys create`. Use `ax402_test_...` keys (created while in Sandbox) for Test mode. Scope presets: `ax402 scopes presets --json`. See [agents](../agents/README.md) for bootstrap flow.
 
 ## Output
 
@@ -115,6 +133,9 @@ ax402 domains delete --api-id ID --domain-id ID [--json]
 ax402 keys list [--json]                              # JWT only
 ax402 keys create --name NAME --scopes apis:read,... [--json]  # JWT only
 ax402 keys revoke --id ID [--json]                    # JWT only
+
+ax402 --sandbox sandbox-wallet get [--wait|--no-wait] [--json]   # JWT only
+ax402 --sandbox sandbox-wallet reset [--wait|--no-wait] [--json] # JWT only
 
 ax402 auth login --email EMAIL --password PASS [--json]
 ax402 auth me [--json]                                # JWT only

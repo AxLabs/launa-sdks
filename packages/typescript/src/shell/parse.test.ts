@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { parseShellArgv, parseShellInput, tokenizeInput } from "./parse.js";
+import {
+  assertSandboxCredentials,
+  envRequestsSandbox,
+  parseShellArgv,
+  parseShellInput,
+  tokenizeInput,
+} from "./parse.js";
 import { buildArgvFromForm, argvToShellCommand } from "./registry.js";
 
 describe("shell parse", () => {
@@ -19,6 +25,33 @@ describe("shell parse", () => {
     expect(p.json).toBe(true);
     expect(p.cmd).toBe("apis");
     expect(p.sub).toBe("list");
+  });
+
+  it("parses --sandbox flag", () => {
+    const p = parseShellArgv(["--sandbox", "apis", "list"]);
+    expect(p.sandbox).toBe(true);
+    expect(p.cmd).toBe("apis");
+    expect(p.sub).toBe("list");
+  });
+
+  it("parses --json without waiting implication for sandbox-wallet argv", () => {
+    const p = parseShellArgv(["--json", "--sandbox", "sandbox-wallet", "get"]);
+    expect(p.json).toBe(true);
+    expect(p.sandbox).toBe(true);
+    expect(p.cmd).toBe("sandbox-wallet");
+    expect(p.sub).toBe("get");
+  });
+
+  it("envRequestsSandbox is case-insensitive", () => {
+    expect(envRequestsSandbox({ AX402_ENVIRONMENT: "Development" } as NodeJS.ProcessEnv)).toBe(true);
+    expect(envRequestsSandbox({ AX402_SANDBOX: "YES" } as NodeJS.ProcessEnv)).toBe(true);
+    expect(envRequestsSandbox({ AX402_ENVIRONMENT: "production" } as NodeJS.ProcessEnv)).toBe(false);
+  });
+
+  it("assertSandboxCredentials rejects live keys", () => {
+    expect(assertSandboxCredentials("ax402_live_abc", true)).toMatch(/ax402_test_/);
+    expect(assertSandboxCredentials("ax402_test_abc", true)).toBeUndefined();
+    expect(assertSandboxCredentials("ax402_live_abc", false)).toBeUndefined();
   });
 
   it("parses flags", () => {

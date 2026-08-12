@@ -57,14 +57,21 @@ ax402 pay url --url "https://my-api.example.com/v1/data" --json
 | Variable | Purpose |
 |----------|---------|
 | `AX402_BASE_URL` | Control plane URL (default `https://api.ax402.io`) |
-| `AX402_API_KEY` | Scoped API key (`ax402_live_...`) for automation |
-| `AX402_JWT` | Session token from `auth login` — needed for `keys` and `scopes list` |
+| `AX402_API_KEY` | Scoped API key (`ax402_live_...` or `ax402_test_...`) for automation |
+| `AX402_JWT` | Session token from `auth login` — needed for `keys`, `scopes list`, `sandbox-wallet` |
+| `AX402_ENVIRONMENT` | `development` for Sandbox / Test mode |
+| `AX402_SANDBOX` | `1` / `true` — alias for development |
 | `AX402_EVM_PRIVATE_KEY` | Signs EVM x402 payments for `pay url` (alias: `EVM_PRIVATE_KEY`) |
 | `HEDERA_ACCOUNT_ID` | Hedera payer account for `pay url` |
 | `HEDERA_PRIVATE_KEY` | Hedera private key paired with `HEDERA_ACCOUNT_ID` |
 | `HEDERA_NETWORK` | Optional Hedera network (`hedera:mainnet`) |
 
-Add `--json` to any command for machine-readable output.
+Add `--json` or `--sandbox` to any command. `--sandbox` creates APIs/endpoints on the Anvil fork and defaults USDC accepts to `eip155:845320402`.
+
+```bash
+ax402 --sandbox apis create --name Demo --slug demo --upstream https://example.com --pay-to 0x... --json
+ax402 --sandbox sandbox-wallet get --json --wait   # JWT required
+```
 
 ## Command groups
 
@@ -75,6 +82,7 @@ Add `--json` to any command for machine-readable output.
 | Discovery | `discovery urls`, `discovery check` |
 | Domains | `domains add`, `domains verify`, `domains suggest` |
 | Auth & keys | `auth login`, `auth me`, `keys create` (JWT) |
+| Sandbox | `sandbox-wallet get`, `sandbox-wallet reset` (JWT + `--sandbox`) |
 | OpenAPI | `openapi parse`, `openapi import` |
 | Analytics | `stats overview`, `stats api`, `settlements list`, `settlements export` |
 | Billing & income | `billing overview`, `income summary` |

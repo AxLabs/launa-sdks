@@ -32,6 +32,19 @@ func TestBuildUsdcAccept(t *testing.T) {
 	}
 }
 
+func TestBuildSandboxUsdcAccept(t *testing.T) {
+	accept, err := BuildSandboxUsdcAccept("exact", "1000")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if accept.Network != NetworkSandboxFork || accept.Asset != USDCBaseMainnet || accept.Amount != "1000" {
+		t.Fatalf("got %+v", accept)
+	}
+	if _, err := BuildSandboxUsdcAccept("batch-settlement", "1000"); err == nil {
+		t.Fatal("expected error for batch-settlement")
+	}
+}
+
 func TestFormatWithdrawDelay(t *testing.T) {
 	if FormatWithdrawDelay(900) != "15 minutes" {
 		t.Fatalf("got %s", FormatWithdrawDelay(900))

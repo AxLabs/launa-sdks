@@ -3,13 +3,21 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { Ax402Client } from "@ax402/sdk";
+import { assertSandboxCredentials, envRequestsSandbox } from "@ax402/sdk/shell";
 import { createToolHandlers } from "./tools.js";
 
 function client(): Ax402Client {
   const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
   const apiKey = process.env.AX402_API_KEY;
   if (!apiKey) throw new Error("AX402_API_KEY required");
-  return new Ax402Client({ baseUrl, apiKey });
+  const sandbox = envRequestsSandbox();
+  const credErr = assertSandboxCredentials(apiKey, sandbox);
+  if (credErr) throw new Error(credErr);
+  return new Ax402Client({
+    baseUrl,
+    apiKey,
+    environment: sandbox ? "development" : undefined,
+  });
 }
 
 const handlers = createToolHandlers(client);

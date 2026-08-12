@@ -1,6 +1,22 @@
 import type { Ax402Client } from "@ax402/sdk";
-import { buildUsdcAccept, usdcToAtomic, wrapOpenAPI, type PaymentScheme } from "@ax402/sdk";
-import { inspectGatewayUrl } from "@ax402/sdk/shell";
+import {
+  buildSandboxUsdcAccept,
+  buildUsdcAccept,
+  usdcToAtomic,
+  wrapOpenAPI,
+  type PaymentScheme,
+} from "@ax402/sdk";
+import { envRequestsSandbox, inspectGatewayUrl } from "@ax402/sdk/shell";
+
+function defaultAccept(scheme: PaymentScheme, amountAtomic: string) {
+  if (envRequestsSandbox()) {
+    if (scheme === "batch-settlement") {
+      throw new Error("sandbox fork supports exact scheme only");
+    }
+    return buildSandboxUsdcAccept(scheme, amountAtomic);
+  }
+  return buildUsdcAccept(scheme, amountAtomic);
+}
 
 export function createToolHandlers(getClient: () => Ax402Client) {
   return {
@@ -18,7 +34,7 @@ export function createToolHandlers(getClient: () => Ax402Client) {
       getClient().endpoints.create(api_id, {
         method,
         path_pattern,
-        accepts: [buildUsdcAccept(scheme, usdcToAtomic(price_usdc))],
+        accepts: [defaultAccept(scheme, usdcToAtomic(price_usdc))],
         ...(ttl != null ? { ttl } : {}),
       }),
     listEndpoints: async (api_id: string) => getClient().endpoints.list(api_id),
@@ -47,7 +63,7 @@ export function createToolHandlers(getClient: () => Ax402Client) {
         ...(openapi_version != null ? { openapi_version } : {}),
       }),
     importOpenapi: async (api_id: string, spec: string, price_usdc: string) =>
-      wrapOpenAPI(getClient(), api_id, spec, [buildUsdcAccept("exact", usdcToAtomic(price_usdc))]),
+      wrapOpenAPI(getClient(), api_id, spec, [defaultAccept("exact", usdcToAtomic(price_usdc))]),
     addDomain: async (api_id: string, hostname: string) => getClient().domains.add(api_id, hostname),
     listDomains: async (api_id: string) => getClient().domains.list(api_id),
     verifyDomain: async (api_id: string, domain_id: string) =>

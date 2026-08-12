@@ -84,8 +84,10 @@ Install: `npm install -g @ax402/cli`
 
 ```bash
 ax402 apis list --json
-ax402 apis create --name "My API" --slug my-api --upstream https://api.example.com \
+ax402 --sandbox apis create --name "My API" --slug my-api --upstream https://api.example.com \
   --discovery-guidance "Use GET /v1/*." --json
+ax402 --sandbox endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json
+ax402 --sandbox sandbox-wallet get --json --wait   # JWT; export private_key for pay url
 ax402 apis discovery --id ID --json
 ax402 discovery urls --api-id ID --json
 ax402 endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json
@@ -107,6 +109,7 @@ ax402 scopes presets --json
 ax402 pay url --url https://gateway.example/v1/foo --json
 ```
 
+`--sandbox` (or `AX402_ENVIRONMENT=development` / `AX402_SANDBOX=1`) targets Test mode: development APIs and fork USDC accepts (`eip155:845320402`). Use `ax402_test_...` keys (not `ax402_live_...`).
 Exit codes: 0 success, 1 API error, 2 usage error.
 
 MCP uses `AX402_API_KEY` only (no JWT).

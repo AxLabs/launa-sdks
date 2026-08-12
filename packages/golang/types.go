@@ -21,6 +21,36 @@ type PlatformConfig struct {
 	AdminHost          string `json:"admin_host"`
 }
 
+type LocalDevPaymentToken struct {
+	Symbol   string `json:"symbol"`
+	Name     string `json:"name"`
+	Asset    string `json:"asset"`
+	Decimals int    `json:"decimals"`
+	Network  string `json:"network"`
+}
+
+type LocalDevConfig struct {
+	Enabled        bool                  `json:"enabled"`
+	ChainID        int64                 `json:"chain_id,omitempty"`
+	Network        string                `json:"network,omitempty"`
+	NetworkName    string                `json:"network_name,omitempty"`
+	RPCURL         string                `json:"rpc_url,omitempty"`
+	NativeSymbol   string                `json:"native_symbol,omitempty"`
+	FaucetEnabled  bool                  `json:"faucet_enabled,omitempty"`
+	PaymentToken   *LocalDevPaymentToken `json:"payment_token,omitempty"`
+}
+
+type DevBalances struct {
+	EthWei   string `json:"eth_wei"`
+	USDCBase string `json:"usdc_base"`
+}
+
+type SandboxWallet struct {
+	Address            string `json:"address"`
+	PrivateKey         string `json:"private_key"`
+	PrivateKeyRedacted string `json:"private_key_redacted"`
+}
+
 type AcceptOption struct {
 	Scheme            string         `json:"scheme"`
 	Network           string         `json:"network"`

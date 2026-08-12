@@ -117,6 +117,85 @@ describe("runShellCommand", () => {
     expect(billing).toHaveBeenCalled();
   });
 
+  it("endpoints create uses sandbox fork accepts with --sandbox", async () => {
+    const create = vi.fn().mockResolvedValue({ id: "ep1" });
+    const client = mockClient({
+      endpoints: { create },
+    } as Partial<Ax402Client>);
+    const result = await runShellCommand(
+      parseShellArgv(["--sandbox", "endpoints", "create", "--api-id", "api1", "--path", "/v1/*", "--price-usdc", "0.10"]),
+      { client, sandbox: true },
+    );
+    expect(result.ok).toBe(true);
+    expect(create).toHaveBeenCalledWith(
+      "api1",
+      expect.objectContaining({
+        accepts: [
+          expect.objectContaining({
+            network: "eip155:845320402",
+            asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            amount: "100000",
+            scheme: "exact",
+          }),
+        ],
+      }),
+    );
+  });
+
+  it("sandbox-wallet get requires sandbox mode", async () => {
+    const result = await runShellCommand(parseShellArgv(["sandbox-wallet", "get"]), {
+      client: mockClient(),
+      sandbox: false,
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/--sandbox/);
+  });
+
+  it("sandbox-wallet get returns wallet with balances", async () => {
+    const get = vi.fn().mockResolvedValue({
+      address: "0xabc",
+      private_key: "0xkey",
+      private_key_redacted: "0x…key",
+    });
+    const devBalances = vi.fn().mockResolvedValue({ eth_wei: "0x1", usdc_base: "0x3e8" });
+    const client = mockClient({
+      sandboxWallet: { get, reset: vi.fn() },
+      config: { localDev: vi.fn(), devBalances, devFaucet: vi.fn() },
+    } as Partial<Ax402Client>);
+    const result = await runShellCommand(parseShellArgv(["--sandbox", "sandbox-wallet", "get", "--no-wait"]), {
+      client,
+      sandbox: true,
+    });
+    expect(result.ok).toBe(true);
+    expect(get).toHaveBeenCalled();
+    if (result.ok) {
+      expect(result.data).toMatchObject({
+        address: "0xabc",
+        funded: true,
+        balances: { eth_wei: "0x1", usdc_base: "0x3e8" },
+      });
+    }
+  });
+
+  it("sandbox-wallet get --json does not poll for funding", async () => {
+    const get = vi.fn().mockResolvedValue({
+      address: "0xabc",
+      private_key: "0xkey",
+      private_key_redacted: "0x…key",
+    });
+    const devBalances = vi.fn().mockResolvedValue({ eth_wei: "0x0", usdc_base: "0x0" });
+    const client = mockClient({
+      sandboxWallet: { get, reset: vi.fn() },
+      config: { localDev: vi.fn(), devBalances, devFaucet: vi.fn() },
+    } as Partial<Ax402Client>);
+    const result = await runShellCommand(
+      parseShellArgv(["--json", "--sandbox", "sandbox-wallet", "get"]),
+      { client, sandbox: true },
+    );
+    expect(result.ok).toBe(true);
+    expect(devBalances).toHaveBeenCalledTimes(1);
+  });
+
   it("endpoints update sets accepts from network/asset/price", async () => {
     const update = vi.fn().mockResolvedValue({ id: "ep1", accepts: [] });
     const client = mockClient({

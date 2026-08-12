@@ -27,6 +27,8 @@ export function atomicToUsdc(atomic: string): string {
 
 export const NETWORK_BASE = "eip155:8453" as const;
 export const NETWORK_BASE_SEPOLIA = "eip155:84532" as const;
+/** Anvil Base mainnet fork (seller Sandbox / development). */
+export const NETWORK_SANDBOX_FORK = "eip155:845320402" as const;
 export const NETWORK_NEOX_MAINNET = "eip155:47763" as const;
 export const NETWORK_NEOX_TESTNET = "eip155:12227332" as const;
 export const NETWORK_HEDERA_MAINNET = "hedera:mainnet" as const;
@@ -52,6 +54,15 @@ export const DEFAULT_USDC_ACCEPT_SEPOLIA = {
   scheme: "exact",
   network: NETWORK_BASE_SEPOLIA,
   asset: USDC_BASE_SEPOLIA,
+  max_timeout_seconds: 300,
+  extra: { name: "USDC", version: "2", assetTransferMethod: "eip3009" },
+} as const;
+
+/** USDC on the sandbox fork (same asset address as Base mainnet). */
+export const DEFAULT_USDC_ACCEPT_SANDBOX = {
+  scheme: "exact",
+  network: NETWORK_SANDBOX_FORK,
+  asset: USDC_BASE_MAINNET,
   max_timeout_seconds: 300,
   extra: { name: "USDC", version: "2", assetTransferMethod: "eip3009" },
 } as const;
@@ -103,6 +114,14 @@ export function buildUsdcAccept(
       ? { ...base.extra, withdrawDelay: withdrawDelay ?? DEFAULT_BATCH_WITHDRAW_DELAY }
       : base.extra;
   return { ...base, amount: amountAtomic, extra };
+}
+
+/** Exact USDC accept for seller Sandbox (development / Anvil fork). Batch-settlement is not supported on the fork. */
+export function buildSandboxUsdcAccept(scheme: PaymentScheme, amountAtomic: string) {
+  if (scheme === "batch-settlement") {
+    throw new Error("sandbox fork supports exact scheme only");
+  }
+  return { ...DEFAULT_USDC_ACCEPT_SANDBOX, amount: amountAtomic, extra: { ...DEFAULT_USDC_ACCEPT_SANDBOX.extra } };
 }
 
 export function amountToAtomic(amount: string, decimals: number): string {

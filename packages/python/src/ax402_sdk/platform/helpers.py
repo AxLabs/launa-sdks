@@ -4,6 +4,7 @@ from typing import Any, Callable
 
 NETWORK_BASE = "eip155:8453"
 NETWORK_BASE_SEPOLIA = "eip155:84532"
+NETWORK_SANDBOX_FORK = "eip155:845320402"  # Anvil Base mainnet fork (seller Sandbox)
 NETWORK_NEOX_MAINNET = "eip155:47763"
 NETWORK_NEOX_TESTNET = "eip155:12227332"
 NETWORK_HEDERA_MAINNET = "hedera:mainnet"
@@ -31,6 +32,13 @@ DEFAULT_USDC_ACCEPT_SEPOLIA = {
     "scheme": "exact",
     "network": NETWORK_BASE_SEPOLIA,
     "asset": USDC_BASE_SEPOLIA,
+    "max_timeout_seconds": 300,
+    "extra": {"name": "USDC", "version": "2", "assetTransferMethod": "eip3009"},
+}
+DEFAULT_USDC_ACCEPT_SANDBOX = {
+    "scheme": "exact",
+    "network": NETWORK_SANDBOX_FORK,
+    "asset": USDC_BASE_MAINNET,
     "max_timeout_seconds": 300,
     "extra": {"name": "USDC", "version": "2", "assetTransferMethod": "eip3009"},
 }
@@ -89,6 +97,17 @@ def build_usdc_accept(
     if scheme == "batch-settlement":
         extra["withdrawDelay"] = withdraw_delay if withdraw_delay is not None else DEFAULT_BATCH_WITHDRAW_DELAY
     return {**base, "amount": amount_atomic, "extra": extra}
+
+
+def build_sandbox_usdc_accept(amount_atomic: str, scheme: str = "exact") -> dict[str, Any]:
+    """Exact USDC accept for seller Sandbox (development / Anvil fork)."""
+    if scheme == "batch-settlement" or (scheme and scheme != "exact"):
+        raise ValueError("sandbox fork supports exact scheme only")
+    return {
+        **DEFAULT_USDC_ACCEPT_SANDBOX,
+        "amount": amount_atomic,
+        "extra": dict(DEFAULT_USDC_ACCEPT_SANDBOX["extra"]),
+    }
 
 
 def amount_to_atomic(amount: str, decimals: int) -> str:

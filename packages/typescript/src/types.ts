@@ -173,6 +173,13 @@ export type LocalDevConfig = {
   payment_token?: LocalDevPaymentToken;
 };
 
+export type DevBalances = {
+  eth_wei: string;
+  usdc_base: string;
+};
+
+export type DevFaucetResult = Record<string, unknown>;
+
 export type DomainPlan = {
   gateway_hostname: string;
   upstream_base_url: string;

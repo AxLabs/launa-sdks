@@ -79,6 +79,11 @@ func loadMockRoutes() []mockRoute {
 		{"GET", "/apis/api1/settlements", 200, "settlements", false, true},
 		{"GET", "/apis/api1/webhook-deliveries", 200, "[]", false, true},
 		{"GET", "/apis/api1/batch-settlements", 200, "batchSettlements", false, true},
+		{"GET", "/sandbox-wallet", 200, "sandboxWallet", false, true},
+		{"POST", "/sandbox-wallet/reset", 200, "sandboxWallet", false, true},
+		{"GET", "/config/local-dev", 200, "localDevConfig", false, true},
+		{"POST", "/dev/balances", 200, "devBalances", false, true},
+		{"POST", "/dev/faucet", 200, "devFaucet", false, true},
 	}
 	var routes []mockRoute
 	for _, d := range defs {
@@ -293,6 +298,21 @@ func TestAllRoutes(t *testing.T) {
 	if _, err := cl.ListBatchSettlements(ctx, "api1"); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := cl.GetSandboxWallet(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.ResetSandboxWallet(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.LocalDevConfig(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.DevBalances(ctx, "0x00000000000000000000000000000000000000aa"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cl.DevFaucet(ctx, "0x00000000000000000000000000000000000000aa", "all"); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func boolPtr(v bool) *bool { return &v }
@@ -326,6 +346,23 @@ func TestErrorParsing(t *testing.T) {
 	axErr, ok := err.(*Error)
 	if !ok || axErr.Status != 403 {
 		t.Fatalf("got %v", err)
+	}
+}
+
+func TestEnvironmentHeader(t *testing.T) {
+	var gotEnv string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotEnv = r.Header.Get("X-Ax402-Environment")
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"id":"1","email":"a@b.com"}`))
+	}))
+	defer srv.Close()
+	cl := NewClient(srv.URL, Credentials{Token: "jwt"}, WithEnvironment("development"))
+	if _, err := cl.Me(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if gotEnv != "development" {
+		t.Fatalf("environment header=%q", gotEnv)
 	}
 }
 

@@ -533,6 +533,22 @@ function formatSupportedNetworks(data: unknown): string {
   return formatGeneric(data);
 }
 
+function formatSandboxWallet(data: Record<string, unknown>): string {
+  const lines = [
+    "Sandbox wallet",
+    `  address: ${formatScalar(data.address)}`,
+    `  private_key: ${formatScalar(data.private_key_redacted ?? "(use --json for full key)")}`,
+  ];
+  if (data.funded === true) lines.push("  funded: yes");
+  if (data.funded === false) lines.push("  funded: no (faucet may still be pending)");
+  if (isRecord(data.balances)) {
+    lines.push(`  eth_wei: ${formatScalar(data.balances.eth_wei)}`);
+    lines.push(`  usdc_base: ${formatScalar(data.balances.usdc_base)}`);
+  }
+  if (typeof data.hint === "string" && data.hint) lines.push(`  hint: ${data.hint}`);
+  return lines.join("\n");
+}
+
 function formatByCommand(cmd: string, sub: string, data: unknown): string | null {
   const key = `${cmd} ${sub}`;
   if (key === "apis list") return formatApiList(asRecords(data));
@@ -547,6 +563,9 @@ function formatByCommand(cmd: string, sub: string, data: unknown): string | null
   }
   if (key === "endpoints list") return formatEndpointList(asRecords(data));
   if (key === "endpoints create" || key === "endpoints update") return isRecord(data) ? formatEndpoint(data) : null;
+  if (key === "sandbox-wallet get" || key === "sandbox-wallet reset" || key === "sandbox_wallet get" || key === "sandbox_wallet reset") {
+    return isRecord(data) ? formatSandboxWallet(data) : null;
+  }
   if (key === "keys list") return formatKeyList(asRecords(data));
   if (key === "keys create") return isRecord(data) ? formatCreatedKey(data) : null;
   if (key === "auth me") return isRecord(data) ? formatUser(data) : null;

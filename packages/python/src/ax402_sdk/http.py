@@ -15,14 +15,19 @@ class HttpTransport:
         *,
         api_key: str | None = None,
         token: str | None = None,
+        environment: str | None = None,
         timeout: float = 120.0,
         client: httpx.Client | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.token = token
+        self.environment = environment
         self.timeout = timeout
         self._client = client
+
+    def set_environment(self, environment: str | None) -> None:
+        self.environment = environment
 
     def _headers(self, *, multipart: bool = False) -> dict[str, str]:
         h: dict[str, str] = {}
@@ -32,6 +37,8 @@ class HttpTransport:
             h["X-API-Key"] = self.api_key
         elif self.token:
             h["Authorization"] = f"Bearer {self.token}"
+            if self.environment:
+                h["X-Ax402-Environment"] = self.environment
         return h
 
     def request(

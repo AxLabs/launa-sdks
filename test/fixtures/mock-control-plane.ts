@@ -68,6 +68,8 @@ export const MOCK_ROUTES: MockRoute[] = [
   { method: "GET", path: "/sandbox-wallet", body: fixtures.sandboxWallet },
   { method: "POST", path: "/sandbox-wallet/reset", body: fixtures.sandboxWallet },
   { method: "GET", path: "/config/local-dev", body: fixtures.localDevConfig },
+  { method: "POST", path: "/dev/balances", body: fixtures.devBalances },
+  { method: "POST", path: "/dev/faucet", body: fixtures.devFaucet },
   { method: "GET", path: "/billing", body: fixtures.billingOverview },
   { method: "POST", path: "/billing/model", body: fixtures.billingOverview },
   { method: "GET", path: "/income/summary", body: fixtures.incomeSummary },

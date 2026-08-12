@@ -13,15 +13,19 @@ All three SDKs expose the same control-plane resources: `auth`, `keys`, `apis`, 
 ## Coverage
 
 SDKs target **seller automation** — APIs, endpoints, domains, stats, settlements, billing/income,
-auth/key management, and (TypeScript) account notifications, account deletion, income payout
-create/cancel, billing model switch, sandbox wallet, and local-dev config.
+auth/key management, sandbox wallet, local-dev config / faucet balances, and (TypeScript) account
+notifications, account deletion, income payout create/cancel, and billing model switch.
 
 These public routes are **not** yet in Go/Python SDKs (use the dashboard, TypeScript SDK, or direct
 HTTP):
 
 - Billing checkout and portal (`POST /billing/checkout/*`, `portal`, `payg/setup`)
 - Go/Python: income payout mutate (`POST` / `DELETE /income/payout-requests`), notifications,
-  account deletion, sandbox wallet, `/config/local-dev`
+  account deletion
+
+**Sandbox / Test mode:** set client `environment: "development"` (TS/Go/Python) or use an
+`ax402_test_...` API key. Default USDC accepts for the fork: `buildSandboxUsdcAccept` /
+`BuildSandboxUsdcAccept` / `build_sandbox_usdc_accept` (`eip155:845320402`). CLI: `--sandbox`.
 
 TypeScript, Go, and Python include `checkSlugAvailability` / `probe_upstream` for slug checks and upstream readiness probes.
 

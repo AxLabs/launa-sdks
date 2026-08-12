@@ -25,6 +25,8 @@ import type {
   IncomeLedgerPage,
   IncomeSummary,
   LocalDevConfig,
+  DevBalances,
+  DevFaucetResult,
   NotificationPreferences,
   OpenAPIImportInput,
   OpenAPIImportResult,
@@ -103,6 +105,10 @@ export class Ax402Client {
 
   setToken(token: string): void {
     this.http.setToken(token);
+  }
+
+  setEnvironment(environment: "production" | "development" | undefined): void {
+    this.http.setEnvironment(environment);
   }
 }
 
@@ -653,5 +659,19 @@ class ConfigResource {
 
   localDev() {
     return this.http.request<LocalDevConfig>("/config/local-dev");
+  }
+
+  devBalances(address: string) {
+    return this.http.request<DevBalances>("/dev/balances", {
+      method: "POST",
+      body: JSON.stringify({ address }),
+    });
+  }
+
+  devFaucet(address: string, asset: string = "all") {
+    return this.http.request<DevFaucetResult>("/dev/faucet", {
+      method: "POST",
+      body: JSON.stringify({ address, asset }),
+    });
   }
 }

@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { Ax402Client } from "@ax402/sdk";
 import {
+  assertSandboxCredentials,
+  envRequestsSandbox,
   formatShellError,
   formatShellOutput,
   inspectGatewayUrl,
@@ -10,35 +12,54 @@ import {
   shellUsageText,
 } from "@ax402/sdk/shell";
 
-const json = process.argv.includes("--json");
-const args = process.argv.slice(2).filter((a) => a !== "--json");
-
 function usage(msg?: string): never {
   if (msg) console.error(msg);
   console.error(shellUsageText());
   process.exit(2);
 }
 
-function client(): Ax402Client {
+function resolveSandbox(parsedSandbox: boolean): boolean {
+  return parsedSandbox || envRequestsSandbox();
+}
+
+function client(sandbox: boolean): Ax402Client {
   const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
   const apiKey = process.env.AX402_API_KEY;
   const token = process.env.AX402_JWT;
   if (!apiKey && !token) usage("AX402_API_KEY or AX402_JWT required");
-  return new Ax402Client({ baseUrl, apiKey, token });
+  const credErr = assertSandboxCredentials(apiKey, sandbox);
+  if (credErr) usage(credErr);
+  return new Ax402Client({
+    baseUrl,
+    apiKey,
+    token,
+    environment: sandbox ? "development" : undefined,
+  });
 }
 
 async function main() {
-  const parsed = parseShellArgv(args);
+  const parsed = parseShellArgv(process.argv.slice(2));
   if (!parsed.cmd) usage();
 
+  const json = parsed.json;
+  const sandbox = resolveSandbox(parsed.sandbox);
   const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
+
+  if (
+    (parsed.cmd === "sandbox-wallet" || parsed.cmd === "sandbox_wallet") &&
+    !process.env.AX402_JWT
+  ) {
+    usage("sandbox-wallet requires AX402_JWT (session token from auth login)");
+  }
+
   const c = shellCommandNeedsCredentials(parsed)
-    ? client()
-    : new Ax402Client({ baseUrl });
+    ? client(sandbox)
+    : new Ax402Client({ baseUrl, environment: sandbox ? "development" : undefined });
 
   const result = await runShellCommand(parsed, {
     client: c,
     baseUrl,
+    sandbox,
     readFile: async (path) => {
       const fs = await import("node:fs/promises");
       return fs.readFile(path, "utf8");
@@ -81,6 +102,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(String(err));
+  console.error(err instanceof Error ? err.message : err);
   process.exit(1);
 });

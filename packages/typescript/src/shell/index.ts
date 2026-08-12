@@ -12,6 +12,8 @@ export {
   flag,
   idFlag,
   shellCommandNeedsCredentials,
+  envRequestsSandbox,
+  assertSandboxCredentials,
 } from "./parse.js";
 export { runShellCommand } from "./execute.js";
 export { inspectGatewayUrl, type InspectGatewayResult } from "./gateway.js";

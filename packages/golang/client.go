@@ -21,12 +21,17 @@ type Client struct {
 	baseURL     string
 	credentials Credentials
 	httpClient  *http.Client
+	environment string
 }
 
 type ClientOption func(*Client)
 
 func WithHTTPClient(c *http.Client) ClientOption {
 	return func(cl *Client) { cl.httpClient = c }
+}
+
+func WithEnvironment(env string) ClientOption {
+	return func(cl *Client) { cl.environment = strings.TrimSpace(env) }
 }
 
 func NewClient(baseURL string, creds Credentials, opts ...ClientOption) *Client {
@@ -47,6 +52,23 @@ func (c *Client) SetToken(token string) {
 	c.credentials.APIKey = ""
 }
 
+func (c *Client) SetEnvironment(env string) {
+	c.environment = strings.TrimSpace(env)
+}
+
+func (c *Client) applyAuth(req *http.Request) {
+	if c.credentials.APIKey != "" {
+		req.Header.Set("X-API-Key", c.credentials.APIKey)
+		return
+	}
+	if c.credentials.Token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.credentials.Token)
+		if c.environment != "" && req.Header.Get("X-Ax402-Environment") == "" {
+			req.Header.Set("X-Ax402-Environment", c.environment)
+		}
+	}
+}
+
 func (c *Client) do(ctx context.Context, method, path string, body any, out any) error {
 	var rdr io.Reader
 	if body != nil {
@@ -63,11 +85,7 @@ func (c *Client) do(ctx context.Context, method, path string, body any, out any)
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	if c.credentials.APIKey != "" {
-		req.Header.Set("X-API-Key", c.credentials.APIKey)
-	} else if c.credentials.Token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.credentials.Token)
-	}
+	c.applyAuth(req)
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
@@ -104,11 +122,7 @@ func (c *Client) doMultipart(ctx context.Context, path string, filename string, 
 		return err
 	}
 	req.Header.Set("Content-Type", w.FormDataContentType())
-	if c.credentials.APIKey != "" {
-		req.Header.Set("X-API-Key", c.credentials.APIKey)
-	} else if c.credentials.Token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.credentials.Token)
-	}
+	c.applyAuth(req)
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
@@ -130,6 +144,52 @@ func (c *Client) PlatformConfig(ctx context.Context) (*PlatformConfig, error) {
 		return nil, err
 	}
 	return &cfg, nil
+}
+
+func (c *Client) LocalDevConfig(ctx context.Context) (*LocalDevConfig, error) {
+	var cfg LocalDevConfig
+	if err := c.do(ctx, http.MethodGet, "/config/local-dev", nil, &cfg); err != nil {
+		return nil, err
+	}
+	return &cfg, nil
+}
+
+func (c *Client) DevBalances(ctx context.Context, address string) (*DevBalances, error) {
+	var out DevBalances
+	if err := c.do(ctx, http.MethodPost, "/dev/balances", map[string]string{"address": address}, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) DevFaucet(ctx context.Context, address, asset string) (map[string]any, error) {
+	if asset == "" {
+		asset = "all"
+	}
+	var out map[string]any
+	if err := c.do(ctx, http.MethodPost, "/dev/faucet", map[string]string{
+		"address": address,
+		"asset":   asset,
+	}, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *Client) GetSandboxWallet(ctx context.Context) (*SandboxWallet, error) {
+	var out SandboxWallet
+	if err := c.do(ctx, http.MethodGet, "/sandbox-wallet", nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) ResetSandboxWallet(ctx context.Context) (*SandboxWallet, error) {
+	var out SandboxWallet
+	if err := c.do(ctx, http.MethodPost, "/sandbox-wallet/reset", nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *Client) SupportedNetworks(ctx context.Context) (SupportedNetworks, error) {

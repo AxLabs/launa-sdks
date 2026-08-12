@@ -78,11 +78,15 @@ Tool access follows your API key scopes. Create keys with the permissions you ne
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `AX402_API_KEY` | Yes | Control-plane API key |
+| `AX402_API_KEY` | Yes | Control-plane API key (`ax402_test_...` for Sandbox) |
 | `AX402_BASE_URL` | No | API base URL (default `https://api.ax402.io`) |
+| `AX402_ENVIRONMENT` | No | `development` for Sandbox / Test mode (fork USDC accepts) |
+| `AX402_SANDBOX` | No | `1` / `true` — alias for development |
 | `AX402_EVM_PRIVATE_KEY` | For `ax402_pay_url` | EVM key with funds on the gateway network |
 | `HEDERA_ACCOUNT_ID` | For `ax402_pay_url` | Hedera payer account id |
 | `HEDERA_PRIVATE_KEY` | For `ax402_pay_url` | Hedera private key |
+
+Sandbox wallet retrieval is CLI + JWT only (`ax402 --sandbox sandbox-wallet get`); MCP does not expose it.
 
 ## Links
 

@@ -175,5 +175,26 @@
     "cname_record": "x402",
     "cname_target": "gateway.ax402.io",
     "txt_record": "_x402-verify.x402.example.com"
+  },
+  "sandboxWallet": {
+    "address": "0x00000000000000000000000000000000000000aa",
+    "private_key": "0xabc",
+    "private_key_redacted": "0x…abc"
+  },
+  "localDevConfig": {
+    "enabled": true,
+    "chain_id": 845320402,
+    "network": "eip155:845320402",
+    "network_name": "Ax402 Sandbox Fork",
+    "rpc_url": "http://127.0.0.1:18545",
+    "native_symbol": "ETH",
+    "faucet_enabled": true
+  },
+  "devBalances": {
+    "eth_wei": "0x6f05b59d3b20000",
+    "usdc_base": "0x5f5e100"
+  },
+  "devFaucet": {
+    "status": "ok"
   }
 }

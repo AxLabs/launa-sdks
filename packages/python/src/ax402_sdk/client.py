@@ -15,6 +15,7 @@ from .resources.exchange_rates import ExchangeRatesResource
 from .resources.income import IncomeResource
 from .resources.keys import KeysResource
 from .resources.openapi import OpenAPIResource
+from .resources.sandbox_wallet import SandboxWalletResource
 from .resources.stats import StatsResource
 from .resources.settlements import SettlementsResource
 
@@ -26,15 +27,15 @@ class Ax402Client:
         *,
         api_key: str | None = None,
         token: str | None = None,
+        environment: str | None = None,
         timeout: float = 120.0,
         http_client: httpx.Client | None = None,
     ) -> None:
-        import httpx
-
         self._http = HttpTransport(
             base_url,
             api_key=api_key,
             token=token,
+            environment=environment,
             timeout=timeout,
             client=http_client,
         )
@@ -50,6 +51,7 @@ class Ax402Client:
         self.income = IncomeResource(self._http)
         self.exchange_rates = ExchangeRatesResource(self._http)
         self.config = ConfigResource(self._http)
+        self.sandbox_wallet = SandboxWalletResource(self._http)
 
     def set_api_key(self, api_key: str) -> None:
         self._http.api_key = api_key
@@ -58,6 +60,9 @@ class Ax402Client:
     def set_token(self, token: str) -> None:
         self._http.token = token
         self._http.api_key = None
+
+    def set_environment(self, environment: str | None) -> None:
+        self._http.set_environment(environment)
 
     # Back-compat flat methods
     def me(self):
@@ -96,4 +101,19 @@ class Ax402Client:
     @classmethod
     def from_env(cls) -> Ax402Client:
         base = os.environ.get("AX402_BASE_URL", "https://api.ax402.io")
-        return cls(base, api_key=os.environ.get("AX402_API_KEY"), token=os.environ.get("AX402_JWT"))
+        raw_env = (os.environ.get("AX402_ENVIRONMENT") or "").strip()
+        sandbox_flag = os.environ.get("AX402_SANDBOX", "").strip().lower()
+        sandbox = raw_env.lower() == "development" or sandbox_flag in ("1", "true", "yes")
+        environment = "development" if sandbox else (raw_env or None)
+        api_key = os.environ.get("AX402_API_KEY")
+        if sandbox and api_key and api_key.startswith("ax402_live_"):
+            raise ValueError(
+                "sandbox mode requires an ax402_test_… API key (or AX402_JWT); "
+                "ax402_live_… keys are production-only"
+            )
+        return cls(
+            base,
+            api_key=api_key,
+            token=os.environ.get("AX402_JWT"),
+            environment=environment,
+        )

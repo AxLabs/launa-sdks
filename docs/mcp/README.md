@@ -18,7 +18,7 @@ AX402_BASE_URL=https://api.ax402.io \
 node tools/mcp-server/dist/index.js
 ```
 
-Auth: `AX402_API_KEY` only (no JWT).
+Auth: `AX402_API_KEY` only (no JWT). For Sandbox / Test mode set `AX402_ENVIRONMENT=development` (or `AX402_SANDBOX=1`) and use an `ax402_test_...` key — default endpoint pricing uses the fork network. Sandbox wallet get/reset is CLI + JWT only.
 
 ## Cursor configuration
 

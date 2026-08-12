@@ -2,6 +2,7 @@ import { Ax402Client } from "../client.js";
 import { SCOPE_PRESETS } from "../scopes.js";
 import {
   amountToAtomic,
+  buildSandboxUsdcAccept,
   buildUsdcAccept,
   usdcToAtomic,
   type PaymentScheme,
@@ -14,6 +15,21 @@ import type { ParsedShellCommand, ShellExecuteContext, ShellResult } from "./typ
 
 function usage(msg: string): ShellResult {
   return { ok: false, kind: "usage", error: msg ? `${msg}\n\n${shellUsageText()}` : shellUsageText() };
+}
+
+function defaultUsdcAccept(
+  sandbox: boolean | undefined,
+  scheme: PaymentScheme,
+  amountAtomic: string,
+): AcceptOption | ShellResult {
+  if (sandbox) {
+    try {
+      return buildSandboxUsdcAccept(scheme, amountAtomic);
+    } catch (err) {
+      return usage(err instanceof Error ? err.message : String(err));
+    }
+  }
+  return buildUsdcAccept(scheme, amountAtomic);
 }
 
 function parseDecimals(raw: string | undefined, fallback = 6): number | ShellResult {
@@ -45,6 +61,11 @@ function acceptsFromFlags(parsed: ParsedShellCommand): AcceptOption[] | ShellRes
   const price = flag(parsed, "--price") ?? flag(parsed, "--price-usdc");
   const amountAtomic = flag(parsed, "--amount");
   const scheme = (flag(parsed, "--scheme") ?? "exact") as PaymentScheme;
+
+  // Price alone uses default USDC accept builders in the caller (mainnet or sandbox).
+  if (price && !network && !asset && !amountAtomic && !flag(parsed, "--accepts")) {
+    return undefined;
+  }
 
   const anyTokenFlag = network || asset || price || amountAtomic;
   if (!anyTokenFlag) return undefined;
@@ -258,7 +279,9 @@ export async function runShellCommand(
         accepts = fromFlags;
       } else {
         const price = flag(parsed, "--price") ?? flag(parsed, "--price-usdc") ?? "0.10";
-        accepts = [buildUsdcAccept(scheme, usdcToAtomic(price))];
+        const built = defaultUsdcAccept(ctx.sandbox, scheme, usdcToAtomic(price));
+        if (typeof built === "object" && "ok" in built) return built;
+        accepts = [built];
       }
       const body: {
         method: string;
@@ -402,6 +425,48 @@ export async function runShellCommand(
       return { ok: true, data: { status: "revoked" } };
     }
 
+    if ((cmd === "sandbox-wallet" || cmd === "sandbox_wallet") && (sub === "get" || sub === "reset")) {
+      if (!ctx.sandbox) {
+        return {
+          ok: false,
+          error: "sandbox-wallet requires --sandbox (or AX402_ENVIRONMENT=development / AX402_SANDBOX=1)",
+        };
+      }
+      const wallet = sub === "reset" ? await c.sandboxWallet.reset() : await c.sandboxWallet.get();
+      const waitFlag = flag(parsed, "--wait");
+      const noWait = flag(parsed, "--no-wait") === "true";
+      const shouldWait =
+        !noWait && (waitFlag === "true" || (waitFlag === undefined && !parsed.json));
+      let balances: { eth_wei: string; usdc_base: string } | undefined;
+      let funded = false;
+      let waitTimedOut = false;
+      if (shouldWait) {
+        const waited = await waitForSandboxFunding(c, wallet.address);
+        balances = waited.balances;
+        funded = waited.funded;
+        waitTimedOut = !waited.funded;
+      } else {
+        try {
+          balances = await c.config.devBalances(wallet.address);
+          funded = sandboxLooksFunded(balances);
+        } catch {
+          /* balances optional when not waiting */
+        }
+      }
+      return {
+        ok: true,
+        data: {
+          ...wallet,
+          balances,
+          funded,
+          wait_timed_out: waitTimedOut || undefined,
+          hint: !funded
+            ? "Faucet funding is async; re-run with --wait or claim via POST /dev/faucet"
+            : undefined,
+        },
+      };
+    }
+
     if (cmd === "auth" && sub === "me") {
       return { ok: true, data: await c.auth.me() };
     }
@@ -445,7 +510,9 @@ export async function runShellCommand(
       const specResult = await readSpec(parsed, ctx);
       if (typeof specResult !== "string") return specResult;
       const parsedSpec = await c.openapi.parseSpec(specResult);
-      const accepts = [buildUsdcAccept("exact", usdcToAtomic(price))];
+      const built = defaultUsdcAccept(ctx.sandbox, "exact", usdcToAtomic(price));
+      if (typeof built === "object" && "ok" in built) return built;
+      const accepts = [built];
       const operations = parsedSpec.operations.map((op) => ({
         method: op.method,
         path_pattern: op.path_pattern,
@@ -620,4 +687,46 @@ export async function runShellCommand(
   } catch (err) {
     return shellErrorFromUnknown(err);
   }
+}
+
+function sandboxLooksFunded(balances: { eth_wei: string; usdc_base: string }): boolean {
+  try {
+    const eth = BigInt(balances.eth_wei || "0x0");
+    const usdc = BigInt(balances.usdc_base || "0x0");
+    return eth > 0n && usdc >= 1000n;
+  } catch {
+    return false;
+  }
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForSandboxFunding(
+  client: Ax402Client,
+  address: string,
+  opts: { timeoutMs?: number; intervalMs?: number } = {},
+): Promise<{ balances: { eth_wei: string; usdc_base: string }; funded: boolean }> {
+  const timeoutMs = opts.timeoutMs ?? 10_000;
+  const intervalMs = opts.intervalMs ?? 500;
+  const deadline = Date.now() + timeoutMs;
+  let last = { eth_wei: "0x0", usdc_base: "0x0" };
+  while (Date.now() < deadline) {
+    try {
+      last = await client.config.devBalances(address);
+      if (sandboxLooksFunded(last)) {
+        return { balances: last, funded: true };
+      }
+    } catch {
+      /* retry until timeout */
+    }
+    await sleep(intervalMs);
+  }
+  try {
+    last = await client.config.devBalances(address);
+  } catch {
+    /* keep last */
+  }
+  return { balances: last, funded: sandboxLooksFunded(last) };
 }

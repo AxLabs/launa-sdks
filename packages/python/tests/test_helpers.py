@@ -38,6 +38,21 @@ def test_build_batch_accept() -> None:
     assert a["extra"]["withdrawDelay"] == DEFAULT_BATCH_WITHDRAW_DELAY
 
 
+def test_build_sandbox_accept() -> None:
+    from ax402_sdk import NETWORK_SANDBOX_FORK, USDC_BASE_MAINNET, build_sandbox_usdc_accept
+
+    a = build_sandbox_usdc_accept("1000")
+    assert a["amount"] == "1000"
+    assert a["scheme"] == "exact"
+    assert a["network"] == NETWORK_SANDBOX_FORK
+    assert a["asset"] == USDC_BASE_MAINNET
+    try:
+        build_sandbox_usdc_accept("1000", "batch-settlement")
+        raise AssertionError("expected ValueError")
+    except ValueError:
+        pass
+
+
 def test_gateway_urls() -> None:
     assert gateway_base_url("myapi.localhost", 8090) == "http://myapi.localhost:8090"
     assert gateway_url("myapi.localhost", "/v1/data", 8090) == "http://myapi.localhost:8090/v1/data"

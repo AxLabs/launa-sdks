@@ -244,6 +244,33 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
     ],
   },
   {
+    id: "sandbox-wallet",
+    label: "Sandbox wallet",
+    methods: [
+      {
+        id: "get",
+        label: "Get (JWT + --sandbox)",
+        flags: [
+          { name: "--wait", required: false, type: "boolean" },
+          { name: "--no-wait", required: false, type: "boolean" },
+        ],
+        sdkSnippet: `await client.setEnvironment("development");
+const wallet = await client.sandboxWallet.get();
+const balances = await client.config.devBalances(wallet.address);`,
+      },
+      {
+        id: "reset",
+        label: "Reset (JWT + --sandbox)",
+        flags: [
+          { name: "--wait", required: false, type: "boolean" },
+          { name: "--no-wait", required: false, type: "boolean" },
+        ],
+        sdkSnippet: `await client.setEnvironment("development");
+await client.sandboxWallet.reset();`,
+      },
+    ],
+  },
+  {
     id: "keys",
     label: "API keys",
     methods: [
@@ -584,7 +611,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
 ];
 
 export function shellUsageText(): string {
-  const lines = ["Usage: ax402 [--json] <command> [options]", "", "Commands:"];
+  const lines = ["Usage: ax402 [--json] [--sandbox] <command> [options]", "", "Commands:"];
   for (const resource of SHELL_RESOURCES) {
     for (const method of resource.methods) {
       const flagParts = method.flags
@@ -593,7 +620,7 @@ export function shellUsageText(): string {
         .join(" ");
       const optional = method.flags
         .filter((f) => !f.required)
-        .map((f) => `[${f.name} VALUE]`)
+        .map((f) => (f.type === "boolean" ? `[${f.name}]` : `[${f.name} VALUE]`))
         .join(" ");
       lines.push(`  ${resource.id} ${method.id}${flagParts ? " " + flagParts : ""}${optional ? " " + optional : ""}`);
     }
@@ -602,7 +629,7 @@ export function shellUsageText(): string {
   lines.push("  pay url — gateway URL + EVM and/or Hedera buyer env (no API key)");
   lines.push("");
   lines.push(
-    "Env: AX402_API_KEY or AX402_JWT (control plane); pay url: AX402_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
+    "Env: AX402_API_KEY or AX402_JWT (control plane); --sandbox / AX402_ENVIRONMENT=development / AX402_SANDBOX=1 for Test mode; sandbox-wallet requires AX402_JWT; pay url: AX402_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
   );
   return lines.join("\n");
 }
