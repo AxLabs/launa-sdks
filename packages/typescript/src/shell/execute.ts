@@ -9,109 +9,18 @@ import {
 } from "../platform/helpers.js";
 import type { AcceptOption } from "../types.js";
 import { flag, idFlag } from "./parse.js";
-import { shellUsageText } from "./registry.js";
+import { findResource } from "./registry.js";
 import { shellErrorFromUnknown } from "./format.js";
+import {
+  formatHelpText,
+  isHelpInvocation,
+  jwtRequiredResult,
+  resolveHelp,
+  shellUsageText,
+  usageHelpText,
+} from "./help.js";
+import { shellCommandCatalog, shellCommandRequiresJwt } from "./catalog.js";
 import type { ParsedShellCommand, ShellExecuteContext, ShellResult } from "./types.js";
-
-function usage(msg: string): ShellResult {
-  return { ok: false, kind: "usage", error: msg ? `${msg}\n\n${shellUsageText()}` : shellUsageText() };
-}
-
-function defaultUsdcAccept(
-  sandbox: boolean | undefined,
-  scheme: PaymentScheme,
-  amountAtomic: string,
-): AcceptOption | ShellResult {
-  if (sandbox) {
-    try {
-      return buildSandboxUsdcAccept(scheme, amountAtomic);
-    } catch (err) {
-      return usage(err instanceof Error ? err.message : String(err));
-    }
-  }
-  return buildUsdcAccept(scheme, amountAtomic);
-}
-
-function parseDecimals(raw: string | undefined, fallback = 6): number | ShellResult {
-  if (raw == null || raw === "") return fallback;
-  const n = Number.parseInt(raw, 10);
-  if (!Number.isFinite(n) || n < 0 || n > 18) {
-    return usage("--decimals must be an integer 0–18");
-  }
-  return n;
-}
-
-/** Build a single accept from CLI flags, or parse --accepts JSON. */
-function acceptsFromFlags(parsed: ParsedShellCommand): AcceptOption[] | ShellResult | undefined {
-  const acceptsRaw = flag(parsed, "--accepts");
-  if (acceptsRaw) {
-    try {
-      const parsedAccepts = JSON.parse(acceptsRaw) as unknown;
-      if (!Array.isArray(parsedAccepts) || parsedAccepts.length === 0) {
-        return usage("--accepts must be a non-empty JSON array");
-      }
-      return parsedAccepts as AcceptOption[];
-    } catch {
-      return usage("--accepts must be valid JSON");
-    }
-  }
-
-  const network = flag(parsed, "--network");
-  const asset = flag(parsed, "--asset");
-  const price = flag(parsed, "--price") ?? flag(parsed, "--price-usdc");
-  const amountAtomic = flag(parsed, "--amount");
-  const scheme = (flag(parsed, "--scheme") ?? "exact") as PaymentScheme;
-
-  // Price alone uses default USDC accept builders in the caller (mainnet or sandbox).
-  if (price && !network && !asset && !amountAtomic && !flag(parsed, "--accepts")) {
-    return undefined;
-  }
-
-  const anyTokenFlag = network || asset || price || amountAtomic;
-  if (!anyTokenFlag) return undefined;
-  if (!network || !asset) {
-    return usage("--network and --asset required when setting accepts (or pass --accepts JSON)");
-  }
-  if (!price && !amountAtomic) {
-    return usage("--price / --price-usdc or --amount required when setting accepts");
-  }
-
-  const decimalsOrErr = parseDecimals(flag(parsed, "--decimals"));
-  if (typeof decimalsOrErr === "object") return decimalsOrErr;
-
-  let amount: string;
-  try {
-    amount = amountAtomic ?? amountToAtomic(price!, decimalsOrErr);
-  } catch (err) {
-    return usage(err instanceof Error ? err.message : String(err));
-  }
-
-  return [
-    {
-      scheme,
-      network,
-      asset,
-      amount,
-      max_timeout_seconds: 300,
-    },
-  ];
-}
-
-async function readSpec(
-  parsed: ParsedShellCommand,
-  ctx: ShellExecuteContext,
-): Promise<string | ShellResult> {
-  const spec = flag(parsed, "--spec");
-  if (spec) return spec;
-  const file = flag(parsed, "--file");
-  if (file) {
-    if (!ctx.readFile) {
-      return { ok: false, error: "--file is not supported in this environment; use --spec with pasted content" };
-    }
-    return ctx.readFile(file);
-  }
-  return { ok: false, error: "--spec or --file required" };
-}
 
 export async function runShellCommand(
   parsed: ParsedShellCommand,
@@ -120,15 +29,125 @@ export async function runShellCommand(
   const { cmd, sub } = parsed;
   const c = ctx.client;
 
+  const usage = (msg: string): ShellResult => ({
+    ok: false,
+    kind: "usage",
+    code: "usage",
+    error: msg || "invalid usage",
+    help: usageHelpText(cmd, sub),
+  });
+
+  function defaultUsdcAccept(
+    sandbox: boolean | undefined,
+    scheme: PaymentScheme,
+    amountAtomic: string,
+  ): AcceptOption | ShellResult {
+    if (sandbox) {
+      try {
+        return buildSandboxUsdcAccept(scheme, amountAtomic);
+      } catch (err) {
+        return usage(err instanceof Error ? err.message : String(err));
+      }
+    }
+    return buildUsdcAccept(scheme, amountAtomic);
+  }
+
+  function parseDecimals(raw: string | undefined, fallback = 6): number | ShellResult {
+    if (raw == null || raw === "") return fallback;
+    const n = Number.parseInt(raw, 10);
+    if (!Number.isFinite(n) || n < 0 || n > 18) {
+      return usage("--decimals must be an integer 0–18");
+    }
+    return n;
+  }
+
+  function acceptsFromFlags(inner: ParsedShellCommand): AcceptOption[] | ShellResult | undefined {
+    const acceptsRaw = flag(inner, "--accepts");
+    if (acceptsRaw) {
+      try {
+        const parsedAccepts = JSON.parse(acceptsRaw) as unknown;
+        if (!Array.isArray(parsedAccepts) || parsedAccepts.length === 0) {
+          return usage("--accepts must be a non-empty JSON array");
+        }
+        return parsedAccepts as AcceptOption[];
+      } catch {
+        return usage("--accepts must be valid JSON");
+      }
+    }
+
+    const network = flag(inner, "--network");
+    const asset = flag(inner, "--asset");
+    const price = flag(inner, "--price") ?? flag(inner, "--price-usdc");
+    const amountAtomic = flag(inner, "--amount");
+    const scheme = (flag(inner, "--scheme") ?? "exact") as PaymentScheme;
+
+    if (price && !network && !asset && !amountAtomic && !flag(inner, "--accepts")) {
+      return undefined;
+    }
+
+    const anyTokenFlag = network || asset || price || amountAtomic;
+    if (!anyTokenFlag) return undefined;
+    if (!network || !asset) {
+      return usage("--network and --asset required when setting accepts (or pass --accepts JSON)");
+    }
+    if (!price && !amountAtomic) {
+      return usage("--price / --price-usdc or --amount required when setting accepts");
+    }
+
+    const decimalsOrErr = parseDecimals(flag(inner, "--decimals"));
+    if (typeof decimalsOrErr === "object") return decimalsOrErr;
+
+    let amount: string;
+    try {
+      amount = amountAtomic ?? amountToAtomic(price!, decimalsOrErr);
+    } catch (err) {
+      return usage(err instanceof Error ? err.message : String(err));
+    }
+
+    return [
+      {
+        scheme,
+        network,
+        asset,
+        amount,
+        max_timeout_seconds: 300,
+      },
+    ];
+  }
+
+  async function readSpec(
+    inner: ParsedShellCommand,
+    innerCtx: ShellExecuteContext,
+  ): Promise<string | ShellResult> {
+    const spec = flag(inner, "--spec");
+    if (spec) return spec;
+    const file = flag(inner, "--file");
+    if (file) {
+      if (!innerCtx.readFile) {
+        return { ok: false, error: "--file is not supported in this environment; use --spec with pasted content" };
+      }
+      return innerCtx.readFile(file);
+    }
+    return { ok: false, error: "--spec or --file required" };
+  }
+
   try {
-    if (cmd === "help") {
-      return { ok: true, data: shellUsageText() };
+    if (isHelpInvocation(parsed)) {
+      const view = resolveHelp(parsed);
+      return { ok: true, data: parsed.json ? view : formatHelpText(view) };
+    }
+    if (cmd === "commands") {
+      return { ok: true, data: shellCommandCatalog() };
     }
     if (cmd === "clear") {
       return { ok: true, data: { action: "clear" } };
     }
     if (!cmd) {
       return usage("command required");
+    }
+
+    if (shellCommandRequiresJwt(cmd, sub) && ctx.credentialKind && ctx.credentialKind !== "jwt") {
+      return jwtRequiredResult(cmd, sub);
     }
 
     if (cmd === "apis" && sub === "list") {
@@ -683,7 +702,16 @@ export async function runShellCommand(
       };
     }
 
-    return usage(`unknown command: ${cmd} ${sub}`);
+    if (findResource(cmd)) {
+      return usage(`unknown command: ${cmd} ${sub}`.trim());
+    }
+    return {
+      ok: false,
+      kind: "usage",
+      code: "usage",
+      error: `unknown command: ${cmd} ${sub}`.trim(),
+      help: shellUsageText(),
+    };
   } catch (err) {
     return shellErrorFromUnknown(err);
   }

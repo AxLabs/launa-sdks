@@ -6,15 +6,35 @@ import {
   formatShellError,
   formatShellOutput,
   inspectGatewayUrl,
+  jwtRequiredResult,
   parseShellArgv,
   runShellCommand,
   shellCommandNeedsCredentials,
+  shellCommandRequiresJwt,
   shellUsageText,
+  type ShellCredentialKind,
 } from "@ax402/sdk/shell";
 
-function usage(msg?: string): never {
-  if (msg) console.error(msg);
-  console.error(shellUsageText());
+function printAndExit(message: string, code: number, json: boolean): never {
+  if (json) console.log(message);
+  else console.error(message);
+  process.exit(code);
+}
+
+function usage(msg?: string, json = false): never {
+  if (json) {
+    printAndExit(
+      JSON.stringify(
+        { error: msg ?? "command required", code: "usage", help: shellUsageText() },
+        null,
+        2,
+      ),
+      2,
+      true,
+    );
+  }
+  const text = msg ? `${msg}\n\n${shellUsageText()}` : shellUsageText();
+  console.error(text);
   process.exit(2);
 }
 
@@ -22,13 +42,26 @@ function resolveSandbox(parsedSandbox: boolean): boolean {
   return parsedSandbox || envRequestsSandbox();
 }
 
-function client(sandbox: boolean): Ax402Client {
+function credentialKind(apiKey: string | undefined, token: string | undefined): ShellCredentialKind {
+  if (token) return "jwt";
+  if (apiKey) return "apiKey";
+  return "none";
+}
+
+function client(sandbox: boolean, opts: { apiKey?: string; token?: string; preferJwt?: boolean }): Ax402Client {
   const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
-  const apiKey = process.env.AX402_API_KEY;
-  const token = process.env.AX402_JWT;
+  const apiKey = opts.apiKey;
+  const token = opts.token;
   if (!apiKey && !token) usage("AX402_API_KEY or AX402_JWT required");
   const credErr = assertSandboxCredentials(apiKey, sandbox);
   if (credErr) usage(credErr);
+  if (opts.preferJwt && token) {
+    return new Ax402Client({
+      baseUrl,
+      token,
+      environment: sandbox ? "development" : undefined,
+    });
+  }
   return new Ax402Client({
     baseUrl,
     apiKey,
@@ -39,27 +72,38 @@ function client(sandbox: boolean): Ax402Client {
 
 async function main() {
   const parsed = parseShellArgv(process.argv.slice(2));
-  if (!parsed.cmd) usage();
-
   const json = parsed.json;
   const sandbox = resolveSandbox(parsed.sandbox);
   const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
+  const apiKey = process.env.AX402_API_KEY;
+  const token = process.env.AX402_JWT;
 
-  if (
-    (parsed.cmd === "sandbox-wallet" || parsed.cmd === "sandbox_wallet") &&
-    !process.env.AX402_JWT
-  ) {
-    usage("sandbox-wallet requires AX402_JWT (session token from auth login)");
+  if (!parsed.cmd && parsed.flags["--help"] !== "true") {
+    usage(undefined, json);
   }
 
-  const c = shellCommandNeedsCredentials(parsed)
-    ? client(sandbox)
+  const jwtOnly = Boolean(parsed.cmd) && Boolean(parsed.sub) && shellCommandRequiresJwt(parsed.cmd, parsed.sub);
+  if (jwtOnly && !token) {
+    const result = jwtRequiredResult(parsed.cmd, parsed.sub);
+    const msg = formatShellError(result, json);
+    if (json) console.log(msg);
+    else {
+      console.error(result.error);
+      if (result.hint) console.error(result.hint);
+    }
+    process.exit(1);
+  }
+
+  const needsCreds = shellCommandNeedsCredentials(parsed);
+  const c = needsCreds
+    ? client(sandbox, { apiKey, token, preferJwt: jwtOnly })
     : new Ax402Client({ baseUrl, environment: sandbox ? "development" : undefined });
 
   const result = await runShellCommand(parsed, {
     client: c,
     baseUrl,
     sandbox,
+    credentialKind: credentialKind(apiKey, token),
     readFile: async (path) => {
       const fs = await import("node:fs/promises");
       return fs.readFile(path, "utf8");
@@ -71,7 +115,7 @@ async function main() {
       try {
         buyer = await buyerClientFromEnv();
       } catch (err) {
-        if (err instanceof BuyerDepsError) usage(err.message);
+        if (err instanceof BuyerDepsError) usage(err.message, json);
         throw err;
       }
       const payResult = await buyer.pay({ url, method });
@@ -89,7 +133,7 @@ async function main() {
   if (!result.ok) {
     const msg = formatShellError(result, json);
     if (json) console.log(msg);
-    else console.error(msg.split("\n")[0]);
+    else console.error(msg);
     process.exit(result.kind === "usage" ? 2 : 1);
   }
 

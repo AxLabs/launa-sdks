@@ -84,6 +84,7 @@ Install: `npm install -g @ax402/cli`
 
 ```bash
 ax402 apis list --json
+ax402 commands --json
 ax402 --sandbox apis create --name "My API" --slug my-api --upstream https://api.example.com \
   --discovery-guidance "Use GET /v1/*." --json
 ax402 --sandbox endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json

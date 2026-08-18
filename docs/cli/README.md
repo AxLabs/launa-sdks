@@ -99,6 +99,22 @@ Create keys in the dashboard or via `auth login` → `keys create`. Use `ax402_t
 
 Without `--json`, commands print human-readable tables and summaries. With `--json`, stdout is JSON (errors too). `auth login` without `--json` prints only the JWT token — useful for `export AX402_JWT=$(ax402 auth login ...)`.
 
+## Help
+
+Default help is a short index, not every flag:
+
+```bash
+ax402 help
+ax402 endpoints --help
+ax402 endpoints create --help
+ax402 commands --json          # full registry for agents
+ax402 help --all               # human cheatsheet of every command
+```
+
+Usage errors print **that command’s** help. JWT-only commands (`keys`, `auth me`, `sandbox-wallet`, `scopes list`) fail with `{"code":"jwt_required"}` when only `AX402_API_KEY` is set.
+
+In-app terminals should print a short welcome (`shellWelcomeText()` from `@ax402/sdk/shell`) instead of dumping `help` on open.
+
 ## Command reference
 
 ```bash

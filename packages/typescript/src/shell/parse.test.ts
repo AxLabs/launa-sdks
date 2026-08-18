@@ -4,6 +4,7 @@ import {
   envRequestsSandbox,
   parseShellArgv,
   parseShellInput,
+  shellCommandNeedsCredentials,
   tokenizeInput,
 } from "./parse.js";
 import { buildArgvFromForm, argvToShellCommand } from "./registry.js";
@@ -96,5 +97,14 @@ describe("shell parse", () => {
       "https://api.example.com",
     ]);
     expect(argvToShellCommand(["apis", "create", "--name", "My API"])).toContain('"My API"');
+  });
+
+  it("does not require credentials for help, commands, or resource index", () => {
+    expect(shellCommandNeedsCredentials(parseShellArgv(["help"]))).toBe(false);
+    expect(shellCommandNeedsCredentials(parseShellArgv(["commands", "--json"]))).toBe(false);
+    expect(shellCommandNeedsCredentials(parseShellArgv(["endpoints", "--help"]))).toBe(false);
+    expect(shellCommandNeedsCredentials(parseShellArgv(["endpoints"]))).toBe(false);
+    expect(shellCommandNeedsCredentials(parseShellArgv(["scopes", "presets"]))).toBe(false);
+    expect(shellCommandNeedsCredentials(parseShellArgv(["apis", "list"]))).toBe(true);
   });
 });

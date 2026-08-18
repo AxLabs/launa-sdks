@@ -1,4 +1,5 @@
 import { atomicToUsdc } from "../platform/helpers.js";
+import { formatHelpText, type ShellHelpView } from "./help.js";
 
 const SKIP_KEYS = new Set(["user_id", "updated_at", "created_at", "gateway_server"]);
 
@@ -549,8 +550,37 @@ function formatSandboxWallet(data: Record<string, unknown>): string {
   return lines.join("\n");
 }
 
+function isHelpView(data: unknown): data is ShellHelpView {
+  return (
+    isRecord(data) &&
+    (data.kind === "index" || data.kind === "resource" || data.kind === "command" || data.kind === "all")
+  );
+}
+
+function formatCommandCatalog(data: unknown): string | null {
+  if (!isRecord(data) || !Array.isArray(data.commands)) return null;
+  const lines = ["Command catalog", ""];
+  const groups = Array.isArray(data.groups) ? data.groups.filter(isRecord) : [];
+  for (const group of groups) {
+    const id = str(group.id);
+    const label = str(group.label) || id;
+    lines.push(label);
+    if (group.description) lines.push(`  ${group.description}`);
+    for (const entry of data.commands) {
+      if (!isRecord(entry) || str(entry.group) !== id) continue;
+      const jwt = entry.jwt_required ? " (JWT)" : "";
+      lines.push(`  ${str(entry.command).padEnd(28)} ${str(entry.description)}${jwt}`);
+    }
+    lines.push("");
+  }
+  lines.push("Use --json for flags, types, auth, and scopes.");
+  return lines.join("\n").trimEnd();
+}
+
 function formatByCommand(cmd: string, sub: string, data: unknown): string | null {
   const key = `${cmd} ${sub}`;
+  if (cmd === "commands") return formatCommandCatalog(data);
+  if (cmd === "help" && isHelpView(data)) return formatHelpText(data);
   if (key === "apis list") return formatApiList(asRecords(data));
   if (key === "apis get" || key === "apis create" || key === "apis update") return isRecord(data) ? formatApi(data) : null;
   if (key === "apis discovery" || key === "discovery urls") return isRecord(data) ? formatDiscoveryURLs(data) : null;
@@ -589,6 +619,7 @@ export function formatHumanOutput(data: unknown, cmd = "", sub = ""): string {
   if (data == null) return "";
   if (typeof data === "string") return data;
   if (typeof data === "number" || typeof data === "boolean") return String(data);
+  if (isHelpView(data)) return formatHelpText(data);
 
   const byCmd = formatByCommand(cmd, sub, data);
   if (byCmd) return byCmd;

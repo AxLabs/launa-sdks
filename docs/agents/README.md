@@ -17,6 +17,7 @@ Full tool list: [../mcp/README.md](../mcp/README.md).
 ```bash
 npm install -g @ax402/cli
 export AX402_API_KEY=ax402_live_...
+ax402 commands --json
 ax402 apis list --json
 ax402 apis create --name "My API" --slug my-api --upstream https://api.example.com \
   --discovery-guidance "Use GET /v1/*." --json

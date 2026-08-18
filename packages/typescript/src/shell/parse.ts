@@ -88,15 +88,18 @@ export function idFlag(parsed: ParsedShellCommand): string | undefined {
   return flag(parsed, "--id") ?? parsed.args[0];
 }
 
-/** Buyer and auth-login commands talk to gateway URLs or /auth/login — no API key. */
+/** Buyer, public, and help commands — no API key. */
 export function shellCommandNeedsCredentials(parsed: ParsedShellCommand): boolean {
   const { cmd, sub } = parsed;
-  if (cmd === "help" || cmd === "clear") return false;
+  if (parsed.flags["--help"] === "true") return false;
+  if (cmd === "help" || cmd === "clear" || cmd === "commands") return false;
+  if (cmd && !sub) return false;
   if (cmd === "inspect" && sub === "url") return false;
   if (cmd === "x402" && sub === "inspect") return false;
   if (cmd === "pay" && sub === "url") return false;
   if (cmd === "auth" && sub === "login") return false;
   if (cmd === "config" && (sub === "platform" || sub === "billing")) return false;
+  if (cmd === "scopes" && sub === "presets") return false;
   return true;
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatHumanOutput } from "./format-human.js";
-import { formatShellOutput } from "./format.js";
+import { formatShellError, formatShellOutput } from "./format.js";
 
 describe("formatHumanOutput", () => {
   it("formats API list", () => {
@@ -82,5 +82,26 @@ describe("formatHumanOutput", () => {
     const out = formatHumanOutput({ foo: "bar", count: 2 });
     expect(out).toContain("foo: bar");
     expect(out).not.toContain('{"foo"');
+  });
+});
+
+describe("formatShellError", () => {
+  it("includes code and hint in JSON", () => {
+    const out = formatShellError(
+      {
+        ok: false,
+        error: "jwt required",
+        code: "jwt_required",
+        status: 403,
+        hint: "Set AX402_JWT",
+      },
+      true,
+    );
+    expect(JSON.parse(out)).toMatchObject({
+      error: "jwt required",
+      code: "jwt_required",
+      status: 403,
+      hint: "Set AX402_JWT",
+    });
   });
 });

@@ -77,6 +77,7 @@ ax402 --sandbox sandbox-wallet get --json --wait   # JWT required
 
 | Group | Examples |
 |-------|----------|
+| Help | `help`, `commands --json`, `<command> --help` |
 | APIs | `apis list`, `apis create`, `apis discovery`, `apis slug-check`, `apis probe-upstream` |
 | Endpoints | `endpoints list`, `endpoints create`, `endpoints update` (incl. `--request-schema`) |
 | Discovery | `discovery urls`, `discovery check` |
@@ -97,7 +98,7 @@ ax402 endpoints update \
   --network hedera:mainnet --asset 0.0.456858 --price 0.10 --scheme exact --json
 ```
 
-Run `ax402` with no arguments to print the full command reference.
+Run `ax402 help` for the command index, `ax402 <command> --help` for flags, and `ax402 commands --json` for the machine-readable catalog. `ax402` with no arguments prints the same short index.
 
 Exit codes: `0` success, `1` API error, `2` usage error.
 

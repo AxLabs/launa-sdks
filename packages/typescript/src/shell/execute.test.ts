@@ -14,10 +14,88 @@ function mockClient(overrides: Partial<Ax402Client> = {}): Ax402Client {
 }
 
 describe("runShellCommand", () => {
-  it("returns help text", async () => {
+  it("returns compact help text", async () => {
     const result = await runShellCommand(parseShellArgv(["help"]), { client: mockClient() });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(String(result.data)).toContain("apis list");
+    if (result.ok) {
+      const text = String(result.data);
+      expect(text).toContain("Seller");
+      expect(text).toContain("Buyer");
+      expect(text).toContain("commands --json");
+      expect(text).not.toContain("settlements export");
+      expect(text).not.toContain("cors-remove");
+    }
+  });
+
+  it("returns structured help with --json", async () => {
+    const result = await runShellCommand(parseShellArgv(["--json", "help"]), { client: mockClient() });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toMatchObject({ kind: "index" });
+    }
+  });
+
+  it("endpoints create --help is scoped to that command", async () => {
+    const result = await runShellCommand(parseShellArgv(["endpoints", "create", "--help"]), {
+      client: mockClient(),
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const text = String(result.data);
+      expect(text).toContain("endpoints create");
+      expect(text).toContain("--api-id");
+      expect(text).toContain("exact unless it contains *");
+      expect(text).not.toContain("settlements export");
+    }
+  });
+
+  it("commands catalog includes flags and jwt_required", async () => {
+    const result = await runShellCommand(parseShellArgv(["--json", "commands"]), { client: mockClient() });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const catalog = result.data as { commands: Array<Record<string, unknown>> };
+      const create = catalog.commands.find((c) => c.command === "apis create");
+      expect(create).toMatchObject({ auth: "api_key", mutating: true });
+      expect(create?.scopes).toEqual(["apis:write"]);
+      const keys = catalog.commands.find((c) => c.command === "keys list");
+      expect(keys).toMatchObject({ auth: "jwt", jwt_required: true });
+      const pay = catalog.commands.find((c) => c.command === "pay url");
+      expect(pay).toMatchObject({ auth: "buyer", mutating: true });
+    }
+  });
+
+  it("usage errors attach per-command help", async () => {
+    const result = await runShellCommand(parseShellArgv(["apis", "create"]), { client: mockClient() });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.kind).toBe("usage");
+      expect(result.code).toBe("usage");
+      expect(result.help).toContain("apis create");
+      expect(result.help).not.toContain("settlements export");
+    }
+  });
+
+  it("JWT-only commands fail locally with an API key", async () => {
+    const result = await runShellCommand(parseShellArgv(["keys", "list"]), {
+      client: mockClient(),
+      credentialKind: "apiKey",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.code).toBe("jwt_required");
+      expect(result.status).toBe(403);
+      expect(result.hint).toMatch(/AX402_JWT/);
+    }
+  });
+
+  it("JWT-only commands still run with jwt credentials", async () => {
+    const client = mockClient();
+    const result = await runShellCommand(parseShellArgv(["auth", "me"]), {
+      client,
+      credentialKind: "jwt",
+    });
+    expect(result.ok).toBe(true);
+    expect(client.auth.me).toHaveBeenCalled();
   });
 
   it("lists apis", async () => {

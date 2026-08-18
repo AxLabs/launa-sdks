@@ -32,4 +32,24 @@ describe("ax402 cli", () => {
     );
     expect(r.stderr).not.toContain("AX402_API_KEY or AX402_JWT required");
   });
+
+  it("help and commands work without credentials", () => {
+    const help = run(["help"], { AX402_API_KEY: "", AX402_JWT: "" });
+    expect(help.status).toBe(0);
+    expect(help.stdout).toContain("commands --json");
+    expect(help.stdout).not.toContain("--claim-interval-secs");
+
+    const catalog = run(["--json", "commands"], { AX402_API_KEY: "", AX402_JWT: "" });
+    expect(catalog.status).toBe(0);
+    const body = JSON.parse(catalog.stdout) as { commands: Array<{ command: string; jwt_required?: boolean }> };
+    expect(body.commands.some((c) => c.command === "apis create")).toBe(true);
+    expect(body.commands.find((c) => c.command === "keys list")?.jwt_required).toBe(true);
+  });
+
+  it("keys list with an API key returns jwt_required", () => {
+    const r = run(["--json", "keys", "list"], { AX402_API_KEY: "ax402_live_test", AX402_JWT: "" });
+    expect(r.status).toBe(1);
+    const body = JSON.parse(r.stdout) as { code?: string };
+    expect(body.code).toBe("jwt_required");
+  });
 });

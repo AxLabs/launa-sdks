@@ -20,6 +20,7 @@ export function shellErrorFromUnknown(err: unknown): ShellResult {
       error: `${err.status}: ${err.message}`,
       status: err.status,
       data: err.data,
+      kind: "api",
     };
   }
   if (err instanceof TypeError && String(err).includes("Failed to fetch")) {
@@ -34,10 +35,19 @@ export function shellErrorFromUnknown(err: unknown): ShellResult {
 
 export function formatShellError(result: Extract<ShellResult, { ok: false }>, json: boolean): string {
   if (json) {
-    return JSON.stringify({ error: result.error, status: result.status, data: result.data }, null, 2);
+    const body: Record<string, unknown> = { error: result.error };
+    if (result.code) body.code = result.code;
+    if (result.status != null) body.status = result.status;
+    if (result.hint) body.hint = result.hint;
+    if (result.help) body.help = result.help;
+    if (result.data && Object.keys(result.data).length > 0) body.data = result.data;
+    return JSON.stringify(body, null, 2);
   }
   const lines = [result.error];
-  if (result.data && Object.keys(result.data).length > 0) {
+  if (result.hint) lines.push(result.hint);
+  if (result.help) {
+    lines.push("", result.help);
+  } else if (result.data && Object.keys(result.data).length > 0) {
     lines.push("", formatHumanOutput(result.data));
   }
   return lines.join("\n");
