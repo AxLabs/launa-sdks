@@ -42,6 +42,10 @@ git push origin v0.0.2
 
 The workflow checks out the tagged commit, verifies the tag matches `package.json` version, then publishes `@ax402/sdk`, `@ax402/cli`, `@ax402/mcp-server`, and `@ax402/react-paywall`.
 
+For a TypeScript SDK preview, bump only `packages/typescript/package.json`, then push a matching
+`v<version>-preview.<number>` tag. The workflow publishes only `@ax402/sdk` with the `preview`
+dist-tag; `latest` and the other packages remain unchanged.
+
 To move a tag after a fix:
 
 ```bash
