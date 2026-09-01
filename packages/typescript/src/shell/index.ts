@@ -11,6 +11,7 @@ export {
   parseShellInput,
   flag,
   idFlag,
+  parsePayToAddressesFlag,
   shellCommandNeedsCredentials,
   envRequestsSandbox,
   assertSandboxCredentials,

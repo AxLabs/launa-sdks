@@ -128,9 +128,16 @@ function envLabel(env: unknown): string {
 function formatPayTo(api: Record<string, unknown>): string {
   const mode = str(api.pay_to_mode);
   const addr = api.pay_to_address ? ` (${shortAddr(str(api.pay_to_address), 8, 6)})` : "";
-  if (mode === "user_wallet") return `your wallet${addr}`;
-  if (mode === "platform_wallet") return "platform wallet";
-  return `${mode || "—"}${addr}`;
+  let extra = "";
+  if (isRecord(api.pay_to_addresses)) {
+    const parts = Object.entries(api.pay_to_addresses)
+      .filter(([, v]) => v != null && v !== "")
+      .map(([net, v]) => `${net} ${formatScalar(v)}`);
+    if (parts.length) extra = `; ${parts.join(", ")}`;
+  }
+  if (mode === "user_wallet") return `your wallet${addr}${extra}`;
+  if (mode === "platform_wallet") return `platform wallet${extra}`;
+  return `${mode || "—"}${addr}${extra}`;
 }
 
 function formatDomainLine(d: Record<string, unknown>): string {

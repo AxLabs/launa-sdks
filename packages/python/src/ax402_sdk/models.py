@@ -56,6 +56,10 @@ class API(BaseModel):
     upstream_base_url: str
     pay_to_mode: str = "user_wallet"
     pay_to_address: str | None = None
+    pay_to_addresses: dict[str, str] = Field(
+        default_factory=dict,
+        description="CAIP-2 network → recipient. Empty on GET when unset. Send {} on update to clear.",
+    )
     webhook_url: str | None = None
     webhook_configured: bool | None = None
     cors_allowed_origins: list[str] = Field(default_factory=list)

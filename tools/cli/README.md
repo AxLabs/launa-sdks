@@ -38,7 +38,7 @@ ax402 apis discovery --id API_ID --json
 ax402 inspect url --url "https://my-api.YOUR_PLATFORM_DOMAIN/v1/hello"
 ```
 
-`--pay-to` is required when your account uses `user_wallet` payout mode.
+`--pay-to` or `--pay-to-addresses` is required when your account uses `user_wallet` payout mode. `--pay-to-addresses` is JSON (`{"hedera:testnet":"0.0.1234"}`) or `network=address` pairs.
 
 ### Pay a gateway URL (buyer)
 

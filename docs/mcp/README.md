@@ -50,7 +50,7 @@ See [examples/agent-mcp/cursor-mcp.json.example](../../examples/agent-mcp/cursor
 | `ax402_set_discovery_guidance` | apis:write — guidance, contact email, openapi version |
 | `ax402_list_endpoints` | endpoints:read |
 | `ax402_update_endpoint_schemas` | endpoints:write — request/response JSON Schema |
-| `ax402_create_api` | apis:write + verified email — optional discovery fields on create |
+| `ax402_create_api` | apis:write + verified email — optional `pay_to_address` / `pay_to_addresses`, discovery fields |
 | `ax402_add_endpoint` | endpoints:write |
 | `ax402_import_openapi` | openapi:read — persists schemas from the spec when present |
 | `ax402_add_domain` | domains:write |

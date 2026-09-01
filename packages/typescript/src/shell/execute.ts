@@ -8,7 +8,7 @@ import {
   type PaymentScheme,
 } from "../platform/helpers.js";
 import type { AcceptOption } from "../types.js";
-import { flag, idFlag } from "./parse.js";
+import { flag, idFlag, parsePayToAddressesFlag } from "./parse.js";
 import { shellUsageText } from "./registry.js";
 import { shellErrorFromUnknown } from "./format.js";
 import type { ParsedShellCommand, ShellExecuteContext, ShellResult } from "./types.js";
@@ -140,6 +140,9 @@ export async function runShellCommand(
       const upstream = flag(parsed, "--upstream");
       if (!name || !slug || !upstream) return usage("--name, --slug, --upstream required");
       const payTo = flag(parsed, "--pay-to");
+      const payToAddressesRaw = flag(parsed, "--pay-to-addresses");
+      const payToAddresses = payToAddressesRaw !== undefined ? parsePayToAddressesFlag(payToAddressesRaw) : undefined;
+      if (typeof payToAddresses === "string") return usage(payToAddresses);
       const webhookUrl = flag(parsed, "--webhook-url");
       const webhookSecret = flag(parsed, "--webhook-secret");
       const discoveryGuidance = flag(parsed, "--discovery-guidance");
@@ -151,8 +154,9 @@ export async function runShellCommand(
           name,
           slug,
           upstream_base_url: upstream,
-          pay_to_mode: payTo ? "user_wallet" : undefined,
+          pay_to_mode: payTo || payToAddresses ? "user_wallet" : undefined,
           pay_to_address: payTo,
+          pay_to_addresses: payToAddresses,
           webhook_url: webhookUrl,
           webhook_secret: webhookSecret,
           discovery_guidance: discoveryGuidance,
@@ -190,6 +194,7 @@ export async function runShellCommand(
       const slug = flag(parsed, "--slug");
       const upstream = flag(parsed, "--upstream");
       const payTo = flag(parsed, "--pay-to");
+      const payToAddressesRaw = flag(parsed, "--pay-to-addresses");
       const webhookUrl = flag(parsed, "--webhook-url");
       const webhookSecret = flag(parsed, "--webhook-secret");
       const clearWebhook = flag(parsed, "--clear-webhook");
@@ -203,6 +208,11 @@ export async function runShellCommand(
         body.pay_to_mode = "user_wallet";
         body.pay_to_address = payTo;
       }
+      if (payToAddressesRaw !== undefined) {
+        const payToAddresses = parsePayToAddressesFlag(payToAddressesRaw);
+        if (typeof payToAddresses === "string") return usage(payToAddresses);
+        body.pay_to_addresses = payToAddresses;
+      }
       if (clearWebhook === "true") {
         body.clear_webhook = true;
       } else {
@@ -214,7 +224,7 @@ export async function runShellCommand(
       if (openapiVersion !== undefined) body.openapi_version = openapiVersion;
       if (Object.keys(body).length === 0) {
         return usage(
-          "at least one of --name, --slug, --upstream, --pay-to, --webhook-url, --webhook-secret, --clear-webhook, --discovery-guidance, --discovery-contact-email, --openapi-version required",
+          "at least one of --name, --slug, --upstream, --pay-to, --pay-to-addresses, --webhook-url, --webhook-secret, --clear-webhook, --discovery-guidance, --discovery-contact-email, --openapi-version required",
         );
       }
       return { ok: true, data: await c.apis.update(id, body) };

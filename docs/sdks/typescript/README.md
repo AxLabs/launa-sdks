@@ -36,6 +36,8 @@ await client.apis.create({
   name: "Shopify channel",
   slug: "acme-shop",
   upstream_base_url: "https://shopify-app.example",
+  pay_to_address: "0xYourWallet",
+  pay_to_addresses: { "hedera:testnet": "0.0.1234" },
   webhook_url: "https://shopify-app.example/webhooks/ax402/settlement",
   webhook_secret: "whsec_...",
 });

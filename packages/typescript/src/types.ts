@@ -244,7 +244,10 @@ export type API = {
   upstream_base_url: string;
   upstream_auth?: UpstreamAuth;
   pay_to_mode: "user_wallet" | "platform_wallet";
+  /** Fallback recipient when pay_to_addresses has no entry for the accept network. */
   pay_to_address?: string;
+  /** CAIP-2 network → recipient. Always present on GET; `{}` when unset. */
+  pay_to_addresses?: Record<string, string>;
   accept_all_tokens?: boolean;
   accepted_token_ids?: string[];
   receiver_authorizer_address?: string;
@@ -270,6 +273,12 @@ export type CreateAPIInput = {
   upstream_base_url: string;
   pay_to_mode?: API["pay_to_mode"];
   pay_to_address?: string;
+  /**
+   * CAIP-2 network → recipient (e.g. `{ "hedera:testnet": "0.0.1234" }`).
+   * On update: omit to leave unchanged; `{}` replaces the map (not a merge).
+   * user_wallet requires this or pay_to_address.
+   */
+  pay_to_addresses?: Record<string, string>;
   accept_all_tokens?: boolean;
   accepted_token_ids?: string[];
   upstream_auth?: UpstreamAuthInput;

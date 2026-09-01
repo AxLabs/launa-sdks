@@ -23,7 +23,7 @@ Seller control-plane reference for agents. API surface: public seller routes on 
 
 ```
 1. GET /config/platform
-2. POST /apis { name, slug, upstream_base_url, pay_to_mode, pay_to_address? }
+2. POST /apis { name, slug, upstream_base_url, pay_to_mode, pay_to_address?, pay_to_addresses? }
 3. POST /apis/{id}/endpoints { method, path_pattern, accepts[], ttl? }
    - omit `ttl` for permanent endpoints; set `ttl` (seconds) for one-time/ephemeral routes
 4. Gateway URL: http://{slug}.{platform_domain}:{gateway_port}{path}
@@ -67,7 +67,7 @@ Install: `npx @ax402/mcp-server` (or build from repo). Example config: [examples
 | `ax402_set_discovery_guidance` | `apis:write` |
 | `ax402_list_endpoints` | `endpoints:read` |
 | `ax402_update_endpoint_schemas` | `endpoints:write` |
-| `ax402_create_api` | `apis:write` + verified email (optional discovery fields) |
+| `ax402_create_api` | `apis:write` + verified email (optional pay_to_addresses, discovery fields) |
 | `ax402_add_endpoint` | `endpoints:write` |
 | `ax402_import_openapi` | `openapi:read` |
 | `ax402_add_domain` | `domains:write` |

@@ -141,6 +141,20 @@ func newMockServer(t *testing.T) *httptest.Server {
 	}))
 }
 
+func TestCreateAPIInputEncodesEmptyPayToAddresses(t *testing.T) {
+	data, err := json.Marshal(CreateAPIInput{PayToAddresses: map[string]string{}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var body map[string]json.RawMessage
+	if err := json.Unmarshal(data, &body); err != nil {
+		t.Fatal(err)
+	}
+	if string(body["pay_to_addresses"]) != "{}" {
+		t.Fatalf("pay_to_addresses = %s", body["pay_to_addresses"])
+	}
+}
+
 func TestAllRoutes(t *testing.T) {
 	srv := newMockServer(t)
 	defer srv.Close()
@@ -226,11 +240,16 @@ func TestAllRoutes(t *testing.T) {
 	if _, err := cl.CreateAPI(ctx, CreateAPIInput{
 		Name: "n2", Slug: "s2", UpstreamBaseURL: "https://x.com",
 		DiscoveryGuidance: "Use GET /v1/*.", DiscoveryContactEmail: "seller@example.com", OpenAPIVersion: "1.0.0",
+		PayToAddresses: map[string]string{"hedera:testnet": "0.0.1234"},
 	}); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := cl.GetAPI(ctx, "api1"); err != nil {
+	gotAPI, err := cl.GetAPI(ctx, "api1")
+	if err != nil {
 		t.Fatal(err)
+	}
+	if gotAPI.PayToAddresses["hedera:testnet"] != "0.0.1234" {
+		t.Fatalf("pay_to_addresses: %+v", gotAPI.PayToAddresses)
 	}
 	if disc, err := cl.GetAPIDiscovery(ctx, "api1"); err != nil {
 		t.Fatal(err)

@@ -78,6 +78,7 @@ type API struct {
 	UpstreamBaseURL       string                `json:"upstream_base_url"`
 	PayToMode             string                `json:"pay_to_mode"`
 	PayToAddress          string                `json:"pay_to_address,omitempty"`
+	PayToAddresses        map[string]string     `json:"pay_to_addresses,omitempty"` // CAIP-2 → recipient
 	GatewayServerID       string                `json:"gateway_server_id,omitempty"`
 	GatewayServer         *GatewayServerSummary `json:"gateway_server,omitempty"`
 	GatewayCNAMETarget    string                `json:"gateway_cname_target,omitempty"`
@@ -101,6 +102,8 @@ type CreateAPIInput struct {
 	UpstreamBaseURL       string   `json:"upstream_base_url"`
 	PayToMode             string   `json:"pay_to_mode,omitempty"`
 	PayToAddress          string   `json:"pay_to_address,omitempty"`
+	// PayToAddresses is CAIP-2 → recipient. No omitempty so {} encodes and clears on update.
+	PayToAddresses        map[string]string `json:"pay_to_addresses"`
 	WebhookURL            string   `json:"webhook_url,omitempty"`
 	WebhookSecret         string   `json:"webhook_secret,omitempty"`
 	ClearWebhook          bool     `json:"clear_webhook,omitempty"`

@@ -20,6 +20,8 @@ Flat methods mirror the TypeScript resources: auth, keys, apis (`GetAPIDiscovery
 
 Settlement webhooks on `CreateAPIInput`: `WebhookURL`, `WebhookSecret`, `ClearWebhook`. Response includes `WebhookURL` and `WebhookConfigured` (secret is never returned).
 
+Per-network recipients: `PayToAddresses` (CAIP-2 → address). Omit the field to leave unchanged; empty map encodes as `{}` and clears. `PayToAddress` is the fallback when a network has no map entry.
+
 Discovery on `CreateAPIInput` / `API`: `DiscoveryGuidance`, `DiscoveryContactEmail`, `OpenAPIVersion`. Endpoints: `RequestSchema`, `ResponseSchema`, `SchemaSource`, `ClearSchemas`.
 
 ```go

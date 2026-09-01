@@ -83,6 +83,48 @@ export function flag(parsed: ParsedShellCommand, name: string): string | undefin
   return parsed.flags[name];
 }
 
+/** Parse `--pay-to-addresses` as JSON `{ "caip2": "addr" }` or `network=addr,network=addr`. */
+export function parsePayToAddressesFlag(raw: string): Record<string, string> | string {
+  const trimmed = raw.trim();
+  if (trimmed === "") {
+    return "--pay-to-addresses required";
+  }
+  if (trimmed.startsWith("{")) {
+    try {
+      const value: unknown = JSON.parse(trimmed);
+      if (value === null || typeof value !== "object" || Array.isArray(value)) {
+        return "--pay-to-addresses must be a JSON object";
+      }
+      const out: Record<string, string> = {};
+      for (const [network, addr] of Object.entries(value as Record<string, unknown>)) {
+        if (typeof addr !== "string") {
+          return `--pay-to-addresses[${network}]: address must be a string`;
+        }
+        out[network] = addr;
+      }
+      return out;
+    } catch {
+      return "--pay-to-addresses invalid JSON";
+    }
+  }
+  const out: Record<string, string> = {};
+  for (const part of trimmed.split(",")) {
+    const piece = part.trim();
+    if (!piece) continue;
+    const eq = piece.indexOf("=");
+    if (eq <= 0) {
+      return `--pay-to-addresses expected network=address (got ${piece})`;
+    }
+    const network = piece.slice(0, eq).trim();
+    const addr = piece.slice(eq + 1).trim();
+    if (!network) {
+      return "pay_to_addresses network required";
+    }
+    out[network] = addr;
+  }
+  return out;
+}
+
 /** `--id` or first positional after the subcommand. */
 export function idFlag(parsed: ParsedShellCommand): string | undefined {
   return flag(parsed, "--id") ?? parsed.args[0];

@@ -96,12 +96,13 @@ server.tool(
 
 server.tool(
   "ax402_create_api",
-  "Create API with default subdomain. Optional discovery_guidance / discovery_contact_email / openapi_version. Requires apis:write and verified email.",
+  "Create API with default subdomain. Optional pay_to_address / pay_to_addresses (CAIP-2 → recipient) and discovery fields. Requires apis:write and verified email.",
   {
     name: z.string(),
     slug: z.string(),
     upstream_base_url: z.string().url(),
     pay_to_address: z.string().optional(),
+    pay_to_addresses: z.record(z.string()).optional(),
     discovery_guidance: z.string().optional(),
     discovery_contact_email: z.string().email().optional(),
     openapi_version: z.string().optional(),
@@ -111,6 +112,7 @@ server.tool(
     slug,
     upstream_base_url,
     pay_to_address,
+    pay_to_addresses,
     discovery_guidance,
     discovery_contact_email,
     openapi_version,
@@ -120,8 +122,9 @@ server.tool(
         name,
         slug,
         upstream_base_url,
-        pay_to_mode: pay_to_address ? "user_wallet" : undefined,
+        pay_to_mode: pay_to_address || pay_to_addresses ? "user_wallet" : undefined,
         pay_to_address,
+        pay_to_addresses,
         discovery_guidance,
         discovery_contact_email,
         openapi_version,

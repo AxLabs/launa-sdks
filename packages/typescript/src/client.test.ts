@@ -45,8 +45,11 @@ describe("Ax402Client integration", () => {
       discovery_guidance: "Use GET /v1/*.",
       discovery_contact_email: "seller@example.com",
       openapi_version: "1.0.0",
+      pay_to_addresses: { "hedera:testnet": "0.0.1234" },
     });
-    await client.apis.get("api1");
+    expect(await client.apis.get("api1")).toMatchObject({
+      pay_to_addresses: { "hedera:testnet": "0.0.1234" },
+    });
     expect(await client.apis.discovery("api1")).toMatchObject({
       openapi_url: expect.stringContaining("/openapi.json"),
       well_known_url: expect.stringContaining("/.well-known/x402.json"),

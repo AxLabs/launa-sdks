@@ -27,6 +27,9 @@
     "upstream_base_url": "https://upstream.example.com",
     "pay_to_mode": "user_wallet",
     "pay_to_address": "0x0000000000000000000000000000000000000001",
+    "pay_to_addresses": {
+      "hedera:testnet": "0.0.1234"
+    },
     "cors_allowed_origins": ["http://localhost:5173"],
     "discovery_guidance": "Use GET /v1/*.",
     "discovery_contact_email": "seller@example.com",

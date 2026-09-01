@@ -133,9 +133,11 @@ def test_all_routes(client: Ax402Client) -> None:
             "discovery_guidance": "Use GET /v1/*.",
             "discovery_contact_email": "seller@example.com",
             "openapi_version": "1.0.0",
+            "pay_to_addresses": {"hedera:testnet": "0.0.1234"},
         }
     )
-    client.apis.get("api1")
+    got = client.apis.get("api1")
+    assert got.pay_to_addresses == {"hedera:testnet": "0.0.1234"}
     disc = client.apis.discovery("api1")
     assert disc.openapi_url.endswith("/openapi.json")
     assert disc.well_known_url.endswith("/.well-known/x402.json")

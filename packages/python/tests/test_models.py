@@ -16,6 +16,13 @@ def test_user_model() -> None:
 def test_api_model() -> None:
     api = API.model_validate(FIXTURES["api"])
     assert api.discovery_guidance == "Use GET /v1/*."
+    assert api.pay_to_addresses == {"hedera:testnet": "0.0.1234"}
+
+
+def test_api_model_defaults_empty_pay_to_addresses() -> None:
+    raw = {k: v for k, v in FIXTURES["api"].items() if k != "pay_to_addresses"}
+    api = API.model_validate(raw)
+    assert api.pay_to_addresses == {}
 
 
 def test_discovery_urls_model() -> None:

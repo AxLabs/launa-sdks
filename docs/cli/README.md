@@ -37,7 +37,7 @@ unset AX402_JWT
 # 3. List APIs
 ax402 apis list
 
-# 4. Create an API (--pay-to required when your account uses user_wallet payout mode)
+# 4. Create an API (--pay-to or --pay-to-addresses required for user_wallet)
 ax402 apis create \
   --name "My API" --slug my-api \
   --upstream https://api.example.com \
@@ -103,10 +103,10 @@ Without `--json`, commands print human-readable tables and summaries. With `--js
 
 ```bash
 ax402 apis list [--json]
-ax402 apis create --name NAME --slug SLUG --upstream URL [--pay-to 0x...] [--webhook-url URL] [--webhook-secret SECRET] [--discovery-guidance TEXT] [--discovery-contact-email EMAIL] [--openapi-version VER] [--json]
+ax402 apis create --name NAME --slug SLUG --upstream URL [--pay-to 0x...] [--pay-to-addresses JSON_OR_PAIRS] [--webhook-url URL] [--webhook-secret SECRET] [--discovery-guidance TEXT] [--discovery-contact-email EMAIL] [--openapi-version VER] [--json]
 ax402 apis get --id ID [--json]
 ax402 apis discovery --id ID [--json]
-ax402 apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to 0x...] [--webhook-url URL] [--webhook-secret SECRET] [--clear-webhook] [--discovery-guidance TEXT] [--discovery-contact-email EMAIL] [--openapi-version VER] [--json]
+ax402 apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to 0x...] [--pay-to-addresses JSON_OR_PAIRS] [--webhook-url URL] [--webhook-secret SECRET] [--clear-webhook] [--discovery-guidance TEXT] [--discovery-contact-email EMAIL] [--openapi-version VER] [--json]
 ax402 apis webhook-deliveries --id ID [--json]
 ax402 apis delete --id ID [--json]
 ax402 apis slug-check --slug SLUG [--exclude-api-id ID] [--json]
@@ -179,7 +179,7 @@ ax402 inspect url --url GATEWAY_URL [--method GET] [--json]
 ax402 pay url --url GATEWAY_URL [--method GET] [--json]
 ```
 
-`apis create --pay-to` is required when the account uses `user_wallet` payout mode (typical for seller accounts).
+`apis create --pay-to` (or `--pay-to-addresses`) is required when the account uses `user_wallet` payout mode. `--pay-to-addresses` is a JSON object of CAIP-2 → recipient, or `network=address` pairs (`hedera:testnet=0.0.1234`). On update, `{}` clears the map (replace, not merge).
 
 Discovery: `apis discovery` / `discovery urls` return gateway OpenAPI and well-known URLs. Validate with AgentCash:
 

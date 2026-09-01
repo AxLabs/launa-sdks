@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertSandboxCredentials,
   envRequestsSandbox,
+  parsePayToAddressesFlag,
   parseShellArgv,
   parseShellInput,
   tokenizeInput,
@@ -96,5 +97,18 @@ describe("shell parse", () => {
       "https://api.example.com",
     ]);
     expect(argvToShellCommand(["apis", "create", "--name", "My API"])).toContain('"My API"');
+  });
+
+  it("parses pay_to_addresses JSON and network=address pairs", () => {
+    expect(parsePayToAddressesFlag('{"hedera:testnet":"0.0.1234"}')).toEqual({
+      "hedera:testnet": "0.0.1234",
+    });
+    expect(parsePayToAddressesFlag("{}")).toEqual({});
+    expect(parsePayToAddressesFlag("hedera:testnet=0.0.1234,eip155:8453=0xabc")).toEqual({
+      "hedera:testnet": "0.0.1234",
+      "eip155:8453": "0xabc",
+    });
+    expect(parsePayToAddressesFlag("{")).toMatch(/invalid JSON/);
+    expect(parsePayToAddressesFlag("0.0.1234")).toMatch(/network=address/);
   });
 });

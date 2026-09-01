@@ -294,12 +294,43 @@ describe("runShellCommand", () => {
       upstream_base_url: "https://upstream.example.com",
       pay_to_mode: undefined,
       pay_to_address: undefined,
+      pay_to_addresses: undefined,
       webhook_url: undefined,
       webhook_secret: undefined,
       discovery_guidance: "Use POST /search.",
       discovery_contact_email: "seller@example.com",
       openapi_version: "1.2.0",
     });
+  });
+
+  it("apis create includes pay_to_addresses", async () => {
+    const create = vi.fn().mockResolvedValue({ id: "api1" });
+    const client = mockClient({ apis: { create } } as Partial<Ax402Client>);
+    const result = await runShellCommand(
+      parseShellArgv([
+        "apis",
+        "create",
+        "--name",
+        "Multi",
+        "--slug",
+        "multi",
+        "--upstream",
+        "https://upstream.example.com",
+        "--pay-to",
+        "0xAb5801a7D398351b8bE11C439e08FE5E090a7566",
+        "--pay-to-addresses",
+        "hedera:testnet=0.0.1234",
+      ]),
+      { client },
+    );
+    expect(result.ok).toBe(true);
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pay_to_mode: "user_wallet",
+        pay_to_address: "0xAb5801a7D398351b8bE11C439e08FE5E090a7566",
+        pay_to_addresses: { "hedera:testnet": "0.0.1234" },
+      }),
+    );
   });
 
   it("apis discovery", async () => {
@@ -342,6 +373,17 @@ describe("runShellCommand", () => {
       discovery_guidance: "Use POST /search.",
       discovery_contact_email: "seller@example.com",
     });
+  });
+
+  it("apis update can clear pay_to_addresses", async () => {
+    const update = vi.fn().mockResolvedValue({ id: "api1" });
+    const client = mockClient({ apis: { update } } as Partial<Ax402Client>);
+    const result = await runShellCommand(
+      parseShellArgv(["apis", "update", "api1", "--pay-to-addresses", "{}"]),
+      { client },
+    );
+    expect(result.ok).toBe(true);
+    expect(update).toHaveBeenCalledWith("api1", { pay_to_addresses: {} });
   });
 
   it("billing overview", async () => {
