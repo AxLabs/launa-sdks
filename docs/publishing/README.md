@@ -8,11 +8,12 @@ Published packages from this repository:
 | `@ax402/cli` | npm | `tools/cli` |
 | `@ax402/mcp-server` | npm | `tools/mcp-server` |
 | `@ax402/react-paywall` | npm | `packages/react-paywall` |
-| `ax402-sdk` | PyPI | `packages/python` |
+| `ax402-sdk` | PyPI (not live yet) | `packages/python` |
+| `github.com/AxLabs/ax402-sdks/go` | Go module proxy | `packages/golang` |
 
-Go (`packages/golang`) is consumed via module tags on GitHub — no separate registry publish.
+Go is consumed via subdirectory module tags on GitHub — no separate registry. Tag `go/v0.0.6` (matching semver). There are no `go/v*` tags yet; `v0.0.6` is the first Go release.
 
-Go module: `github.com/AxLabs/ax402-sdks/go`. Tag releases as `go/v0.0.2` (or the matching semver).
+Python version is already `0.0.6` in `pyproject.toml`. Do **not** enable tag-triggered PyPI until trusted publishing is configured. First upload is `workflow_dispatch` only.
 
 ## Trusted publishing
 
@@ -31,13 +32,13 @@ For each published package (`@ax402/sdk`, `@ax402/cli`, `@ax402/mcp-server`, `@a
 
 ### Release (npm)
 
-1. Bump `version` in all publishable `package.json` files (and `packages/python/pyproject.toml` when PyPI is enabled). Keep them in sync.
+1. Bump `version` in all publishable `package.json` files and `packages/python/pyproject.toml`. Keep them in sync (currently `0.0.6`).
 2. Commit and push to `main`.
-3. Create and push the tag manually — **the tag triggers publish**, not the other way around:
+3. Create and push the npm tag manually — **the tag triggers npm publish**, not the other way around:
 
 ```bash
-git tag v0.0.2
-git push origin v0.0.2
+git tag v0.0.6
+git push origin v0.0.6
 ```
 
 The workflow checks out the tagged commit, verifies the tag matches `package.json` version, then publishes `@ax402/sdk`, `@ax402/cli`, `@ax402/mcp-server`, and `@ax402/react-paywall`.
@@ -49,23 +50,46 @@ dist-tag; `latest` and the other packages remain unchanged.
 To move a tag after a fix:
 
 ```bash
-git push origin :refs/tags/v0.0.2
-git tag -d v0.0.2
-git tag v0.0.2
-git push origin v0.0.2
+git push origin :refs/tags/v0.0.6
+git tag -d v0.0.6
+git tag v0.0.6
+git push origin v0.0.6
 ```
 
-### PyPI (`ax402-sdk`)
+`v*` does **not** publish Go or PyPI.
 
-1. Open [pypi.org/manage/project/ax402-sdk/settings/publishing/](https://pypi.org/manage/project/ax402-sdk/settings/publishing/).
-2. **Add a new pending publisher** → **GitHub**:
+### Release (Go)
+
+Subdirectory module tags (`go/v*`). Push after `main` includes the release commit:
+
+```bash
+git tag go/v0.0.6
+git push origin go/v0.0.6
+```
+
+Consumers: `go get github.com/AxLabs/ax402-sdks/go@v0.0.6`. The proxy may take a few minutes to index.
+
+### PyPI (`ax402-sdk`) — prepared, not published
+
+The package name is not on PyPI yet. Version is synced to `0.0.6`. `.github/workflows/publish-pypi.yml` is `workflow_dispatch` only (tag trigger stays commented out).
+
+Before the first upload:
+
+1. Sign in at [pypi.org](https://pypi.org) as the AxLabs publisher.
+2. **Publishing** → **Add a new pending publisher** → **GitHub** (no project exists yet; pending publisher creates it on first upload):
    - **Owner:** `AxLabs`
    - **Repository:** `ax402-sdks`
    - **Workflow name:** `publish-pypi.yml`
    - **Environment name:** leave empty
-3. Save. The workflow `.github/workflows/publish-pypi.yml` already uses `pypa/gh-action-pypi-publish` with OIDC (`id-token: write`).
+3. Save. The workflow already uses `pypa/gh-action-pypi-publish` with OIDC (`id-token: write`). Artifacts are `packages/python/dist` (repo-root path).
 
-Release: push a `v*` tag (same as npm) or trigger **Publish PyPI** manually.
+Then: Actions → **Publish PyPI** → **Run workflow**. Do not uncomment the `v*` trigger until that first upload succeeds.
+
+Until then, install from git:
+
+```bash
+pip install "ax402-sdk @ git+https://github.com/AxLabs/ax402-sdks.git#subdirectory=packages/python"
+```
 
 ## Local publish (optional)
 
@@ -93,10 +117,14 @@ npm install @ax402/sdk
 npm install -g @ax402/cli
 npx @ax402/mcp-server
 
+# after first PyPI upload
 pip install ax402-sdk
 pip install "ax402-sdk[buyer]"
+
+# until then
+pip install "ax402-sdk @ git+https://github.com/AxLabs/ax402-sdks.git#subdirectory=packages/python"
 ```
 
 ```bash
-go get github.com/AxLabs/ax402-sdks/go@v0.0.2
+go get github.com/AxLabs/ax402-sdks/go@v0.0.6
 ```

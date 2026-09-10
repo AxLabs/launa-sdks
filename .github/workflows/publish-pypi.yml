@@ -22,6 +22,7 @@ jobs:
           python-version: "3.12"
       - run: pip install build
       - run: python -m build
+      # packages-dir is repo-root-relative; working-directory does not apply to the action.
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: dist
+          packages-dir: packages/python/dist

@@ -2,6 +2,12 @@
 
 Module: `github.com/AxLabs/ax402-sdks/go` in `packages/golang/`.
 
+```bash
+go get github.com/AxLabs/ax402-sdks/go@v0.0.6
+```
+
+Releases are GitHub subdirectory tags (`go/v*`), not a separate registry. First tagged release is `go/v0.0.6`.
+
 The Go import path follows the GitHub repo (`AxLabs/ax402-sdks`), not the npm scope (`@ax402`). npm scopes and Go module paths are independent — there is no `github.com/ax402` org required.
 
 Buyer module: `github.com/AxLabs/ax402-sdks/go/buyer`.

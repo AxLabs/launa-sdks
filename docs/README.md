@@ -13,11 +13,11 @@ Dashboard guides (gateway setup, DNS, domains, billing): [ax402.io/docs](https:/
 | **Buyers** | **[buyers](./buyers/README.md)** | Pay gateway URLs (start here for consumers) |
 | TypeScript | [sdks/typescript](./sdks/typescript/README.md) | `@ax402/sdk` + `/buyer` |
 | Go | [sdks/go](./sdks/go/README.md) | `github.com/AxLabs/ax402-sdks/go` |
-| Python | [sdks/python](./sdks/python/README.md) | `ax402-sdk` (PyPI) |
+| Python | [sdks/python](./sdks/python/README.md) | `ax402-sdk` (PyPI, first upload pending) |
 | CLI | [cli](./cli/README.md) | `@ax402/cli` |
 | MCP | [mcp](./mcp/README.md) | `@ax402/mcp-server` |
 | Agents | [agents](./agents/README.md) | CLI + MCP recipes |
-| Publishing | [publishing](./publishing/README.md) | npm + PyPI release setup |
+| Publishing | [publishing](./publishing/README.md) | npm + Go tags + PyPI (dispatch) |
 | React paywall | [packages/react-paywall/docs](../packages/react-paywall/docs/README.md) | `@ax402/react-paywall` |
 
 ## Integration

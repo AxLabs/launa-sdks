@@ -9,6 +9,12 @@ pip install ax402-sdk
 pip install "ax402-sdk[buyer]"  # optional: pay gateway URLs
 ```
 
+Until the first PyPI upload, install from git:
+
+```bash
+pip install "ax402-sdk @ git+https://github.com/AxLabs/ax402-sdks.git#subdirectory=packages/python"
+```
+
 ## Control plane
 
 ```python

@@ -9,6 +9,12 @@ pip install ax402-sdk
 pip install "ax402-sdk[buyer]"  # x402 signing + eth-account
 ```
 
+PyPI is not live yet (`0.0.6` is prepared). Until the first upload:
+
+```bash
+pip install "ax402-sdk @ git+https://github.com/AxLabs/ax402-sdks.git#subdirectory=packages/python"
+```
+
 ## Control plane
 
 ```python

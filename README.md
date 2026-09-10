@@ -10,7 +10,7 @@ Official SDKs and tools for the [Ax402](https://ax402.io) platform — control-p
 |------|---------|
 | Manage APIs/endpoints/domains from Node/TS | `@ax402/sdk` |
 | CI/CD automation (Go) | `github.com/AxLabs/ax402-sdks/go` |
-| AI agents (Python) | `ax402-sdk` on PyPI |
+| AI agents (Python) | `ax402-sdk` (PyPI pending; install from git until then) |
 | CLI / shell scripts | `@ax402/cli` |
 | Cursor / Claude MCP tools | `@ax402/mcp-server` |
 | Pay a wrapped API (buyer) | `@ax402/sdk/buyer` (`BuyerClient`, `payAndFetch`) |
