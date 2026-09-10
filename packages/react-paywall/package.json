@@ -1,6 +1,6 @@
 {
   "name": "@ax402/react-paywall",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Embeddable React paywall overlay for x402 micropayments",
   "type": "module",
   "main": "./dist/index.js",

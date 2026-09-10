@@ -1,6 +1,6 @@
 {
   "name": "@ax402/sdk",
-  "version": "0.0.6-preview.0",
+  "version": "0.0.6",
   "description": "Ax402 platform control-plane SDK",
   "type": "module",
   "main": "./dist/index.js",
