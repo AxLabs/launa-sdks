@@ -59,13 +59,11 @@ func (c *Client) SetEnvironment(env string) {
 func (c *Client) applyAuth(req *http.Request) {
 	if c.credentials.APIKey != "" {
 		req.Header.Set("X-API-Key", c.credentials.APIKey)
-		return
-	}
-	if c.credentials.Token != "" {
+	} else if c.credentials.Token != "" {
 		req.Header.Set("Authorization", "Bearer "+c.credentials.Token)
-		if c.environment != "" && req.Header.Get("X-Ax402-Environment") == "" {
-			req.Header.Set("X-Ax402-Environment", c.environment)
-		}
+	}
+	if c.environment != "" && req.Header.Get("X-Ax402-Environment") == "" {
+		req.Header.Set("X-Ax402-Environment", c.environment)
 	}
 }
 

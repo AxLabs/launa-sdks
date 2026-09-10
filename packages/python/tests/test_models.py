@@ -25,6 +25,13 @@ def test_api_model_defaults_empty_pay_to_addresses() -> None:
     assert api.pay_to_addresses == {}
 
 
+def test_api_model_null_pay_to_addresses_and_cors() -> None:
+    raw = {**FIXTURES["api"], "pay_to_addresses": None, "cors_allowed_origins": None}
+    api = API.model_validate(raw)
+    assert api.pay_to_addresses == {}
+    assert api.cors_allowed_origins == []
+
+
 def test_discovery_urls_model() -> None:
     disc = DiscoveryURLs.model_validate(FIXTURES["discoveryURLs"])
     assert disc.openapi_url.endswith("/openapi.json")

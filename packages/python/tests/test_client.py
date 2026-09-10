@@ -210,3 +210,40 @@ def test_from_env_sandbox_key_implies_environment(monkeypatch: pytest.MonkeyPatc
     monkeypatch.delenv("AX402_JWT", raising=False)
     client = Ax402Client.from_env()
     assert client._http.environment == "development"
+
+
+def test_http_sends_environment_with_api_key() -> None:
+    captured: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["api_key"] = request.headers.get("X-API-Key", "")
+        captured["environment"] = request.headers.get("X-Ax402-Environment", "")
+        return httpx.Response(200, json=FIXTURES["platformConfig"])
+
+    client = Ax402Client(
+        "https://api.example",
+        api_key="ax402_sandbox_abc",
+        environment="development",
+        http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+    client.config.platform()
+    assert captured["api_key"] == "ax402_sandbox_abc"
+    assert captured["environment"] == "development"
+
+
+def test_http_sends_environment_without_credentials() -> None:
+    captured: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["api_key"] = request.headers.get("X-API-Key", "")
+        captured["environment"] = request.headers.get("X-Ax402-Environment", "")
+        return httpx.Response(200, json=FIXTURES["platformConfig"])
+
+    client = Ax402Client(
+        "https://api.example",
+        environment="development",
+        http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+    client.config.platform()
+    assert captured["api_key"] == ""
+    assert captured["environment"] == "development"

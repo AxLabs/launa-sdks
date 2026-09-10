@@ -190,6 +190,34 @@ type SetupAPIResult struct {
 	GatewayURL  string
 }
 
+// GatewayHostFromAPI prefers the primary assigned hostname.
+// Sandbox APIs use a different platform domain than PlatformConfig.PlatformDomain.
+func GatewayHostFromAPI(api *API, fallbackDomain string) string {
+	if api == nil {
+		return ""
+	}
+	var first string
+	for _, d := range api.Domains {
+		host := strings.TrimSpace(d.Hostname)
+		if host == "" {
+			continue
+		}
+		if first == "" {
+			first = host
+		}
+		if d.IsPrimary {
+			return host
+		}
+	}
+	if first != "" {
+		return first
+	}
+	if fallbackDomain != "" && api.Slug != "" {
+		return api.Slug + "." + fallbackDomain
+	}
+	return ""
+}
+
 func SetupAPIWithDefaultDomain(ctx context.Context, client *Client, in CreateAPIInput) (*SetupAPIResult, error) {
 	platform, err := client.PlatformConfig(ctx)
 	if err != nil {
@@ -199,7 +227,7 @@ func SetupAPIWithDefaultDomain(ctx context.Context, client *Client, in CreateAPI
 	if err != nil {
 		return nil, err
 	}
-	host := in.Slug + "." + platform.PlatformDomain
+	host := GatewayHostFromAPI(api, platform.PlatformDomain)
 	return &SetupAPIResult{
 		API:         api,
 		Platform:    platform,

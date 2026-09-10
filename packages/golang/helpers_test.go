@@ -1,6 +1,9 @@
 package ax402
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
 
 func TestUsdcToAtomic(t *testing.T) {
 	got, err := UsdcToAtomic("0.10")
@@ -63,6 +66,35 @@ func TestHederaNetworkAssetConstants(t *testing.T) {
 	}
 	if USDCHederaTestnet != "0.0.429274" || USDCHederaMainnet != "0.0.456858" {
 		t.Fatalf("usdc: %s %s", USDCHederaTestnet, USDCHederaMainnet)
+	}
+}
+
+func TestGatewayHostFromAPI(t *testing.T) {
+	api := &API{
+		Slug: "sdk-go-sbx",
+		Domains: []APIDomain{
+			{Hostname: "sdk-go-sbx.x.staging.ax402.io"},
+			{Hostname: "sdk-go-sbx.dev.x.staging.ax402.io", IsPrimary: true},
+		},
+	}
+	if got := GatewayHostFromAPI(api, "x.staging.ax402.io"); got != "sdk-go-sbx.dev.x.staging.ax402.io" {
+		t.Fatalf("got %s", got)
+	}
+	if got := GatewayHostFromAPI(&API{Slug: "echo"}, "x.staging.ax402.io"); got != "echo.x.staging.ax402.io" {
+		t.Fatalf("fallback got %s", got)
+	}
+}
+
+func TestPayToAddressesNullDecodesEmpty(t *testing.T) {
+	var api API
+	if err := json.Unmarshal([]byte(`{"id":"1","name":"n","slug":"s","upstream_base_url":"https://x.com","pay_to_mode":"user_wallet","pay_to_addresses":null}`), &api); err != nil {
+		t.Fatal(err)
+	}
+	if api.PayToAddresses == nil {
+		t.Fatal("expected empty map, got nil")
+	}
+	if len(api.PayToAddresses) != 0 {
+		t.Fatalf("got %+v", api.PayToAddresses)
 	}
 }
 

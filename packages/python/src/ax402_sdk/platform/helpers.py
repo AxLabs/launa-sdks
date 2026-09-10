@@ -157,10 +157,24 @@ def wrap_openapi(
     return result.model_dump()
 
 
+def gateway_host_from_api(api: Any, fallback_domain: str = "") -> str:
+    """Prefer the primary assigned hostname (sandbox uses a different platform domain)."""
+    domains = list(getattr(api, "domains", None) or [])
+    primary = next((d for d in domains if getattr(d, "is_primary", False) and getattr(d, "hostname", "")), None)
+    first = next((d for d in domains if getattr(d, "hostname", "")), None)
+    chosen = primary or first
+    if chosen is not None:
+        return str(chosen.hostname)
+    slug = getattr(api, "slug", "") or ""
+    if fallback_domain and slug:
+        return f"{slug}.{fallback_domain}"
+    return ""
+
+
 def setup_api_with_default_domain(client, input_body: dict[str, Any]) -> dict[str, Any]:
     platform = client.config.platform()
     api = client.apis.create(input_body)
-    host = f"{input_body['slug']}.{platform.platform_domain}"
+    host = gateway_host_from_api(api, platform.platform_domain)
     return {
         "api": api,
         "platform": platform,

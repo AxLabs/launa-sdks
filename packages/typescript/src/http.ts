@@ -42,19 +42,23 @@ export class HttpClient {
     this.credentials = { type: "jwt", token };
   }
 
+  private applyAuth(headers: Headers): void {
+    if (this.credentials?.type === "apiKey") {
+      headers.set("X-API-Key", this.credentials.apiKey);
+    } else if (this.credentials?.type === "jwt") {
+      headers.set("Authorization", `Bearer ${this.credentials.token}`);
+    }
+    if (this.environment && !headers.has("X-Ax402-Environment")) {
+      headers.set("X-Ax402-Environment", this.environment);
+    }
+  }
+
   async request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const headers = new Headers(init.headers);
     if (!headers.has("Content-Type") && init.body && !(init.body instanceof FormData)) {
       headers.set("Content-Type", "application/json");
     }
-    if (this.credentials?.type === "apiKey") {
-      headers.set("X-API-Key", this.credentials.apiKey);
-    } else if (this.credentials?.type === "jwt") {
-      headers.set("Authorization", `Bearer ${this.credentials.token}`);
-      if (this.environment && !headers.has("X-Ax402-Environment")) {
-        headers.set("X-Ax402-Environment", this.environment);
-      }
-    }
+    this.applyAuth(headers);
 
     const res = await this.fetchFn(`${this.baseUrl}${path}`, { ...init, headers });
     if (!res.ok) {
@@ -66,14 +70,7 @@ export class HttpClient {
 
   async requestText(path: string, init: RequestInit = {}): Promise<string> {
     const headers = new Headers(init.headers);
-    if (this.credentials?.type === "apiKey") {
-      headers.set("X-API-Key", this.credentials.apiKey);
-    } else if (this.credentials?.type === "jwt") {
-      headers.set("Authorization", `Bearer ${this.credentials.token}`);
-      if (this.environment && !headers.has("X-Ax402-Environment")) {
-        headers.set("X-Ax402-Environment", this.environment);
-      }
-    }
+    this.applyAuth(headers);
 
     const res = await this.fetchFn(`${this.baseUrl}${path}`, { ...init, headers });
     if (!res.ok) {
@@ -85,14 +82,7 @@ export class HttpClient {
 
   async requestMultipart<T>(path: string, form: FormData): Promise<T> {
     const headers = new Headers();
-    if (this.credentials?.type === "apiKey") {
-      headers.set("X-API-Key", this.credentials.apiKey);
-    } else if (this.credentials?.type === "jwt") {
-      headers.set("Authorization", `Bearer ${this.credentials.token}`);
-      if (this.environment && !headers.has("X-Ax402-Environment")) {
-        headers.set("X-Ax402-Environment", this.environment);
-      }
-    }
+    this.applyAuth(headers);
     const res = await this.fetchFn(`${this.baseUrl}${path}`, {
       method: "POST",
       headers,

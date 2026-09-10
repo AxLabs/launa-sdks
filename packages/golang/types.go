@@ -78,13 +78,14 @@ type API struct {
 	UpstreamBaseURL       string                `json:"upstream_base_url"`
 	PayToMode             string                `json:"pay_to_mode"`
 	PayToAddress          string                `json:"pay_to_address,omitempty"`
-	PayToAddresses        map[string]string     `json:"pay_to_addresses,omitempty"` // CAIP-2 → recipient
+	PayToAddresses        PayToAddressMap       `json:"pay_to_addresses"` // CAIP-2 → recipient; null decodes to {}
 	GatewayServerID       string                `json:"gateway_server_id,omitempty"`
 	GatewayServer         *GatewayServerSummary `json:"gateway_server,omitempty"`
 	GatewayCNAMETarget    string                `json:"gateway_cname_target,omitempty"`
 	WebhookURL            string                `json:"webhook_url,omitempty"`
 	WebhookConfigured     bool                  `json:"webhook_configured,omitempty"`
 	CORSAllowedOrigins    []string              `json:"cors_allowed_origins,omitempty"`
+	ProxyUnmatched        bool                  `json:"proxy_unmatched,omitempty"`
 	DiscoveryGuidance     string                `json:"discovery_guidance,omitempty"`
 	DiscoveryContactEmail string                `json:"discovery_contact_email,omitempty"`
 	OpenAPIVersion        string                `json:"openapi_version,omitempty"`
@@ -92,8 +93,29 @@ type API struct {
 }
 
 type APIDomain struct {
-	ID       string `json:"id,omitempty"`
-	Hostname string `json:"hostname"`
+	ID                 string `json:"id,omitempty"`
+	Hostname           string `json:"hostname"`
+	IsPrimary          bool   `json:"is_primary,omitempty"`
+	IsDefaultSubdomain bool   `json:"is_default_subdomain,omitempty"`
+}
+
+// PayToAddressMap is CAIP-2 network → recipient. Null JSON decodes to an empty map.
+type PayToAddressMap map[string]string
+
+func (m *PayToAddressMap) UnmarshalJSON(b []byte) error {
+	if len(b) == 0 || string(b) == "null" {
+		*m = PayToAddressMap{}
+		return nil
+	}
+	var raw map[string]string
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if raw == nil {
+		raw = map[string]string{}
+	}
+	*m = raw
+	return nil
 }
 
 type CreateAPIInput struct {
@@ -103,11 +125,12 @@ type CreateAPIInput struct {
 	PayToMode             string   `json:"pay_to_mode,omitempty"`
 	PayToAddress          string   `json:"pay_to_address,omitempty"`
 	// PayToAddresses is CAIP-2 → recipient. No omitempty so {} encodes and clears on update.
-	PayToAddresses        map[string]string `json:"pay_to_addresses"`
+	PayToAddresses        PayToAddressMap `json:"pay_to_addresses"`
 	WebhookURL            string   `json:"webhook_url,omitempty"`
 	WebhookSecret         string   `json:"webhook_secret,omitempty"`
 	ClearWebhook          bool     `json:"clear_webhook,omitempty"`
 	CORSAllowedOrigins    []string `json:"cors_allowed_origins,omitempty"`
+	ProxyUnmatched        *bool    `json:"proxy_unmatched,omitempty"`
 	DiscoveryGuidance     string   `json:"discovery_guidance,omitempty"`
 	DiscoveryContactEmail string   `json:"discovery_contact_email,omitempty"`
 	OpenAPIVersion        string   `json:"openapi_version,omitempty"`

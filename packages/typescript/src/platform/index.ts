@@ -14,6 +14,7 @@ export {
   apiAvailableTokens,
   gatewayBaseURL,
   gatewayURL,
+  gatewayHostFromAPI,
   setupApiWithDefaultDomain,
   wrapOpenAPI,
   DEFAULT_USDC_ACCEPT,

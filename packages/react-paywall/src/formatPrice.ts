@@ -1,6 +1,7 @@
 import type { PaymentRequirements } from '@x402/fetch'
 
-const USDC_BASE_SEPOLIA = '0x036cbd53842c5426634e7929541eC2318f3dCF7e'.toLowerCase()
+const USDC_BASE_MAINNET = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'.toLowerCase()
+const USDC_BASE_SEPOLIA = '0x036CbD53842c5426634e7929541eC2318f3dCF7e'.toLowerCase()
 const HBAR = '0.0.0'
 const HEDERA_USDC = new Set(['0.0.429274', '0.0.456858'])
 
@@ -8,7 +9,7 @@ export function formatRequirementPrice(req: PaymentRequirements): string {
   try {
     const amount = BigInt(req.amount)
     const asset = req.asset.toLowerCase()
-    if (asset === USDC_BASE_SEPOLIA || HEDERA_USDC.has(asset)) {
+    if (asset === USDC_BASE_MAINNET || asset === USDC_BASE_SEPOLIA || HEDERA_USDC.has(asset)) {
       const human = Number(amount) / 1_000_000
       return `$${human.toFixed(human < 0.01 ? 4 : 2)} USDC`
     }

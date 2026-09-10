@@ -200,10 +200,24 @@ export function gatewayURL(
   return `${base}${p}`;
 }
 
+/** Prefer the primary assigned hostname (sandbox uses a different platform domain). */
+export function gatewayHostFromAPI(
+  api: { slug?: string; domains?: { hostname: string; is_primary?: boolean }[] },
+  fallbackDomain?: string,
+): string {
+  const domains = api.domains ?? [];
+  const primary = domains.find((d) => d.is_primary && d.hostname);
+  const first = domains.find((d) => d.hostname);
+  if (primary?.hostname) return primary.hostname;
+  if (first?.hostname) return first.hostname;
+  if (fallbackDomain && api.slug) return `${api.slug}.${fallbackDomain}`;
+  return "";
+}
+
 export async function setupApiWithDefaultDomain(client: Ax402Client, input: CreateAPIInput) {
   const platform = await client.config.platform();
   const api = await client.apis.create(input);
-  const host = `${input.slug}.${platform.platform_domain}`;
+  const host = gatewayHostFromAPI(api, platform.platform_domain);
   return { api, platform, gatewayHost: host, gatewayUrl: gatewayBaseURL(host, platform) };
 }
 

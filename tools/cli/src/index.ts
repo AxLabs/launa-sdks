@@ -22,19 +22,25 @@ function resolveSandbox(parsedSandbox: boolean): boolean {
   return parsedSandbox || envRequestsSandbox();
 }
 
-function client(sandbox: boolean): Ax402Client {
+function client(sandbox: boolean, required: boolean): Ax402Client {
   const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
   const apiKey = process.env.AX402_API_KEY;
   const token = process.env.AX402_JWT;
-  if (!apiKey && !token) usage("AX402_API_KEY or AX402_JWT required");
-  const credErr = assertSandboxCredentials(apiKey, sandbox);
-  if (credErr) usage(credErr);
+  if (required && !apiKey && !token) usage("AX402_API_KEY or AX402_JWT required");
+  if (apiKey || token) {
+    const credErr = assertSandboxCredentials(apiKey, sandbox);
+    if (credErr) usage(credErr);
+  }
   return new Ax402Client({
     baseUrl,
     apiKey,
     token,
     environment: sandbox ? "development" : undefined,
   });
+}
+
+function attachOptionalControlPlaneCreds(cmd: string, sub: string): boolean {
+  return cmd === "config" && (sub === "platform" || sub === "billing");
 }
 
 async function main() {
@@ -53,8 +59,10 @@ async function main() {
   }
 
   const c = shellCommandNeedsCredentials(parsed)
-    ? client(sandbox)
-    : new Ax402Client({ baseUrl, environment: sandbox ? "development" : undefined });
+    ? client(sandbox, true)
+    : attachOptionalControlPlaneCreds(parsed.cmd, parsed.sub)
+      ? client(sandbox, false)
+      : new Ax402Client({ baseUrl, environment: sandbox ? "development" : undefined });
 
   const result = await runShellCommand(parsed, {
     client: c,

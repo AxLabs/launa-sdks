@@ -142,7 +142,7 @@ func newMockServer(t *testing.T) *httptest.Server {
 }
 
 func TestCreateAPIInputEncodesEmptyPayToAddresses(t *testing.T) {
-	data, err := json.Marshal(CreateAPIInput{PayToAddresses: map[string]string{}})
+	data, err := json.Marshal(CreateAPIInput{PayToAddresses: PayToAddressMap{}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -240,7 +240,7 @@ func TestAllRoutes(t *testing.T) {
 	if _, err := cl.CreateAPI(ctx, CreateAPIInput{
 		Name: "n2", Slug: "s2", UpstreamBaseURL: "https://x.com",
 		DiscoveryGuidance: "Use GET /v1/*.", DiscoveryContactEmail: "seller@example.com", OpenAPIVersion: "1.0.0",
-		PayToAddresses: map[string]string{"hedera:testnet": "0.0.1234"},
+		PayToAddresses: PayToAddressMap{"hedera:testnet": "0.0.1234"},
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -369,9 +369,10 @@ func TestErrorParsing(t *testing.T) {
 }
 
 func TestEnvironmentHeader(t *testing.T) {
-	var gotEnv string
+	var gotEnv, gotKey string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotEnv = r.Header.Get("X-Ax402-Environment")
+		gotKey = r.Header.Get("X-API-Key")
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"id":"1","email":"a@b.com"}`))
 	}))
@@ -382,6 +383,22 @@ func TestEnvironmentHeader(t *testing.T) {
 	}
 	if gotEnv != "development" {
 		t.Fatalf("environment header=%q", gotEnv)
+	}
+
+	cl = NewClient(srv.URL, Credentials{APIKey: "ax402_sandbox_abc"}, WithEnvironment("development"))
+	if _, err := cl.Me(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if gotKey != "ax402_sandbox_abc" || gotEnv != "development" {
+		t.Fatalf("key=%q env=%q", gotKey, gotEnv)
+	}
+
+	cl = NewClient(srv.URL, Credentials{}, WithEnvironment("development"))
+	if _, err := cl.Me(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if gotKey != "" || gotEnv != "development" {
+		t.Fatalf("unauth key=%q env=%q", gotKey, gotEnv)
 	}
 }
 

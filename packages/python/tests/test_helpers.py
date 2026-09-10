@@ -4,9 +4,11 @@ from ax402_sdk import (
     NETWORK_HEDERA_TESTNET,
     USDC_HEDERA_MAINNET,
     USDC_HEDERA_TESTNET,
+    API,
     atomic_to_usdc,
     build_usdc_accept,
     gateway_base_url,
+    gateway_host_from_api,
     gateway_url,
     usdc_to_atomic,
 )
@@ -56,6 +58,31 @@ def test_build_sandbox_accept() -> None:
 def test_gateway_urls() -> None:
     assert gateway_base_url("myapi.localhost", 8090) == "http://myapi.localhost:8090"
     assert gateway_url("myapi.localhost", "/v1/data", 8090) == "http://myapi.localhost:8090/v1/data"
+
+
+def test_gateway_host_from_api() -> None:
+    api = API.model_validate(
+        {
+            "id": "1",
+            "name": "n",
+            "slug": "sdk-py-sbx",
+            "upstream_base_url": "https://postman-echo.com",
+            "domains": [
+                {"hostname": "sdk-py-sbx.x.staging.ax402.io"},
+                {"hostname": "sdk-py-sbx.dev.x.staging.ax402.io", "is_primary": True},
+            ],
+        }
+    )
+    assert gateway_host_from_api(api, "x.staging.ax402.io") == "sdk-py-sbx.dev.x.staging.ax402.io"
+    bare = API.model_validate(
+        {
+            "id": "2",
+            "name": "n",
+            "slug": "echo",
+            "upstream_base_url": "https://postman-echo.com",
+        }
+    )
+    assert gateway_host_from_api(bare, "x.staging.ax402.io") == "echo.x.staging.ax402.io"
 
 
 def test_amount_helpers() -> None:

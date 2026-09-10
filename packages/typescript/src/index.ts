@@ -9,6 +9,7 @@ export {
   buildSandboxUsdcAccept,
   gatewayURL,
   gatewayBaseURL,
+  gatewayHostFromAPI,
   setupApiWithDefaultDomain,
   wrapOpenAPI,
   USDC_DECIMALS,

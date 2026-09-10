@@ -37,8 +37,8 @@ class HttpTransport:
             h["X-API-Key"] = self.api_key
         elif self.token:
             h["Authorization"] = f"Bearer {self.token}"
-            if self.environment:
-                h["X-Ax402-Environment"] = self.environment
+        if self.environment:
+            h["X-Ax402-Environment"] = self.environment
         return h
 
     def request(

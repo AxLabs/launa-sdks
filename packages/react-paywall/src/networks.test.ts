@@ -1,14 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import {
+  DEFAULT_RPC_BY_NETWORK,
   HASHSCAN_BASE_BY_NETWORK,
   NETWORK_HEDERA_MAINNET,
   NETWORK_HEDERA_TESTNET,
+  NETWORK_SANDBOX_FORK,
+  SUPPORTED_PAYWALL_NETWORKS,
   hashscanAccountUrl,
   hashscanTransactionUrl,
   isHederaNetwork,
   prefersHederaNetwork,
   resolveFallbackNetwork,
 } from './networks.js'
+
+describe('sandbox fork', () => {
+  it('is a supported paywall network with a hosted RPC', () => {
+    expect(SUPPORTED_PAYWALL_NETWORKS).toContain(NETWORK_SANDBOX_FORK)
+    expect(DEFAULT_RPC_BY_NETWORK[NETWORK_SANDBOX_FORK]).toBe('https://rpc-dev.ax402.io')
+  })
+})
 
 describe('hedera networks', () => {
   it('detects hedera CAIP-2 ids', () => {

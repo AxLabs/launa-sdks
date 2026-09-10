@@ -265,6 +265,8 @@ export type API = {
   openapi_version?: string;
   domains: APIDomain[];
   cors_allowed_origins?: string[];
+  /** Forward unmatched paths to upstream without an x402 challenge. */
+  proxy_unmatched?: boolean;
 };
 
 export type CreateAPIInput = {
@@ -286,6 +288,7 @@ export type CreateAPIInput = {
   webhook_secret?: string;
   clear_webhook?: boolean;
   cors_allowed_origins?: string[];
+  proxy_unmatched?: boolean;
   discovery_guidance?: string;
   discovery_contact_email?: string;
   openapi_version?: string;

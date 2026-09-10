@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Ax402Error(Exception):
@@ -63,10 +63,21 @@ class API(BaseModel):
     webhook_url: str | None = None
     webhook_configured: bool | None = None
     cors_allowed_origins: list[str] = Field(default_factory=list)
+    proxy_unmatched: bool = False
     discovery_guidance: str | None = None
     discovery_contact_email: str | None = None
     openapi_version: str | None = None
     domains: list[APIDomain] = Field(default_factory=list)
+
+    @field_validator("pay_to_addresses", mode="before")
+    @classmethod
+    def _coerce_pay_to_addresses(cls, v: Any) -> Any:
+        return {} if v is None else v
+
+    @field_validator("cors_allowed_origins", mode="before")
+    @classmethod
+    def _coerce_cors_allowed_origins(cls, v: Any) -> Any:
+        return [] if v is None else v
 
 
 class APICorsOrigins(BaseModel):
