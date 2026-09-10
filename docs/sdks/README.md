@@ -24,7 +24,7 @@ HTTP):
   account deletion
 
 **Sandbox / Test mode:** set client `environment: "development"` (TS/Go/Python) or use an
-`ax402_test_...` API key. Default USDC accepts for the fork: `buildSandboxUsdcAccept` /
+`ax402_sandbox_...` API key. Default USDC accepts for the fork: `buildSandboxUsdcAccept` /
 `BuildSandboxUsdcAccept` / `build_sandbox_usdc_accept` (`eip155:845320402`). CLI: `--sandbox`.
 
 TypeScript, Go, and Python include `checkSlugAvailability` / `probe_upstream` for slug checks and upstream readiness probes.

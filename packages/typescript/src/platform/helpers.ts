@@ -47,7 +47,7 @@ export const DEFAULT_USDC_ACCEPT = {
   network: NETWORK_BASE,
   asset: USDC_BASE_MAINNET,
   max_timeout_seconds: 300,
-  extra: { name: "USDC", version: "2", assetTransferMethod: "eip3009" },
+  extra: { name: "USD Coin", version: "2", assetTransferMethod: "eip3009" },
 } as const;
 
 export const DEFAULT_USDC_ACCEPT_SEPOLIA = {
@@ -55,7 +55,7 @@ export const DEFAULT_USDC_ACCEPT_SEPOLIA = {
   network: NETWORK_BASE_SEPOLIA,
   asset: USDC_BASE_SEPOLIA,
   max_timeout_seconds: 300,
-  extra: { name: "USDC", version: "2", assetTransferMethod: "eip3009" },
+    extra: { name: "USD Coin", version: "2", assetTransferMethod: "eip3009" },
 } as const;
 
 /** USDC on the sandbox fork (same asset address as Base mainnet). */
@@ -64,7 +64,7 @@ export const DEFAULT_USDC_ACCEPT_SANDBOX = {
   network: NETWORK_SANDBOX_FORK,
   asset: USDC_BASE_MAINNET,
   max_timeout_seconds: 300,
-  extra: { name: "USDC", version: "2", assetTransferMethod: "eip3009" },
+  extra: { name: "USD Coin", version: "2", assetTransferMethod: "eip3009" },
 } as const;
 
 /** x402 batch-settlement minimum (15 minutes). */
@@ -80,7 +80,7 @@ export const DEFAULT_BATCH_USDC_ACCEPT = {
   asset: USDC_BASE_MAINNET,
   max_timeout_seconds: 300,
   extra: {
-    name: "USDC",
+    name: "USD Coin",
     version: "2",
     assetTransferMethod: "eip3009",
     withdrawDelay: DEFAULT_BATCH_WITHDRAW_DELAY,

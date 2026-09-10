@@ -57,7 +57,7 @@ ax402 pay url --url "https://my-api.example.com/v1/data" --json
 | Variable | Purpose |
 |----------|---------|
 | `AX402_BASE_URL` | Control plane URL (default `https://api.ax402.io`) |
-| `AX402_API_KEY` | Scoped API key (`ax402_live_...` or `ax402_test_...`) for automation |
+| `AX402_API_KEY` | Scoped API key (`ax402_live_...` or `ax402_sandbox_...`) for automation |
 | `AX402_JWT` | Session token from `auth login` — needed for `keys`, `scopes list`, `sandbox-wallet` |
 | `AX402_ENVIRONMENT` | `development` for Sandbox / Test mode |
 | `AX402_SANDBOX` | `1` / `true` — alias for development |

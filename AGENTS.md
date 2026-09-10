@@ -109,7 +109,7 @@ ax402 scopes presets --json
 ax402 pay url --url https://gateway.example/v1/foo --json
 ```
 
-`--sandbox` (or `AX402_ENVIRONMENT=development` / `AX402_SANDBOX=1`) targets Test mode: development APIs and fork USDC accepts (`eip155:845320402`). Use `ax402_test_...` keys (not `ax402_live_...`).
+`--sandbox` (or `AX402_ENVIRONMENT=development` / `AX402_SANDBOX=1` / an `ax402_sandbox_...` key) targets Test mode: development APIs and fork USDC accepts (`eip155:845320402`). Do not use `ax402_live_...` keys in Sandbox.
 Exit codes: 0 success, 1 API error, 2 usage error.
 
 MCP uses `AX402_API_KEY` only (no JWT).

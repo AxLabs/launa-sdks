@@ -59,7 +59,7 @@ Run `ax402 config platform --json` for `platform_domain` and gateway hostname pa
 | Variable | Purpose |
 |----------|---------|
 | `AX402_BASE_URL` | Control plane URL (default `https://api.ax402.io`) |
-| `AX402_API_KEY` | Scoped API key (`ax402_live_...` or `ax402_test_...`) for automation |
+| `AX402_API_KEY` | Scoped API key (`ax402_live_...` or `ax402_sandbox_...`) for automation |
 | `AX402_JWT` | Session token from `auth login` — alternative to API key |
 | `AX402_ENVIRONMENT` | `development` for Sandbox / Test mode (fork network) |
 | `AX402_SANDBOX` | `1` / `true` — alias for development environment |
@@ -74,7 +74,7 @@ Global flags: `--json`, `--sandbox` (targets development + sandbox-fork USDC def
 
 ```bash
 # Create API + endpoint on the Anvil fork (eip155:845320402)
-export AX402_API_KEY=ax402_test_...   # or use AX402_JWT with --sandbox
+export AX402_API_KEY=ax402_sandbox_...   # or use AX402_JWT with --sandbox
 ax402 --sandbox apis create --name Demo --slug demo --upstream https://example.com --pay-to 0x... --json
 ax402 --sandbox endpoints create --api-id ID --path "/v1/*" --price-usdc 0.10 --json
 
@@ -93,7 +93,7 @@ ax402 pay url --url "https://demo.dev….ax402.io/v1/hello"
 | `AX402_API_KEY` | Automation — most commands (apis, endpoints, domains, stats, settlements, billing, income, openapi, config billing) |
 | `AX402_JWT` | Interactive session — **required** for `keys list/create/revoke`, `auth me`, `scopes list`, and `sandbox-wallet` |
 
-Create keys in the dashboard or via `auth login` → `keys create`. Use `ax402_test_...` keys (created while in Sandbox) for Test mode. Scope presets: `ax402 scopes presets --json`. See [agents](../agents/README.md) for bootstrap flow.
+Create keys in the dashboard or via `auth login` → `keys create`. Use `ax402_sandbox_...` keys (created while in Sandbox) for Test mode. Scope presets: `ax402 scopes presets --json`. See [agents](../agents/README.md) for bootstrap flow.
 
 ## Output
 

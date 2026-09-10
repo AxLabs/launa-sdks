@@ -103,12 +103,16 @@ class Ax402Client:
         base = os.environ.get("AX402_BASE_URL", "https://api.ax402.io")
         raw_env = (os.environ.get("AX402_ENVIRONMENT") or "").strip()
         sandbox_flag = os.environ.get("AX402_SANDBOX", "").strip().lower()
-        sandbox = raw_env.lower() == "development" or sandbox_flag in ("1", "true", "yes")
-        environment = "development" if sandbox else (raw_env or None)
         api_key = os.environ.get("AX402_API_KEY")
+        sandbox = (
+            raw_env.lower() == "development"
+            or sandbox_flag in ("1", "true", "yes")
+            or _api_key_implies_sandbox(api_key)
+        )
+        environment = "development" if sandbox else (raw_env or None)
         if sandbox and api_key and api_key.startswith("ax402_live_"):
             raise ValueError(
-                "sandbox mode requires an ax402_test_… API key (or AX402_JWT); "
+                "sandbox mode requires an ax402_sandbox_… API key (or AX402_JWT); "
                 "ax402_live_… keys are production-only"
             )
         return cls(
@@ -117,3 +121,9 @@ class Ax402Client:
             token=os.environ.get("AX402_JWT"),
             environment=environment,
         )
+
+
+def _api_key_implies_sandbox(api_key: str | None) -> bool:
+    if not api_key:
+        return False
+    return api_key.startswith("ax402_sandbox_")

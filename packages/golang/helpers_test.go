@@ -40,6 +40,9 @@ func TestBuildSandboxUsdcAccept(t *testing.T) {
 	if accept.Network != NetworkSandboxFork || accept.Asset != USDCBaseMainnet || accept.Amount != "1000" {
 		t.Fatalf("got %+v", accept)
 	}
+	if accept.Extra["name"] != "USD Coin" {
+		t.Fatalf("eip-712 name=%v want USD Coin", accept.Extra["name"])
+	}
 	if _, err := BuildSandboxUsdcAccept("batch-settlement", "1000"); err == nil {
 		t.Fatal("expected error for batch-settlement")
 	}

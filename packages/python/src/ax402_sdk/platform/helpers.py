@@ -26,7 +26,7 @@ DEFAULT_USDC_ACCEPT = {
     "network": NETWORK_BASE,
     "asset": USDC_BASE_MAINNET,
     "max_timeout_seconds": 300,
-    "extra": {"name": "USDC", "version": "2", "assetTransferMethod": "eip3009"},
+    "extra": {"name": "USD Coin", "version": "2", "assetTransferMethod": "eip3009"},
 }
 DEFAULT_USDC_ACCEPT_SEPOLIA = {
     "scheme": "exact",
@@ -40,7 +40,7 @@ DEFAULT_USDC_ACCEPT_SANDBOX = {
     "network": NETWORK_SANDBOX_FORK,
     "asset": USDC_BASE_MAINNET,
     "max_timeout_seconds": 300,
-    "extra": {"name": "USDC", "version": "2", "assetTransferMethod": "eip3009"},
+    "extra": {"name": "USD Coin", "version": "2", "assetTransferMethod": "eip3009"},
 }
 DEFAULT_BATCH_USDC_ACCEPT = {
     "scheme": "batch-settlement",
@@ -48,7 +48,7 @@ DEFAULT_BATCH_USDC_ACCEPT = {
     "asset": USDC_BASE_MAINNET,
     "max_timeout_seconds": 300,
     "extra": {
-        "name": "USDC",
+        "name": "USD Coin",
         "version": "2",
         "assetTransferMethod": "eip3009",
         "withdrawDelay": DEFAULT_BATCH_WITHDRAW_DELAY,

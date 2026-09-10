@@ -78,7 +78,7 @@ Tool access follows your API key scopes. Create keys with the permissions you ne
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `AX402_API_KEY` | Yes | Control-plane API key (`ax402_test_...` for Sandbox) |
+| `AX402_API_KEY` | Yes | Control-plane API key (`ax402_sandbox_...` for Sandbox) |
 | `AX402_BASE_URL` | No | API base URL (default `https://api.ax402.io`) |
 | `AX402_ENVIRONMENT` | No | `development` for Sandbox / Test mode (fork USDC accepts) |
 | `AX402_SANDBOX` | No | `1` / `true` — alias for development |

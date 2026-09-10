@@ -142,8 +142,18 @@ export function shellCommandNeedsCredentials(parsed: ParsedShellCommand): boolea
   return true;
 }
 
-/** True when AX402_ENVIRONMENT=development or AX402_SANDBOX is truthy. */
+const LIVE_API_KEY_PREFIX = "ax402_live_";
+const SANDBOX_API_KEY_PREFIX = "ax402_sandbox_";
+
+/** True when the control-plane key is a sandbox key. */
+export function apiKeyImpliesSandbox(apiKey: string | undefined): boolean {
+  if (!apiKey) return false;
+  return apiKey.startsWith(SANDBOX_API_KEY_PREFIX);
+}
+
+/** True when AX402_ENVIRONMENT=development, AX402_SANDBOX is truthy, or AX402_API_KEY is a sandbox key. */
 export function envRequestsSandbox(env: NodeJS.ProcessEnv = process.env): boolean {
+  if (apiKeyImpliesSandbox(env.AX402_API_KEY)) return true;
   const environment = (env.AX402_ENVIRONMENT ?? "").trim().toLowerCase();
   if (environment === "development") return true;
   const sandbox = (env.AX402_SANDBOX ?? "").trim().toLowerCase();
@@ -153,8 +163,8 @@ export function envRequestsSandbox(env: NodeJS.ProcessEnv = process.env): boolea
 /** Reject live API keys when sandbox mode is requested. */
 export function assertSandboxCredentials(apiKey: string | undefined, sandbox: boolean): string | undefined {
   if (!sandbox || !apiKey) return undefined;
-  if (apiKey.startsWith("ax402_live_")) {
-    return "sandbox mode requires an ax402_test_… API key (or AX402_JWT); ax402_live_… keys are production-only";
+  if (apiKey.startsWith(LIVE_API_KEY_PREFIX)) {
+    return "sandbox mode requires an ax402_sandbox_… API key (or AX402_JWT); ax402_live_… keys are production-only";
   }
   return undefined;
 }

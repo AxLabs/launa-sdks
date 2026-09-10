@@ -11,7 +11,8 @@ describe("buildSandboxUsdcAccept", () => {
     expect(accept.network).toBe(NETWORK_SANDBOX_FORK);
     expect(accept.asset).toBe(USDC_BASE_MAINNET);
     expect(accept.amount).toBe("1000");
-    expect(accept.scheme).toBe("exact");
+    expect(accept.extra.name).toBe("USD Coin");
+    expect(accept.extra.version).toBe("2");
   });
 
   it("rejects batch-settlement", () => {

@@ -14,6 +14,7 @@ export {
   parsePayToAddressesFlag,
   shellCommandNeedsCredentials,
   envRequestsSandbox,
+  apiKeyImpliesSandbox,
   assertSandboxCredentials,
 } from "./parse.js";
 export { runShellCommand } from "./execute.js";

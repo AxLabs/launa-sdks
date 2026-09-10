@@ -189,14 +189,24 @@ def test_from_env_rejects_live_key_in_sandbox(monkeypatch: pytest.MonkeyPatch) -
     monkeypatch.setenv("AX402_API_KEY", "ax402_live_secret")
     monkeypatch.setenv("AX402_ENVIRONMENT", "Development")
     monkeypatch.delenv("AX402_JWT", raising=False)
-    with pytest.raises(ValueError, match="ax402_test_"):
+    with pytest.raises(ValueError, match="ax402_sandbox_"):
         Ax402Client.from_env()
 
 
 def test_from_env_sandbox_normalizes_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("AX402_BASE_URL", "http://test")
-    monkeypatch.setenv("AX402_API_KEY", "ax402_test_secret")
+    monkeypatch.setenv("AX402_API_KEY", "ax402_sandbox_secret")
     monkeypatch.setenv("AX402_ENVIRONMENT", "Development")
+    monkeypatch.delenv("AX402_JWT", raising=False)
+    client = Ax402Client.from_env()
+    assert client._http.environment == "development"
+
+
+def test_from_env_sandbox_key_implies_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("AX402_BASE_URL", "http://test")
+    monkeypatch.setenv("AX402_API_KEY", "ax402_sandbox_secret")
+    monkeypatch.delenv("AX402_ENVIRONMENT", raising=False)
+    monkeypatch.delenv("AX402_SANDBOX", raising=False)
     monkeypatch.delenv("AX402_JWT", raising=False)
     client = Ax402Client.from_env()
     assert client._http.environment == "development"

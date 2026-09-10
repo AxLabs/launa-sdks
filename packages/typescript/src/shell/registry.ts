@@ -643,7 +643,7 @@ export function shellUsageText(): string {
   lines.push("  pay url — gateway URL + EVM and/or Hedera buyer env (no API key)");
   lines.push("");
   lines.push(
-    "Env: AX402_API_KEY or AX402_JWT (control plane); --sandbox / AX402_ENVIRONMENT=development / AX402_SANDBOX=1 for Test mode; sandbox-wallet requires AX402_JWT; pay url: AX402_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
+    "Env: AX402_API_KEY or AX402_JWT (control plane); ax402_sandbox_… keys select Sandbox; --sandbox / AX402_ENVIRONMENT=development / AX402_SANDBOX=1 also work; sandbox-wallet requires AX402_JWT; pay url: AX402_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
   );
   return lines.join("\n");
 }

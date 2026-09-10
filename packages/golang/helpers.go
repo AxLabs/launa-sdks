@@ -138,8 +138,8 @@ func FormatWithdrawDelay(seconds int) string {
 func BuildUsdcAccept(scheme, amountAtomic string, withdrawDelay ...int) AcceptOption {
 	network := NetworkBase
 	asset := USDCBaseMainnet
-	extra := map[string]any{
-		"name": "USDC", "version": "2", "assetTransferMethod": "eip3009",
+    extra := map[string]any{
+		"name": "USD Coin", "version": "2", "assetTransferMethod": "eip3009",
 	}
 	out := AcceptOption{
 		Scheme:            "exact",
@@ -178,7 +178,7 @@ func BuildSandboxUsdcAccept(scheme, amountAtomic string) (AcceptOption, error) {
 		Amount:            amountAtomic,
 		MaxTimeoutSeconds: 300,
 		Extra: map[string]any{
-			"name": "USDC", "version": "2", "assetTransferMethod": "eip3009",
+			"name": "USD Coin", "version": "2", "assetTransferMethod": "eip3009",
 		},
 	}, nil
 }
