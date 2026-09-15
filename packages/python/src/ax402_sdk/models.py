@@ -24,11 +24,22 @@ class AuthResponse(BaseModel):
     user: User
 
 
+class PlatformEVMNetwork(BaseModel):
+    network: str
+    name: str
+    testnet: bool | None = None
+    batch_settlement: bool | None = None
+    explorer_url: str | None = None
+    enabled: bool | None = None
+    sort_order: int | None = None
+
+
 class PlatformConfig(BaseModel):
     platform_domain: str
     gateway_cname_target: str
     gateway_port: int
     admin_host: str
+    evm_networks: list[PlatformEVMNetwork] | None = None
     testnet_facilitator_internal_url: str | None = None
     testnet_facilitator_external_url: str | None = None
 

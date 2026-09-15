@@ -130,6 +130,16 @@ export type PlatformAccess = {
   waitlist_subhead?: string;
 };
 
+export type PlatformEVMNetwork = {
+  network: string;
+  name: string;
+  testnet?: boolean;
+  batch_settlement?: boolean;
+  explorer_url?: string;
+  enabled?: boolean;
+  sort_order?: number;
+};
+
 export type PlatformConfig = {
   platform_domain: string;
   platform_domains?: { domain: string; label?: string; is_primary?: boolean; enabled?: boolean }[];
@@ -139,6 +149,7 @@ export type PlatformConfig = {
   admin_host: string;
   custom_domain_tls?: boolean;
   payment_tokens?: PaymentToken[];
+  evm_networks?: PlatformEVMNetwork[];
   access?: PlatformAccess;
   testnet_facilitator_internal_url?: string;
   testnet_facilitator_external_url?: string;

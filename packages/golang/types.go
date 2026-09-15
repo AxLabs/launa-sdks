@@ -14,13 +14,24 @@ type AuthResponse struct {
 	User  User   `json:"user"`
 }
 
+type PlatformEVMNetwork struct {
+	Network         string `json:"network"`
+	Name            string `json:"name"`
+	Testnet         bool   `json:"testnet,omitempty"`
+	BatchSettlement bool   `json:"batch_settlement,omitempty"`
+	ExplorerURL     string `json:"explorer_url,omitempty"`
+	Enabled         bool   `json:"enabled,omitempty"`
+	SortOrder       int    `json:"sort_order,omitempty"`
+}
+
 type PlatformConfig struct {
-	PlatformDomain                  string `json:"platform_domain"`
-	GatewayCNAMETarget              string `json:"gateway_cname_target"`
-	GatewayPort                     int    `json:"gateway_port"`
-	AdminHost                       string `json:"admin_host"`
-	TestnetFacilitatorInternalURL   string `json:"testnet_facilitator_internal_url,omitempty"`
-	TestnetFacilitatorExternalURL   string `json:"testnet_facilitator_external_url,omitempty"`
+	PlatformDomain                string               `json:"platform_domain"`
+	GatewayCNAMETarget            string               `json:"gateway_cname_target"`
+	GatewayPort                   int                  `json:"gateway_port"`
+	AdminHost                     string               `json:"admin_host"`
+	EVMNetworks                   []PlatformEVMNetwork `json:"evm_networks,omitempty"`
+	TestnetFacilitatorInternalURL string               `json:"testnet_facilitator_internal_url,omitempty"`
+	TestnetFacilitatorExternalURL string               `json:"testnet_facilitator_external_url,omitempty"`
 }
 
 type LocalDevPaymentToken struct {
