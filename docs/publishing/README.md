@@ -8,7 +8,7 @@ Published packages from this repository:
 | `@launa/cli` | npm | `tools/cli` |
 | `@launa/mcp-server` | npm | `tools/mcp-server` |
 | `@launa/react-paywall` | npm | `packages/react-paywall` |
-| `ax402-sdk` | PyPI | `packages/python` |
+| `launa-sdk` | PyPI | `packages/python` |
 
 Go (`packages/golang`) is consumed via module tags on GitHub — no separate registry publish.
 
@@ -51,9 +51,9 @@ git tag v0.0.2
 git push origin v0.0.2
 ```
 
-### PyPI (`ax402-sdk`)
+### PyPI (`launa-sdk`)
 
-1. Open [pypi.org/manage/project/ax402-sdk/settings/publishing/](https://pypi.org/manage/project/ax402-sdk/settings/publishing/).
+1. Open [pypi.org/manage/project/launa-sdk/settings/publishing/](https://pypi.org/manage/project/launa-sdk/settings/publishing/).
 2. **Add a new pending publisher** → **GitHub**:
    - **Owner:** `AxLabs`
    - **Repository:** `launa-sdks`
@@ -89,8 +89,8 @@ npm install @launa/sdk
 npm install -g @launa/cli
 npx @launa/mcp-server
 
-pip install ax402-sdk
-pip install "ax402-sdk[buyer]"
+pip install launa-sdk
+pip install "launa-sdk[buyer]"
 ```
 
 ```bash

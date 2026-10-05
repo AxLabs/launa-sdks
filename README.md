@@ -10,7 +10,7 @@ Official SDKs and tools for the [Launa](https://launa.io) platform — control-p
 |------|---------|
 | Manage APIs/endpoints/domains from Node/TS | `@launa/sdk` |
 | CI/CD automation (Go) | `github.com/AxLabs/launa-sdks/go` |
-| AI agents (Python) | `ax402-sdk` on PyPI |
+| AI agents (Python) | `launa-sdk` on PyPI |
 | CLI / shell scripts | `@launa/cli` |
 | Cursor / Claude MCP tools | `@launa/mcp-server` |
 | Pay a wrapped API (buyer) | `@launa/sdk/buyer` (`BuyerClient`, `payAndFetch`) |

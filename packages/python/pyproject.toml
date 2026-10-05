@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ax402-sdk"
+name = "launa-sdk"
 version = "0.0.5"
 description = "Launa platform control-plane SDK"
 readme = "README.md"
