@@ -5,8 +5,8 @@ from pathlib import Path
 import httpx
 import pytest
 
-from ax402_sdk.client import Ax402Client
-from ax402_sdk.models import Ax402Error, ExchangeRatesSupported, StatsOverview, User
+from launa_sdk.client import LaunaClient
+from launa_sdk.models import LaunaError, ExchangeRatesSupported, StatsOverview, User
 
 FIXTURES = json.loads(
     (Path(__file__).resolve().parents[3] / "test" / "fixtures" / "responses.json").read_text()
@@ -92,13 +92,13 @@ def _mock_handler(request: httpx.Request) -> httpx.Response:
 
 
 @pytest.fixture
-def client() -> Ax402Client:
+def client() -> LaunaClient:
     transport = httpx.MockTransport(_mock_handler)
     http = httpx.Client(transport=transport, base_url="http://test")
-    return Ax402Client("http://test", api_key="ax402_live_test", http_client=http)
+    return LaunaClient("http://test", api_key="launa_live_test", http_client=http)
 
 
-def test_all_routes(client: Ax402Client) -> None:
+def test_all_routes(client: LaunaClient) -> None:
     client.auth.signup("a@b.com", "password1")
     client.auth.login("a@b.com", "password1")
     client.auth.logout()
@@ -166,8 +166,8 @@ def test_all_routes(client: Ax402Client) -> None:
 def test_unauthenticated_me_raises() -> None:
     transport = httpx.MockTransport(_mock_handler)
     http = httpx.Client(transport=transport, base_url="http://test")
-    client = Ax402Client("http://test", http_client=http)
-    with pytest.raises(Ax402Error) as exc:
+    client = LaunaClient("http://test", http_client=http)
+    with pytest.raises(LaunaError) as exc:
         client.auth.me()
     assert exc.value.status == 401
 
@@ -178,37 +178,37 @@ def test_error_parsing() -> None:
 
     transport = httpx.MockTransport(handler)
     http = httpx.Client(transport=transport, base_url="http://test")
-    client = Ax402Client("http://test", api_key="k", http_client=http)
-    with pytest.raises(Ax402Error) as exc:
+    client = LaunaClient("http://test", api_key="k", http_client=http)
+    with pytest.raises(LaunaError) as exc:
         client.apis.list()
     assert exc.value.status == 403
 
 
 def test_from_env_rejects_live_key_in_sandbox(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("AX402_BASE_URL", "http://test")
-    monkeypatch.setenv("AX402_API_KEY", "ax402_live_secret")
-    monkeypatch.setenv("AX402_ENVIRONMENT", "Development")
-    monkeypatch.delenv("AX402_JWT", raising=False)
-    with pytest.raises(ValueError, match="ax402_sandbox_"):
-        Ax402Client.from_env()
+    monkeypatch.setenv("LAUNA_BASE_URL", "http://test")
+    monkeypatch.setenv("LAUNA_API_KEY", "launa_live_secret")
+    monkeypatch.setenv("LAUNA_ENVIRONMENT", "Development")
+    monkeypatch.delenv("LAUNA_JWT", raising=False)
+    with pytest.raises(ValueError, match="launa_sandbox_"):
+        LaunaClient.from_env()
 
 
 def test_from_env_sandbox_normalizes_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("AX402_BASE_URL", "http://test")
-    monkeypatch.setenv("AX402_API_KEY", "ax402_sandbox_secret")
-    monkeypatch.setenv("AX402_ENVIRONMENT", "Development")
-    monkeypatch.delenv("AX402_JWT", raising=False)
-    client = Ax402Client.from_env()
+    monkeypatch.setenv("LAUNA_BASE_URL", "http://test")
+    monkeypatch.setenv("LAUNA_API_KEY", "launa_sandbox_secret")
+    monkeypatch.setenv("LAUNA_ENVIRONMENT", "Development")
+    monkeypatch.delenv("LAUNA_JWT", raising=False)
+    client = LaunaClient.from_env()
     assert client._http.environment == "development"
 
 
 def test_from_env_sandbox_key_implies_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("AX402_BASE_URL", "http://test")
-    monkeypatch.setenv("AX402_API_KEY", "ax402_sandbox_secret")
-    monkeypatch.delenv("AX402_ENVIRONMENT", raising=False)
-    monkeypatch.delenv("AX402_SANDBOX", raising=False)
-    monkeypatch.delenv("AX402_JWT", raising=False)
-    client = Ax402Client.from_env()
+    monkeypatch.setenv("LAUNA_BASE_URL", "http://test")
+    monkeypatch.setenv("LAUNA_API_KEY", "launa_sandbox_secret")
+    monkeypatch.delenv("LAUNA_ENVIRONMENT", raising=False)
+    monkeypatch.delenv("LAUNA_SANDBOX", raising=False)
+    monkeypatch.delenv("LAUNA_JWT", raising=False)
+    client = LaunaClient.from_env()
     assert client._http.environment == "development"
 
 
@@ -217,17 +217,17 @@ def test_http_sends_environment_with_api_key() -> None:
 
     def handler(request: httpx.Request) -> httpx.Response:
         captured["api_key"] = request.headers.get("X-API-Key", "")
-        captured["environment"] = request.headers.get("X-Ax402-Environment", "")
+        captured["environment"] = request.headers.get("X-Launa-Environment", "")
         return httpx.Response(200, json=FIXTURES["platformConfig"])
 
-    client = Ax402Client(
+    client = LaunaClient(
         "https://api.example",
-        api_key="ax402_sandbox_abc",
+        api_key="launa_sandbox_abc",
         environment="development",
         http_client=httpx.Client(transport=httpx.MockTransport(handler)),
     )
     client.config.platform()
-    assert captured["api_key"] == "ax402_sandbox_abc"
+    assert captured["api_key"] == "launa_sandbox_abc"
     assert captured["environment"] == "development"
 
 
@@ -236,10 +236,10 @@ def test_http_sends_environment_without_credentials() -> None:
 
     def handler(request: httpx.Request) -> httpx.Response:
         captured["api_key"] = request.headers.get("X-API-Key", "")
-        captured["environment"] = request.headers.get("X-Ax402-Environment", "")
+        captured["environment"] = request.headers.get("X-Launa-Environment", "")
         return httpx.Response(200, json=FIXTURES["platformConfig"])
 
-    client = Ax402Client(
+    client = LaunaClient(
         "https://api.example",
         environment="development",
         http_client=httpx.Client(transport=httpx.MockTransport(handler)),

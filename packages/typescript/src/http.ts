@@ -1,13 +1,13 @@
 import type { ClientOptions, Credentials } from "./types.js";
 import { parseApiError } from "./scopes.js";
 
-export class Ax402Error extends Error {
+export class LaunaError extends Error {
   readonly status: number;
   readonly data?: Record<string, unknown>;
 
   constructor(status: number, message: string, data?: Record<string, unknown>) {
     super(message);
-    this.name = "Ax402Error";
+    this.name = "LaunaError";
     this.status = status;
     this.data = data;
   }
@@ -48,8 +48,8 @@ export class HttpClient {
     } else if (this.credentials?.type === "jwt") {
       headers.set("Authorization", `Bearer ${this.credentials.token}`);
     }
-    if (this.environment && !headers.has("X-Ax402-Environment")) {
-      headers.set("X-Ax402-Environment", this.environment);
+    if (this.environment && !headers.has("X-Launa-Environment")) {
+      headers.set("X-Launa-Environment", this.environment);
     }
   }
 
@@ -63,7 +63,7 @@ export class HttpClient {
     const res = await this.fetchFn(`${this.baseUrl}${path}`, { ...init, headers });
     if (!res.ok) {
       const body = await res.text();
-      throw new Ax402Error(res.status, parseApiError(body || res.statusText), parseErrorData(body));
+      throw new LaunaError(res.status, parseApiError(body || res.statusText), parseErrorData(body));
     }
     return parseJsonResponse<T>(res);
   }
@@ -75,7 +75,7 @@ export class HttpClient {
     const res = await this.fetchFn(`${this.baseUrl}${path}`, { ...init, headers });
     if (!res.ok) {
       const body = await res.text();
-      throw new Ax402Error(res.status, parseApiError(body || res.statusText), parseErrorData(body));
+      throw new LaunaError(res.status, parseApiError(body || res.statusText), parseErrorData(body));
     }
     return res.text();
   }
@@ -90,7 +90,7 @@ export class HttpClient {
     });
     if (!res.ok) {
       const body = await res.text();
-      throw new Ax402Error(res.status, parseApiError(body || res.statusText), parseErrorData(body));
+      throw new LaunaError(res.status, parseApiError(body || res.statusText), parseErrorData(body));
     }
     return parseJsonResponse<T>(res);
   }

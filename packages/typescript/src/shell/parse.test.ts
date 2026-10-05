@@ -45,28 +45,28 @@ describe("shell parse", () => {
   });
 
   it("envRequestsSandbox is case-insensitive", () => {
-    expect(envRequestsSandbox({ AX402_ENVIRONMENT: "Development" } as NodeJS.ProcessEnv)).toBe(true);
-    expect(envRequestsSandbox({ AX402_SANDBOX: "YES" } as NodeJS.ProcessEnv)).toBe(true);
-    expect(envRequestsSandbox({ AX402_ENVIRONMENT: "production" } as NodeJS.ProcessEnv)).toBe(false);
+    expect(envRequestsSandbox({ LAUNA_ENVIRONMENT: "Development" } as NodeJS.ProcessEnv)).toBe(true);
+    expect(envRequestsSandbox({ LAUNA_SANDBOX: "YES" } as NodeJS.ProcessEnv)).toBe(true);
+    expect(envRequestsSandbox({ LAUNA_ENVIRONMENT: "production" } as NodeJS.ProcessEnv)).toBe(false);
   });
 
   it("envRequestsSandbox infers sandbox from API key prefix", () => {
-    expect(envRequestsSandbox({ AX402_API_KEY: "ax402_sandbox_abc" } as NodeJS.ProcessEnv)).toBe(true);
-    expect(envRequestsSandbox({ AX402_API_KEY: "ax402_test_abc" } as NodeJS.ProcessEnv)).toBe(false);
-    expect(envRequestsSandbox({ AX402_API_KEY: "ax402_live_abc" } as NodeJS.ProcessEnv)).toBe(false);
+    expect(envRequestsSandbox({ LAUNA_API_KEY: "launa_sandbox_abc" } as NodeJS.ProcessEnv)).toBe(true);
+    expect(envRequestsSandbox({ LAUNA_API_KEY: "launa_test_abc" } as NodeJS.ProcessEnv)).toBe(false);
+    expect(envRequestsSandbox({ LAUNA_API_KEY: "launa_live_abc" } as NodeJS.ProcessEnv)).toBe(false);
   });
 
   it("apiKeyImpliesSandbox matches sandbox prefix only", () => {
-    expect(apiKeyImpliesSandbox("ax402_sandbox_abc")).toBe(true);
-    expect(apiKeyImpliesSandbox("ax402_test_abc")).toBe(false);
-    expect(apiKeyImpliesSandbox("ax402_live_abc")).toBe(false);
+    expect(apiKeyImpliesSandbox("launa_sandbox_abc")).toBe(true);
+    expect(apiKeyImpliesSandbox("launa_test_abc")).toBe(false);
+    expect(apiKeyImpliesSandbox("launa_live_abc")).toBe(false);
     expect(apiKeyImpliesSandbox(undefined)).toBe(false);
   });
 
   it("assertSandboxCredentials rejects live keys", () => {
-    expect(assertSandboxCredentials("ax402_live_abc", true)).toMatch(/ax402_sandbox_/);
-    expect(assertSandboxCredentials("ax402_sandbox_abc", true)).toBeUndefined();
-    expect(assertSandboxCredentials("ax402_live_abc", false)).toBeUndefined();
+    expect(assertSandboxCredentials("launa_live_abc", true)).toMatch(/launa_sandbox_/);
+    expect(assertSandboxCredentials("launa_sandbox_abc", true)).toBeUndefined();
+    expect(assertSandboxCredentials("launa_live_abc", false)).toBeUndefined();
   });
 
   it("parses flags", () => {

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from ax402_sdk.models import API, DiscoveryURLs, Endpoint, StatsOverview, User
+from launa_sdk.models import API, DiscoveryURLs, Endpoint, StatsOverview, User
 
 
 FIXTURES = json.loads(

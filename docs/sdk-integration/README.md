@@ -1,27 +1,27 @@
 # SDK integration
 
-Programmatic access to Ax402 from your codebase: seller automation (control plane) and consumer payments (buyer).
+Programmatic access to Launa from your codebase: seller automation (control plane) and consumer payments (buyer).
 
 ## Control plane vs buyer
 
 | Surface | URL | Auth | Use when |
 |---------|-----|------|----------|
-| **Control plane** | `AX402_BASE_URL` | API key or JWT | Manage APIs, endpoints, domains, keys, stats |
+| **Control plane** | `LAUNA_BASE_URL` | API key or JWT | Manage APIs, endpoints, domains, keys, stats |
 | **Buyer** | Gateway hostname | EVM private key / wallet | Pay for upstream data behind an x402 gateway |
 
 They are separate concerns. An agent that wraps APIs uses an API key; paying those gateway URLs uses a funded EVM wallet.
 
 ## Buyer quick start
 
-Example gateway URL: `https://my-api.ax402.io/v1/echo?test=1`
+Example gateway URL: `https://my-api.launa.io/v1/echo?test=1`
 
 ### TypeScript
 
 ```typescript
-import { buyerClientFromEnv } from "@ax402/sdk/buyer";
+import { buyerClientFromEnv } from "@launa/sdk/buyer";
 
 const client = await buyerClientFromEnv();
-const { response } = await client.pay({ url: "https://my-api.ax402.io/v1/echo?test=1" });
+const { response } = await client.pay({ url: "https://my-api.launa.io/v1/echo?test=1" });
 ```
 
 Requires: `@x402/fetch`, `@x402/evm`, `viem`. See [buyers](../buyers/README.md) for batch-settlement and browser wallet.
@@ -29,16 +29,16 @@ Requires: `@x402/fetch`, `@x402/evm`, `viem`. See [buyers](../buyers/README.md) 
 ### Go
 
 ```go
-c, _ := buyer.NewFromPrivateKey(os.Getenv("AX402_EVM_PRIVATE_KEY"))
-resp, _ := c.Get(ctx, "https://my-api.ax402.io/v1/echo?test=1")
+c, _ := buyer.NewFromPrivateKey(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))
+resp, _ := c.Get(ctx, "https://my-api.launa.io/v1/echo?test=1")
 ```
 
 ### Python
 
 ```python
-from ax402_sdk.buyer import BuyerClient
+from launa_sdk.buyer import BuyerClient
 
-result = BuyerClient.from_env().get("https://my-api.ax402.io/v1/echo?test=1")
+result = BuyerClient.from_env().get("https://my-api.launa.io/v1/echo?test=1")
 ```
 
 Install: `pip install "ax402-sdk[buyer]"`.
@@ -48,24 +48,24 @@ Install: `pip install "ax402-sdk[buyer]"`.
 ### TypeScript
 
 ```typescript
-import { Ax402Client } from "@ax402/sdk";
+import { LaunaClient } from "@launa/sdk";
 
-const client = new Ax402Client({
-  baseUrl: process.env.AX402_BASE_URL!,
-  apiKey: process.env.AX402_API_KEY!,
+const client = new LaunaClient({
+  baseUrl: process.env.LAUNA_BASE_URL!,
+  apiKey: process.env.LAUNA_API_KEY!,
 });
 ```
 
 ### Go
 
 ```go
-client := ax402.NewClient(baseURL, ax402.Credentials{APIKey: key})
+client := launa.NewClient(baseURL, launa.Credentials{APIKey: key})
 ```
 
 ### Python
 
 ```python
-client = Ax402Client.from_env()
+client = LaunaClient.from_env()
 ```
 
 ## When to use
@@ -79,4 +79,4 @@ client = Ax402Client.from_env()
 
 Same control-plane surface as [CLI](../cli/README.md) and [MCP](../mcp/README.md). Buyer parity: [buyers](../buyers/README.md).
 
-Gateway discovery (AgentCash OpenAPI + well-known): seller docs [API discovery](https://ax402.io/docs/guides/discovery).
+Gateway discovery (AgentCash OpenAPI + well-known): seller docs [API discovery](https://launa.io/docs/guides/discovery).

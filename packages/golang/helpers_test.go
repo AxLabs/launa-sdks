@@ -1,4 +1,4 @@
-package ax402
+package launa
 
 import (
 	"encoding/json"
@@ -73,14 +73,14 @@ func TestGatewayHostFromAPI(t *testing.T) {
 	api := &API{
 		Slug: "sdk-go-sbx",
 		Domains: []APIDomain{
-			{Hostname: "sdk-go-sbx.x.staging.ax402.io"},
-			{Hostname: "sdk-go-sbx.dev.x.staging.ax402.io", IsPrimary: true},
+			{Hostname: "sdk-go-sbx.x.staging.launa.io"},
+			{Hostname: "sdk-go-sbx.dev.x.staging.launa.io", IsPrimary: true},
 		},
 	}
-	if got := GatewayHostFromAPI(api, "x.staging.ax402.io"); got != "sdk-go-sbx.dev.x.staging.ax402.io" {
+	if got := GatewayHostFromAPI(api, "x.staging.launa.io"); got != "sdk-go-sbx.dev.x.staging.launa.io" {
 		t.Fatalf("got %s", got)
 	}
-	if got := GatewayHostFromAPI(&API{Slug: "echo"}, "x.staging.ax402.io"); got != "echo.x.staging.ax402.io" {
+	if got := GatewayHostFromAPI(&API{Slug: "echo"}, "x.staging.launa.io"); got != "echo.x.staging.launa.io" {
 		t.Fatalf("fallback got %s", got)
 	}
 }

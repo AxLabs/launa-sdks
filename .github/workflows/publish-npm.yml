@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   publish:
-    name: Publish @ax402 packages
+    name: Publish @launa packages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout tag
@@ -44,7 +44,7 @@ jobs:
             *-preview.*)
               SDK_VERSION="$(node -p "require('./packages/typescript/package.json').version")"
               if [ "$TAG" != "$SDK_VERSION" ]; then
-                echo "Tag v${TAG} does not match @ax402/sdk version ${SDK_VERSION}"
+                echo "Tag v${TAG} does not match @launa/sdk version ${SDK_VERSION}"
                 exit 1
               fi
               ;;
@@ -62,23 +62,23 @@ jobs:
           esac
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server --filter @ax402/react-paywall build
-      - run: pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server test
+      - run: pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server --filter @launa/react-paywall build
+      - run: pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server test
 
       - name: Publish packages to npm
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           if [[ "$TAG" == *-preview.* ]]; then
-            pnpm --filter @ax402/sdk publish \
+            pnpm --filter @launa/sdk publish \
               --access public \
               --tag preview \
               --no-git-checks
           else
             pnpm publish -r \
-              --filter @ax402/sdk \
-              --filter @ax402/cli \
-              --filter @ax402/mcp-server \
-              --filter @ax402/react-paywall \
+              --filter @launa/sdk \
+              --filter @launa/cli \
+              --filter @launa/mcp-server \
+              --filter @launa/react-paywall \
               --access public \
               --no-git-checks
           fi

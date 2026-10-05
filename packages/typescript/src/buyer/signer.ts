@@ -42,7 +42,7 @@ export async function createEvmSignerFromBrowserProvider(
   const eth = provider ?? (globalThis as { ethereum?: Eip1193Provider }).ethereum;
   if (!eth) {
     throw new BuyerDepsError(
-      "No wallet detected. Connect MetaMask or use the CLI: ax402 pay url --url ... with AX402_EVM_PRIVATE_KEY",
+      "No wallet detected. Connect MetaMask or use the CLI: launa pay url --url ... with LAUNA_EVM_PRIVATE_KEY",
     );
   }
 
@@ -147,7 +147,7 @@ export async function buyerClientFromHederaCredentials(
 }
 
 export async function buyerClientFromEnv(opts?: BuyerClientOptions) {
-  const evmKey = process.env.AX402_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
+  const evmKey = process.env.LAUNA_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
   const hederaAccountId = process.env.HEDERA_ACCOUNT_ID?.trim();
   const hederaPrivateKey = process.env.HEDERA_PRIVATE_KEY?.trim();
   const hederaNetwork = process.env.HEDERA_NETWORK?.trim();
@@ -176,6 +176,6 @@ export async function buyerClientFromEnv(opts?: BuyerClientOptions) {
   }
 
   throw new BuyerDepsError(
-    "AX402_EVM_PRIVATE_KEY (or EVM_PRIVATE_KEY) and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY required",
+    "LAUNA_EVM_PRIVATE_KEY (or EVM_PRIVATE_KEY) and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY required",
   );
 }

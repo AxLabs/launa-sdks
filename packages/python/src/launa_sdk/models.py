@@ -5,7 +5,7 @@ from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 
-class Ax402Error(Exception):
+class LaunaError(Exception):
     def __init__(self, status: int, message: str) -> None:
         super().__init__(message)
         self.status = status

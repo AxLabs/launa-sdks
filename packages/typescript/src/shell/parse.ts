@@ -142,8 +142,8 @@ export function shellCommandNeedsCredentials(parsed: ParsedShellCommand): boolea
   return true;
 }
 
-const LIVE_API_KEY_PREFIX = "ax402_live_";
-const SANDBOX_API_KEY_PREFIX = "ax402_sandbox_";
+const LIVE_API_KEY_PREFIX = "launa_live_";
+const SANDBOX_API_KEY_PREFIX = "launa_sandbox_";
 
 /** True when the control-plane key is a sandbox key. */
 export function apiKeyImpliesSandbox(apiKey: string | undefined): boolean {
@@ -151,12 +151,12 @@ export function apiKeyImpliesSandbox(apiKey: string | undefined): boolean {
   return apiKey.startsWith(SANDBOX_API_KEY_PREFIX);
 }
 
-/** True when AX402_ENVIRONMENT=development, AX402_SANDBOX is truthy, or AX402_API_KEY is a sandbox key. */
+/** True when LAUNA_ENVIRONMENT=development, LAUNA_SANDBOX is truthy, or LAUNA_API_KEY is a sandbox key. */
 export function envRequestsSandbox(env: NodeJS.ProcessEnv = process.env): boolean {
-  if (apiKeyImpliesSandbox(env.AX402_API_KEY)) return true;
-  const environment = (env.AX402_ENVIRONMENT ?? "").trim().toLowerCase();
+  if (apiKeyImpliesSandbox(env.LAUNA_API_KEY)) return true;
+  const environment = (env.LAUNA_ENVIRONMENT ?? "").trim().toLowerCase();
   if (environment === "development") return true;
-  const sandbox = (env.AX402_SANDBOX ?? "").trim().toLowerCase();
+  const sandbox = (env.LAUNA_SANDBOX ?? "").trim().toLowerCase();
   return sandbox === "1" || sandbox === "true" || sandbox === "yes";
 }
 
@@ -164,7 +164,7 @@ export function envRequestsSandbox(env: NodeJS.ProcessEnv = process.env): boolea
 export function assertSandboxCredentials(apiKey: string | undefined, sandbox: boolean): string | undefined {
   if (!sandbox || !apiKey) return undefined;
   if (apiKey.startsWith(LIVE_API_KEY_PREFIX)) {
-    return "sandbox mode requires an ax402_sandbox_… API key (or AX402_JWT); ax402_live_… keys are production-only";
+    return "sandbox mode requires an launa_sandbox_… API key (or LAUNA_JWT); launa_live_… keys are production-only";
   }
   return undefined;
 }

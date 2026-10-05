@@ -4,12 +4,12 @@ Published packages from this repository:
 
 | Package | Registry | Path |
 |---------|----------|------|
-| `@ax402/sdk` | npm | `packages/typescript` |
-| `@ax402/cli` | npm | `tools/cli` |
-| `@ax402/mcp-server` | npm | `tools/mcp-server` |
-| `@ax402/react-paywall` | npm | `packages/react-paywall` |
+| `@launa/sdk` | npm | `packages/typescript` |
+| `@launa/cli` | npm | `tools/cli` |
+| `@launa/mcp-server` | npm | `tools/mcp-server` |
+| `@launa/react-paywall` | npm | `packages/react-paywall` |
 | `ax402-sdk` | PyPI (not live yet) | `packages/python` |
-| `github.com/AxLabs/ax402-sdks/go` | Go module proxy | `packages/golang` |
+| `github.com/AxLabs/launa-sdks/go` | Go module proxy | `packages/golang` |
 
 Go is consumed via subdirectory module tags on GitHub — no separate registry. Tag `go/v0.0.6` (matching semver). There are no `go/v*` tags yet; `v0.0.6` is the first Go release.
 
@@ -19,13 +19,13 @@ Python version is already `0.0.6` in `pyproject.toml`. Do **not** enable tag-tri
 
 Configure trusted publishers so tag releases do not need long-lived tokens. PyPI publishing is manual (`workflow_dispatch`) until trusted publishing is set up.
 
-### npm (`@ax402` scope)
+### npm (`@launa` scope)
 
-For each published package (`@ax402/sdk`, `@ax402/cli`, `@ax402/mcp-server`, `@ax402/react-paywall`):
+For each published package (`@launa/sdk`, `@launa/cli`, `@launa/mcp-server`, `@launa/react-paywall`):
 
-1. Open the package on [npmjs.com](https://www.npmjs.com/) → **Settings** → **Publishing access** → **Add GitHub Actions publisher** (or configure at the `@ax402` org level if available).
+1. Open the package on [npmjs.com](https://www.npmjs.com/) → **Settings** → **Publishing access** → **Add GitHub Actions publisher** (or configure at the `@launa` org level if available).
 2. Set:
-   - **GitHub repository:** `AxLabs/ax402-sdks`
+   - **GitHub repository:** `AxLabs/launa-sdks`
    - **Workflow file:** `publish-npm.yml`
    - **Environment:** leave empty (workflow runs on `v*` tags)
 3. Ensure `.github/workflows/publish-npm.yml` has `permissions: id-token: write` (already set). The workflow uses Node 24, npm 11+, and OIDC — no `NPM_TOKEN` secret.
@@ -41,10 +41,10 @@ git tag v0.0.6
 git push origin v0.0.6
 ```
 
-The workflow checks out the tagged commit, verifies the tag matches `package.json` version, then publishes `@ax402/sdk`, `@ax402/cli`, `@ax402/mcp-server`, and `@ax402/react-paywall`.
+The workflow checks out the tagged commit, verifies the tag matches `package.json` version, then publishes `@launa/sdk`, `@launa/cli`, `@launa/mcp-server`, and `@launa/react-paywall`.
 
 For a TypeScript SDK preview, bump only `packages/typescript/package.json`, then push a matching
-`v<version>-preview.<number>` tag. The workflow publishes only `@ax402/sdk` with the `preview`
+`v<version>-preview.<number>` tag. The workflow publishes only `@launa/sdk` with the `preview`
 dist-tag; `latest` and the other packages remain unchanged.
 
 To move a tag after a fix:
@@ -67,7 +67,7 @@ git tag go/v0.0.6
 git push origin go/v0.0.6
 ```
 
-Consumers: `go get github.com/AxLabs/ax402-sdks/go@v0.0.6`. The proxy may take a few minutes to index.
+Consumers: `go get github.com/AxLabs/launa-sdks/go@v0.0.6`. The proxy may take a few minutes to index.
 
 ### PyPI (`ax402-sdk`) — prepared, not published
 
@@ -78,7 +78,7 @@ Before the first upload:
 1. Sign in at [pypi.org](https://pypi.org) as the AxLabs publisher.
 2. **Publishing** → **Add a new pending publisher** → **GitHub** (no project exists yet; pending publisher creates it on first upload):
    - **Owner:** `AxLabs`
-   - **Repository:** `ax402-sdks`
+   - **Repository:** `launa-sdks`
    - **Workflow name:** `publish-pypi.yml`
    - **Environment name:** leave empty
 3. Save. The workflow already uses `pypa/gh-action-pypi-publish` with OIDC (`id-token: write`). Artifacts are `packages/python/dist` (repo-root path).
@@ -88,7 +88,7 @@ Then: Actions → **Publish PyPI** → **Run workflow**. Do not uncomment the `v
 Until then, install from git:
 
 ```bash
-pip install "ax402-sdk @ git+https://github.com/AxLabs/ax402-sdks.git#subdirectory=packages/python"
+pip install "ax402-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirectory=packages/python"
 ```
 
 ## Local publish (optional)
@@ -97,10 +97,10 @@ pip install "ax402-sdk @ git+https://github.com/AxLabs/ax402-sdks.git#subdirecto
 pnpm install && pnpm build && pnpm test
 
 pnpm publish -r \
-  --filter @ax402/sdk \
-  --filter @ax402/cli \
-  --filter @ax402/mcp-server \
-  --filter @ax402/react-paywall \
+  --filter @launa/sdk \
+  --filter @launa/cli \
+  --filter @launa/mcp-server \
+  --filter @launa/react-paywall \
   --access public
 ```
 
@@ -113,18 +113,18 @@ twine upload dist/*
 ## Consumer install
 
 ```bash
-npm install @ax402/sdk
-npm install -g @ax402/cli
-npx @ax402/mcp-server
+npm install @launa/sdk
+npm install -g @launa/cli
+npx @launa/mcp-server
 
 # after first PyPI upload
 pip install ax402-sdk
 pip install "ax402-sdk[buyer]"
 
 # until then
-pip install "ax402-sdk @ git+https://github.com/AxLabs/ax402-sdks.git#subdirectory=packages/python"
+pip install "ax402-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirectory=packages/python"
 ```
 
 ```bash
-go get github.com/AxLabs/ax402-sdks/go@v0.0.6
+go get github.com/AxLabs/launa-sdks/go@v0.0.6
 ```

@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "ax402-sdk"
 version = "0.0.6"
-description = "Ax402 platform control-plane SDK"
+description = "Launa platform control-plane SDK"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.10"
@@ -15,16 +15,16 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://ax402.io"
-Repository = "https://github.com/AxLabs/ax402-sdks"
-Documentation = "https://github.com/AxLabs/ax402-sdks/tree/main/docs/sdks/python"
+Homepage = "https://launa.io"
+Repository = "https://github.com/AxLabs/launa-sdks"
+Documentation = "https://github.com/AxLabs/launa-sdks/tree/main/docs/sdks/python"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0.0", "pytest-httpx>=0.30.0"]
 buyer = ["x402[httpx,evm]>=2.0.0", "eth-account>=0.13.0"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ax402_sdk"]
+packages = ["src/launa_sdk"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

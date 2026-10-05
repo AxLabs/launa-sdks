@@ -1,4 +1,4 @@
-from ax402_sdk import (
+from launa_sdk import (
     HBAR,
     NETWORK_HEDERA_MAINNET,
     NETWORK_HEDERA_TESTNET,
@@ -12,7 +12,7 @@ from ax402_sdk import (
     gateway_url,
     usdc_to_atomic,
 )
-from ax402_sdk.platform.helpers import (
+from launa_sdk.platform.helpers import (
     DEFAULT_BATCH_WITHDRAW_DELAY,
     amount_to_atomic,
     atomic_to_display,
@@ -41,7 +41,7 @@ def test_build_batch_accept() -> None:
 
 
 def test_build_sandbox_accept() -> None:
-    from ax402_sdk import NETWORK_SANDBOX_FORK, USDC_BASE_MAINNET, build_sandbox_usdc_accept
+    from launa_sdk import NETWORK_SANDBOX_FORK, USDC_BASE_MAINNET, build_sandbox_usdc_accept
 
     a = build_sandbox_usdc_accept("1000")
     assert a["amount"] == "1000"
@@ -68,12 +68,12 @@ def test_gateway_host_from_api() -> None:
             "slug": "sdk-py-sbx",
             "upstream_base_url": "https://postman-echo.com",
             "domains": [
-                {"hostname": "sdk-py-sbx.x.staging.ax402.io"},
-                {"hostname": "sdk-py-sbx.dev.x.staging.ax402.io", "is_primary": True},
+                {"hostname": "sdk-py-sbx.x.staging.launa.io"},
+                {"hostname": "sdk-py-sbx.dev.x.staging.launa.io", "is_primary": True},
             ],
         }
     )
-    assert gateway_host_from_api(api, "x.staging.ax402.io") == "sdk-py-sbx.dev.x.staging.ax402.io"
+    assert gateway_host_from_api(api, "x.staging.launa.io") == "sdk-py-sbx.dev.x.staging.launa.io"
     bare = API.model_validate(
         {
             "id": "2",
@@ -82,7 +82,7 @@ def test_gateway_host_from_api() -> None:
             "upstream_base_url": "https://postman-echo.com",
         }
     )
-    assert gateway_host_from_api(bare, "x.staging.ax402.io") == "echo.x.staging.ax402.io"
+    assert gateway_host_from_api(bare, "x.staging.launa.io") == "echo.x.staging.launa.io"
 
 
 def test_amount_helpers() -> None:

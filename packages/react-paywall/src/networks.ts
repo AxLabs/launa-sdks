@@ -30,7 +30,7 @@ export const SUPPORTED_PAYWALL_NETWORKS = [
 export const DEFAULT_RPC_BY_NETWORK: Record<string, string> = {
   [NETWORK_BASE]: 'https://mainnet.base.org',
   [NETWORK_BASE_SEPOLIA]: 'https://sepolia.base.org',
-  [NETWORK_SANDBOX_FORK]: 'https://rpc-dev.ax402.io',
+  [NETWORK_SANDBOX_FORK]: 'https://rpc-dev.launa.io',
   [NETWORK_NEOX_MAINNET]: 'https://mainnet-1.rpc.banelabs.org',
   [NETWORK_NEOX_TESTNET]: 'https://testnet.rpc.banelabs.org',
   [NETWORK_HEDERA_MAINNET]: 'https://mainnet-public.mirrornode.hedera.com',

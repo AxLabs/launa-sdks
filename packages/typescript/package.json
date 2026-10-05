@@ -1,7 +1,7 @@
 {
-  "name": "@ax402/sdk",
+  "name": "@launa/sdk",
   "version": "0.0.6",
-  "description": "Ax402 platform control-plane SDK",
+  "description": "Launa platform control-plane SDK",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -52,7 +52,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AxLabs/ax402-sdks.git",
+    "url": "git+https://github.com/AxLabs/launa-sdks.git",
     "directory": "packages/typescript"
   },
   "publishConfig": {

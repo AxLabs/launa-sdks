@@ -1,13 +1,13 @@
-# Ax402 Agent Guide
+# Launa Agent Guide
 
-Seller control-plane reference for agents. API surface: public seller routes on the Ax402 control-plane API (`https://api.ax402.io`).
+Seller control-plane reference for agents. API surface: public seller routes on the Launa control-plane API (`https://api.launa.io`).
 
 ## Bootstrap flow
 
 1. `POST /auth/signup` or `POST /auth/login` → JWT (interactive)
 2. `POST /auth/verify-email` with token from email (required before writes)
-3. `POST /auth/api-keys` with scopes (JWT only) → `ax402_live_...` key (shown once)
-4. Use API key for automation: header `X-API-Key: ax402_live_...`
+3. `POST /auth/api-keys` with scopes (JWT only) → `launa_live_...` key (shown once)
+4. Use API key for automation: header `X-API-Key: launa_live_...`
 
 ## Scope presets
 
@@ -57,62 +57,62 @@ Optional on create/update: `discovery_guidance`, `discovery_contact_email`, `ope
 
 ## MCP tools
 
-Install: `npx @ax402/mcp-server` (or build from repo). Example config: [examples/agent-mcp/cursor-mcp.json.example](./examples/agent-mcp/cursor-mcp.json.example).
+Install: `npx @launa/mcp-server` (or build from repo). Example config: [examples/agent-mcp/cursor-mcp.json.example](./examples/agent-mcp/cursor-mcp.json.example).
 
 | Tool | Scope |
 |------|-------|
-| `ax402_list_apis` | `apis:read` |
-| `ax402_get_api` | `apis:read` |
-| `ax402_discovery_urls` | `apis:read` |
-| `ax402_set_discovery_guidance` | `apis:write` |
-| `ax402_list_endpoints` | `endpoints:read` |
-| `ax402_update_endpoint_schemas` | `endpoints:write` |
-| `ax402_create_api` | `apis:write` + verified email (optional pay_to_addresses, discovery fields) |
-| `ax402_add_endpoint` | `endpoints:write` |
-| `ax402_import_openapi` | `openapi:read` |
-| `ax402_add_domain` | `domains:write` |
-| `ax402_verify_domain` | `domains:write` |
-| `ax402_domain_suggest` | `domains:read` |
-| `ax402_stats_overview` | `stats:read` |
-| `ax402_supported_networks` | auth |
-| `ax402_platform_config` | public |
-| `ax402_pay_url` | buyer (external wallet) |
+| `launa_list_apis` | `apis:read` |
+| `launa_get_api` | `apis:read` |
+| `launa_discovery_urls` | `apis:read` |
+| `launa_set_discovery_guidance` | `apis:write` |
+| `launa_list_endpoints` | `endpoints:read` |
+| `launa_update_endpoint_schemas` | `endpoints:write` |
+| `launa_create_api` | `apis:write` + verified email (optional pay_to_addresses, discovery fields) |
+| `launa_add_endpoint` | `endpoints:write` |
+| `launa_import_openapi` | `openapi:read` |
+| `launa_add_domain` | `domains:write` |
+| `launa_verify_domain` | `domains:write` |
+| `launa_domain_suggest` | `domains:read` |
+| `launa_stats_overview` | `stats:read` |
+| `launa_supported_networks` | auth |
+| `launa_platform_config` | public |
+| `launa_pay_url` | buyer (external wallet) |
 
 ## CLI
 
-Install: `npm install -g @ax402/cli`
+Install: `npm install -g @launa/cli`
 
 ```bash
-ax402 apis list --json
-ax402 --sandbox apis create --name "My API" --slug my-api --upstream https://api.example.com \
+launa apis list --json
+launa --sandbox apis create --name "My API" --slug my-api --upstream https://api.example.com \
   --discovery-guidance "Use GET /v1/*." --json
-ax402 --sandbox endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json
-ax402 --sandbox sandbox-wallet get --json --wait   # JWT; export private_key for pay url
-ax402 apis discovery --id ID --json
-ax402 discovery urls --api-id ID --json
-ax402 endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json
-ax402 endpoints update --api-id ID --endpoint-id EP --request-schema '{"type":"object"}' --json
-ax402 endpoints delete --api-id ID --endpoint-id EP --json
-ax402 domains suggest --apex example.com --json
-ax402 domains add --api-id ID --hostname api.example.com --json
-ax402 domains verify --api-id ID --domain-id DOM --json
-ax402 keys list --json
-ax402 keys create --name ci --scopes apis:read,apis:write --json
-ax402 keys revoke --id KEY --json
-ax402 auth login --email you@example.com --password secret --json
-ax402 openapi parse --file spec.yaml --json
-ax402 openapi import --api-id ID --file spec.yaml --price-usdc 0.10 --json
-ax402 stats overview --days 30 --json
-ax402 config platform --json
-ax402 networks supported --json
-ax402 scopes presets --json
-ax402 pay url --url https://gateway.example/v1/foo --json
+launa --sandbox endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json
+launa --sandbox sandbox-wallet get --json --wait   # JWT; export private_key for pay url
+launa apis discovery --id ID --json
+launa discovery urls --api-id ID --json
+launa endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json
+launa endpoints update --api-id ID --endpoint-id EP --request-schema '{"type":"object"}' --json
+launa endpoints delete --api-id ID --endpoint-id EP --json
+launa domains suggest --apex example.com --json
+launa domains add --api-id ID --hostname api.example.com --json
+launa domains verify --api-id ID --domain-id DOM --json
+launa keys list --json
+launa keys create --name ci --scopes apis:read,apis:write --json
+launa keys revoke --id KEY --json
+launa auth login --email you@example.com --password secret --json
+launa openapi parse --file spec.yaml --json
+launa openapi import --api-id ID --file spec.yaml --price-usdc 0.10 --json
+launa stats overview --days 30 --json
+launa config platform --json
+launa networks supported --json
+launa scopes presets --json
+launa pay url --url https://gateway.example/v1/foo --json
 ```
 
-`--sandbox` (or `AX402_ENVIRONMENT=development` / `AX402_SANDBOX=1` / an `ax402_sandbox_...` key) targets Test mode: development APIs and fork USDC accepts (`eip155:845320402`). Do not use `ax402_live_...` keys in Sandbox.
+`--sandbox` (or `LAUNA_ENVIRONMENT=development` / `LAUNA_SANDBOX=1` / an `launa_sandbox_...` key) targets Test mode: development APIs and fork USDC accepts (`eip155:845320402`). Do not use `launa_live_...` keys in Sandbox.
 Exit codes: 0 success, 1 API error, 2 usage error.
 
-MCP uses `AX402_API_KEY` only (no JWT).
+MCP uses `LAUNA_API_KEY` only (no JWT).
 
 ## Errors
 
@@ -128,13 +128,13 @@ Pay **gateway URLs** (not the control plane) using the buyer subpackage:
 
 | SDK | Install | Usage |
 |-----|---------|-------|
-| TypeScript | `npm install @x402/fetch @x402/evm viem` | `import { BuyerClient, buyerClientFromEnv } from "@ax402/sdk/buyer"` |
-| Go | `go get github.com/AxLabs/ax402-sdks/go/buyer` | `buyer.NewFromPrivateKey(os.Getenv("AX402_EVM_PRIVATE_KEY"))` |
+| TypeScript | `npm install @x402/fetch @x402/evm viem` | `import { BuyerClient, buyerClientFromEnv } from "@launa/sdk/buyer"` |
+| Go | `go get github.com/AxLabs/launa-sdks/go/buyer` | `buyer.NewFromPrivateKey(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))` |
 | Python | `pip install "ax402-sdk[buyer]"` | `BuyerClient.from_env().get(gateway_url)` |
 
-CLI: `ax402 pay url --url https://gateway.example/v1/foo` with `AX402_EVM_PRIVATE_KEY` set.
+CLI: `launa pay url --url https://gateway.example/v1/foo` with `LAUNA_EVM_PRIVATE_KEY` set.
 
-MCP: `ax402_pay_url` uses the same env var when configured.
+MCP: `launa_pay_url` uses the same env var when configured.
 
 Underlying protocol: [x402-foundation/x402](https://github.com/x402-foundation/x402).
 

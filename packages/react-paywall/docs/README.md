@@ -1,8 +1,8 @@
 # React paywall docs
 
-Package: `@ax402/react-paywall`.
+Package: `@launa/react-paywall`.
 
 - [Getting started](./getting-started.md)
 - [Examples](./examples.md)
 - [Agents](./agents.md)
-- Platform docs: [ax402.io/docs/react-paywall](https://ax402.io/docs/react-paywall)
+- Platform docs: [launa.io/docs/react-paywall](https://launa.io/docs/react-paywall)

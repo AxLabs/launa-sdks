@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const cli = join(root, "dist/index.js");
 
-describe("ax402 cli", () => {
+describe("launa cli", () => {
   function run(args: string[], env: Record<string, string> = {}) {
     return spawnSync("node", [cli, ...args], {
       encoding: "utf8",
@@ -21,15 +21,15 @@ describe("ax402 cli", () => {
   });
 
   it("returns exit 2 when credentials missing", () => {
-    const r = run(["--json", "apis", "list"], { AX402_API_KEY: "", AX402_JWT: "" });
+    const r = run(["--json", "apis", "list"], { LAUNA_API_KEY: "", LAUNA_JWT: "" });
     expect(r.status).toBe(2);
   });
 
   it("inspect url does not require control-plane credentials", () => {
     const r = run(
       ["--json", "inspect", "url", "--url", "https://example.invalid/x402-inspect-test"],
-      { AX402_API_KEY: "", AX402_JWT: "" },
+      { LAUNA_API_KEY: "", LAUNA_JWT: "" },
     );
-    expect(r.stderr).not.toContain("AX402_API_KEY or AX402_JWT required");
+    expect(r.stderr).not.toContain("LAUNA_API_KEY or LAUNA_JWT required");
   });
 });

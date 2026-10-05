@@ -20,7 +20,7 @@ from .resources.stats import StatsResource
 from .resources.settlements import SettlementsResource
 
 
-class Ax402Client:
+class LaunaClient:
     def __init__(
         self,
         base_url: str,
@@ -99,26 +99,26 @@ class Ax402Client:
         return self.auth.supported_networks()
 
     @classmethod
-    def from_env(cls) -> Ax402Client:
-        base = os.environ.get("AX402_BASE_URL", "https://api.ax402.io")
-        raw_env = (os.environ.get("AX402_ENVIRONMENT") or "").strip()
-        sandbox_flag = os.environ.get("AX402_SANDBOX", "").strip().lower()
-        api_key = os.environ.get("AX402_API_KEY")
+    def from_env(cls) -> LaunaClient:
+        base = os.environ.get("LAUNA_BASE_URL", "https://api.launa.io")
+        raw_env = (os.environ.get("LAUNA_ENVIRONMENT") or "").strip()
+        sandbox_flag = os.environ.get("LAUNA_SANDBOX", "").strip().lower()
+        api_key = os.environ.get("LAUNA_API_KEY")
         sandbox = (
             raw_env.lower() == "development"
             or sandbox_flag in ("1", "true", "yes")
             or _api_key_implies_sandbox(api_key)
         )
         environment = "development" if sandbox else (raw_env or None)
-        if sandbox and api_key and api_key.startswith("ax402_live_"):
+        if sandbox and api_key and api_key.startswith("launa_live_"):
             raise ValueError(
-                "sandbox mode requires an ax402_sandbox_… API key (or AX402_JWT); "
-                "ax402_live_… keys are production-only"
+                "sandbox mode requires an launa_sandbox_… API key (or LAUNA_JWT); "
+                "launa_live_… keys are production-only"
             )
         return cls(
             base,
             api_key=api_key,
-            token=os.environ.get("AX402_JWT"),
+            token=os.environ.get("LAUNA_JWT"),
             environment=environment,
         )
 
@@ -126,4 +126,4 @@ class Ax402Client:
 def _api_key_implies_sandbox(api_key: str | None) -> bool:
     if not api_key:
         return False
-    return api_key.startswith("ax402_sandbox_")
+    return api_key.startswith("launa_sandbox_")

@@ -1,13 +1,13 @@
 # TypeScript SDK
 
-Package: `@ax402/sdk` in `packages/typescript/`.
+Package: `@launa/sdk` in `packages/typescript/`.
 
 Subpaths: main entry, `/buyer`, `/platform`.
 
 ## Install
 
 ```bash
-pnpm add @ax402/sdk
+pnpm add @launa/sdk
 # Buyer (optional)
 pnpm add @x402/fetch @x402/evm viem
 # Hedera buyer (optional)
@@ -17,11 +17,11 @@ pnpm add @x402/hedera
 ## Control plane
 
 ```typescript
-import { Ax402Client, buildUsdcAccept, usdcToAtomic } from "@ax402/sdk";
+import { LaunaClient, buildUsdcAccept, usdcToAtomic } from "@launa/sdk";
 
-const client = new Ax402Client({
-  baseUrl: process.env.AX402_BASE_URL!,
-  apiKey: process.env.AX402_API_KEY,
+const client = new LaunaClient({
+  baseUrl: process.env.LAUNA_BASE_URL!,
+  apiKey: process.env.LAUNA_API_KEY,
 });
 
 const apis = await client.apis.list();
@@ -38,7 +38,7 @@ await client.apis.create({
   upstream_base_url: "https://shopify-app.example",
   pay_to_address: "0xYourWallet",
   pay_to_addresses: { "hedera:testnet": "0.0.1234" },
-  webhook_url: "https://shopify-app.example/webhooks/ax402/settlement",
+  webhook_url: "https://shopify-app.example/webhooks/launa/settlement",
   webhook_secret: "whsec_...",
 });
 await client.apis.listWebhookDeliveries(apiId);
@@ -69,11 +69,11 @@ Gateway hosts also serve unpaid `GET /openapi.json` and `GET /.well-known/x402.j
 Pay gateway URLs — not the control plane. Full guide: [buyers](../buyers/README.md).
 
 ```typescript
-import { buyerClientFromEnv } from "@ax402/sdk/buyer";
+import { buyerClientFromEnv } from "@launa/sdk/buyer";
 
 const client = await buyerClientFromEnv();
 const { response, payment } = await client.pay({
-  url: "https://my-api.ax402.io/v1/echo?test=1",
+  url: "https://my-api.launa.io/v1/echo?test=1",
 });
 ```
 
@@ -94,7 +94,7 @@ export HEDERA_PRIVATE_KEY=0x...   # ECDSA preferred
 ```
 
 ```typescript
-import { buyerClientFromHederaCredentials, BuyerClient } from "@ax402/sdk/buyer";
+import { buyerClientFromHederaCredentials, BuyerClient } from "@launa/sdk/buyer";
 
 const client = await buyerClientFromHederaCredentials({
   accountId: process.env.HEDERA_ACCOUNT_ID!,
@@ -113,8 +113,8 @@ Sellers must use `user_wallet` with a Hedera `0.0.x` payTo (associate HTS USDC).
 ## Build & test
 
 ```bash
-pnpm --filter @ax402/sdk build
-pnpm --filter @ax402/sdk test
+pnpm --filter @launa/sdk build
+pnpm --filter @launa/sdk test
 ```
 
 ## Examples

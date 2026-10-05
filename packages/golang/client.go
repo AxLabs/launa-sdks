@@ -1,4 +1,4 @@
-package ax402
+package launa
 
 import (
 	"bytes"
@@ -62,8 +62,8 @@ func (c *Client) applyAuth(req *http.Request) {
 	} else if c.credentials.Token != "" {
 		req.Header.Set("Authorization", "Bearer "+c.credentials.Token)
 	}
-	if c.environment != "" && req.Header.Get("X-Ax402-Environment") == "" {
-		req.Header.Set("X-Ax402-Environment", c.environment)
+	if c.environment != "" && req.Header.Get("X-Launa-Environment") == "" {
+		req.Header.Set("X-Launa-Environment", c.environment)
 	}
 }
 

@@ -1,4 +1,4 @@
-import { Ax402Client } from "../client.js";
+import { LaunaClient } from "../client.js";
 import { SCOPE_PRESETS } from "../scopes.js";
 import {
   amountToAtomic,
@@ -439,7 +439,7 @@ export async function runShellCommand(
       if (!ctx.sandbox) {
         return {
           ok: false,
-          error: "sandbox-wallet requires --sandbox (or AX402_ENVIRONMENT=development / AX402_SANDBOX=1)",
+          error: "sandbox-wallet requires --sandbox (or LAUNA_ENVIRONMENT=development / LAUNA_SANDBOX=1)",
         };
       }
       const wallet = sub === "reset" ? await c.sandboxWallet.reset() : await c.sandboxWallet.get();
@@ -484,8 +484,8 @@ export async function runShellCommand(
       const email = flag(parsed, "--email");
       const password = flag(parsed, "--password");
       if (!email || !password) return usage("--email and --password required");
-      const baseUrl = ctx.baseUrl ?? "https://api.ax402.io";
-      const guest = new Ax402Client({ baseUrl });
+      const baseUrl = ctx.baseUrl ?? "https://api.launa.io";
+      const guest = new LaunaClient({ baseUrl });
       return { ok: true, data: await guest.auth.login(email, password) };
     }
 
@@ -714,7 +714,7 @@ async function sleep(ms: number): Promise<void> {
 }
 
 async function waitForSandboxFunding(
-  client: Ax402Client,
+  client: LaunaClient,
   address: string,
   opts: { timeoutMs?: number; intervalMs?: number } = {},
 ): Promise<{ balances: { eth_wei: string; usdc_base: string }; funded: boolean }> {

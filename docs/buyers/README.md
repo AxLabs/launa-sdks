@@ -2,7 +2,7 @@
 
 Pay **gateway hostnames** with automatic HTTP 402 handling and x402 signing. Buyer clients do not call the control plane — they talk to seller gateway URLs (`https://{slug}.{platform_domain}/...` or custom domains).
 
-For in-browser humans, use [`@ax402/react-paywall`](../packages/react-paywall/docs/README.md) instead.
+For in-browser humans, use [`@launa/react-paywall`](../packages/react-paywall/docs/README.md) instead.
 
 ## How it works
 
@@ -17,7 +17,7 @@ You never configure a facilitator URL in buyer code — the gateway handles veri
 
 | Variable | Purpose |
 |----------|---------|
-| `AX402_EVM_PRIVATE_KEY` | Hex EVM key with USDC on the gateway's network (legacy: `EVM_PRIVATE_KEY`) |
+| `LAUNA_EVM_PRIVATE_KEY` | Hex EVM key with USDC on the gateway's network (legacy: `EVM_PRIVATE_KEY`) |
 | `HEDERA_ACCOUNT_ID` | Hedera payer account id (e.g. `0.0.1234`) for native `hedera:*` payments |
 | `HEDERA_PRIVATE_KEY` | Hedera private key (ECDSA hex or DER string) paired with `HEDERA_ACCOUNT_ID` |
 | `HEDERA_NETWORK` | Optional CAIP-2 network (`hedera:mainnet`) |
@@ -27,7 +27,7 @@ Fund the wallet with USDC on the network shown in the gateway's payment requirem
 **Example gateway URL** (use your hostname from the dashboard):
 
 ```text
-https://my-api.ax402.io/v1/echo?test=1
+https://my-api.launa.io/v1/echo?test=1
 ```
 
 ## Language parity
@@ -50,7 +50,7 @@ Control-plane clients (seller automation) are documented per language in [sdks/]
 Install buyer deps (optional extras on the main package):
 
 ```bash
-pnpm add @ax402/sdk @x402/fetch @x402/evm viem
+pnpm add @launa/sdk @x402/fetch @x402/evm viem
 # optional Hedera:
 pnpm add @x402/hedera
 ```
@@ -58,10 +58,10 @@ pnpm add @x402/hedera
 ### Private key (scripts, CI, agents)
 
 ```typescript
-import { buyerClientFromEnv } from "@ax402/sdk/buyer";
+import { buyerClientFromEnv } from "@launa/sdk/buyer";
 
 const client = await buyerClientFromEnv();
-const result = await client.pay({ url: "https://my-api.ax402.io/v1/echo?test=1" });
+const result = await client.pay({ url: "https://my-api.launa.io/v1/echo?test=1" });
 const body = await result.response.text();
 console.log(result.response.status, body, result.payment);
 ```
@@ -69,20 +69,20 @@ console.log(result.response.status, body, result.payment);
 ### One-shot fetch
 
 ```typescript
-import { payAndFetch, createEvmSignerFromPrivateKey } from "@ax402/sdk/buyer";
+import { payAndFetch, createEvmSignerFromPrivateKey } from "@launa/sdk/buyer";
 
-const signer = await createEvmSignerFromPrivateKey(process.env.AX402_EVM_PRIVATE_KEY!);
+const signer = await createEvmSignerFromPrivateKey(process.env.LAUNA_EVM_PRIVATE_KEY!);
 const res = await payAndFetch(signer, {
-  url: "https://my-api.ax402.io/v1/echo?test=1",
+  url: "https://my-api.launa.io/v1/echo?test=1",
 });
 ```
 
 ### Reusable payment fetch
 
 ```typescript
-import { createPaymentFetch, createEvmSignerFromPrivateKey } from "@ax402/sdk/buyer";
+import { createPaymentFetch, createEvmSignerFromPrivateKey } from "@launa/sdk/buyer";
 
-const signer = await createEvmSignerFromPrivateKey(process.env.AX402_EVM_PRIVATE_KEY!);
+const signer = await createEvmSignerFromPrivateKey(process.env.LAUNA_EVM_PRIVATE_KEY!);
 const fetchWithPay = await createPaymentFetch(signer);
 const res = await fetchWithPay("https://myapi.example.com/v1/data");
 ```
@@ -92,7 +92,7 @@ const res = await fetchWithPay("https://myapi.example.com/v1/data");
 When the gateway endpoint accepts `batch-settlement`, register the batch scheme alongside `exact`:
 
 ```typescript
-import { buyerClientFromEnv } from "@ax402/sdk/buyer";
+import { buyerClientFromEnv } from "@launa/sdk/buyer";
 
 const client = await buyerClientFromEnv({
   batch: {
@@ -100,13 +100,13 @@ const client = await buyerClientFromEnv({
     depositMultiplier: 5,
   },
 });
-const result = await client.pay({ url: "https://my-api.ax402.io/v1/echo?test=1" });
+const result = await client.pay({ url: "https://my-api.launa.io/v1/echo?test=1" });
 ```
 
 ### Browser wallet (extension)
 
 ```typescript
-import { createEvmSignerFromBrowserProvider, BuyerClient } from "@ax402/sdk/buyer";
+import { createEvmSignerFromBrowserProvider, BuyerClient } from "@launa/sdk/buyer";
 
 const signer = await createEvmSignerFromBrowserProvider(); // window.ethereum
 const client = await BuyerClient.create(signer);
@@ -115,17 +115,17 @@ const res = await client.fetch("https://myapi.example.com/v1/data");
 
 ## Go
 
-Module: `github.com/AxLabs/ax402-sdks/go/buyer`. Underlying protocol: `github.com/x402-foundation/x402/go`.
+Module: `github.com/AxLabs/launa-sdks/go/buyer`. Underlying protocol: `github.com/x402-foundation/x402/go`.
 
 EVM only — Hedera buyer signing is TypeScript (`buyerClientFromEnv` / `HEDERA_*`). `NewFromEnv` returns a clear error if only Hedera credentials are set.
 
 ```go
-import "github.com/AxLabs/ax402-sdks/go/buyer"
+import "github.com/AxLabs/launa-sdks/go/buyer"
 
 c, err := buyer.NewFromEnv() // or NewFromPrivateKey(...)
 if err != nil { /* handle */ }
 
-resp, err := c.Get(ctx, "https://my-api.ax402.io/v1/echo?test=1")
+resp, err := c.Get(ctx, "https://my-api.launa.io/v1/echo?test=1")
 if err != nil { /* handle */ }
 defer resp.Body.Close()
 
@@ -155,52 +155,52 @@ EVM only — Hedera buyer signing is TypeScript (`buyerClientFromEnv` / `HEDERA_
 ### Sync
 
 ```python
-from ax402_sdk.buyer import BuyerClient
+from launa_sdk.buyer import BuyerClient
 
-result = BuyerClient.from_env().get("https://my-api.ax402.io/v1/echo?test=1")
+result = BuyerClient.from_env().get("https://my-api.launa.io/v1/echo?test=1")
 print(result.status_code, result.body, result.settlement)
 ```
 
 ### Async
 
 ```python
-from ax402_sdk.buyer import AsyncBuyerClient, BatchBuyerOptions, evm_signer_from_private_key
+from launa_sdk.buyer import AsyncBuyerClient, BatchBuyerOptions, evm_signer_from_private_key
 import os
 
-signer = evm_signer_from_private_key(os.environ["AX402_EVM_PRIVATE_KEY"])
+signer = evm_signer_from_private_key(os.environ["LAUNA_EVM_PRIVATE_KEY"])
 async with AsyncBuyerClient(signer, batch=BatchBuyerOptions(deposit_multiplier=5)) as client:
-    result = await client.get("https://my-api.ax402.io/v1/echo?test=1")
+    result = await client.get("https://my-api.launa.io/v1/echo?test=1")
 ```
 
 ### Batch-settlement (sync)
 
 ```python
-from ax402_sdk.buyer import BuyerClient, BatchBuyerOptions
+from launa_sdk.buyer import BuyerClient, BatchBuyerOptions
 
 result = BuyerClient.from_env(batch=BatchBuyerOptions(deposit_multiplier=5)).get(
-    "https://my-api.ax402.io/v1/echo?test=1"
+    "https://my-api.launa.io/v1/echo?test=1"
 )
 ```
 
 ## CLI and MCP
 
 ```bash
-export AX402_EVM_PRIVATE_KEY=0x...   # and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY
-ax402 inspect url --url https://my-api.ax402.io/v1/echo?test=1 --json
-ax402 pay url --url https://my-api.ax402.io/v1/echo?test=1 --json
+export LAUNA_EVM_PRIVATE_KEY=0x...   # and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY
+launa inspect url --url https://my-api.launa.io/v1/echo?test=1 --json
+launa pay url --url https://my-api.launa.io/v1/echo?test=1 --json
 ```
 
-MCP tool `ax402_pay_url` uses the same buyer env vars. See [mcp](../mcp/README.md).
+MCP tool `launa_pay_url` uses the same buyer env vars. See [mcp](../mcp/README.md).
 
 ## When to use what
 
 | Runtime | Recommendation |
 |---------|----------------|
-| Node / TS agent or backend | `@ax402/sdk/buyer` (EVM + Hedera) |
+| Node / TS agent or backend | `@launa/sdk/buyer` (EVM + Hedera) |
 | Go service or CI | `go/buyer` (EVM; Hedera via TypeScript) |
-| Python script or async service | `ax402_sdk.buyer` (EVM; Hedera via TypeScript) |
-| Browser SPA with wallet UI | `@ax402/react-paywall` |
-| Shell / Cursor agent | `ax402 pay url` or MCP `ax402_pay_url` |
+| Python script or async service | `launa_sdk.buyer` (EVM; Hedera via TypeScript) |
+| Browser SPA with wallet UI | `@launa/react-paywall` |
+| Shell / Cursor agent | `launa pay url` or MCP `launa_pay_url` |
 
 ## Protocol reference
 

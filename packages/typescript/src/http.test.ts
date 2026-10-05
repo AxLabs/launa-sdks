@@ -25,20 +25,20 @@ function captureHeaders(init?: { apiKey?: string; token?: string; environment?: 
 }
 
 describe("HttpClient environment header", () => {
-  it("sends X-Ax402-Environment with an API key", async () => {
+  it("sends X-Launa-Environment with an API key", async () => {
     const { client, headers } = captureHeaders({
-      apiKey: "ax402_sandbox_abc",
+      apiKey: "launa_sandbox_abc",
       environment: "development",
     });
     await client.request("/config/platform");
-    expect(headers()?.get("X-API-Key")).toBe("ax402_sandbox_abc");
-    expect(headers()?.get("X-Ax402-Environment")).toBe("development");
+    expect(headers()?.get("X-API-Key")).toBe("launa_sandbox_abc");
+    expect(headers()?.get("X-Launa-Environment")).toBe("development");
   });
 
-  it("sends X-Ax402-Environment without credentials", async () => {
+  it("sends X-Launa-Environment without credentials", async () => {
     const { client, headers } = captureHeaders({ environment: "development" });
     await client.request("/config/platform");
     expect(headers()?.get("X-API-Key")).toBeNull();
-    expect(headers()?.get("X-Ax402-Environment")).toBe("development");
+    expect(headers()?.get("X-Launa-Environment")).toBe("development");
   });
 });

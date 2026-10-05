@@ -16,7 +16,7 @@ import {
 describe('sandbox fork', () => {
   it('is a supported paywall network with a hosted RPC', () => {
     expect(SUPPORTED_PAYWALL_NETWORKS).toContain(NETWORK_SANDBOX_FORK)
-    expect(DEFAULT_RPC_BY_NETWORK[NETWORK_SANDBOX_FORK]).toBe('https://rpc-dev.ax402.io')
+    expect(DEFAULT_RPC_BY_NETWORK[NETWORK_SANDBOX_FORK]).toBe('https://rpc-dev.launa.io')
   })
 })
 
