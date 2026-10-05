@@ -8,7 +8,7 @@ Published packages from this repository:
 | `@launa/cli` | npm | `tools/cli` |
 | `@launa/mcp-server` | npm | `tools/mcp-server` |
 | `@launa/react-paywall` | npm | `packages/react-paywall` |
-| `ax402-sdk` | PyPI (not live yet) | `packages/python` |
+| `launa-sdk` | PyPI (not live yet) | `packages/python` |
 | `github.com/AxLabs/launa-sdks/go` | Go module proxy | `packages/golang` |
 
 Go is consumed via subdirectory module tags on GitHub — no separate registry. Tag `go/v0.0.6` (matching semver). There are no `go/v*` tags yet; `v0.0.6` is the first Go release.
@@ -69,7 +69,7 @@ git push origin go/v0.0.6
 
 Consumers: `go get github.com/AxLabs/launa-sdks/go@v0.0.6`. The proxy may take a few minutes to index.
 
-### PyPI (`ax402-sdk`) — prepared, not published
+### PyPI (`launa-sdk`) — prepared, not published
 
 The package name is not on PyPI yet. Version is synced to `0.0.6`. `.github/workflows/publish-pypi.yml` is `workflow_dispatch` only (tag trigger stays commented out).
 
@@ -88,7 +88,7 @@ Then: Actions → **Publish PyPI** → **Run workflow**. Do not uncomment the `v
 Until then, install from git:
 
 ```bash
-pip install "ax402-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirectory=packages/python"
+pip install "launa-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirectory=packages/python"
 ```
 
 ## Local publish (optional)
@@ -118,11 +118,11 @@ npm install -g @launa/cli
 npx @launa/mcp-server
 
 # after first PyPI upload
-pip install ax402-sdk
-pip install "ax402-sdk[buyer]"
+pip install launa-sdk
+pip install "launa-sdk[buyer]"
 
 # until then
-pip install "ax402-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirectory=packages/python"
+pip install "launa-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirectory=packages/python"
 ```
 
 ```bash

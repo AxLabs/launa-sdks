@@ -5,14 +5,14 @@ Control-plane and buyer client for the [Launa](https://launa.io) platform.
 ## Install
 
 ```bash
-pip install ax402-sdk
-pip install "ax402-sdk[buyer]"  # optional: pay gateway URLs
+pip install launa-sdk
+pip install "launa-sdk[buyer]"  # optional: pay gateway URLs
 ```
 
 Until the first PyPI upload, install from git:
 
 ```bash
-pip install "ax402-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirectory=packages/python"
+pip install "launa-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirectory=packages/python"
 ```
 
 ## Control plane

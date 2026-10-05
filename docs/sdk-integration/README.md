@@ -41,7 +41,7 @@ from launa_sdk.buyer import BuyerClient
 result = BuyerClient.from_env().get("https://my-api.launa.io/v1/echo?test=1")
 ```
 
-Install: `pip install "ax402-sdk[buyer]"`.
+Install: `pip install "launa-sdk[buyer]"`.
 
 ## Control plane quick start
 

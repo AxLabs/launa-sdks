@@ -13,7 +13,7 @@ Dashboard guides (gateway setup, DNS, domains, billing): [launa.io/docs](https:/
 | **Buyers** | **[buyers](./buyers/README.md)** | Pay gateway URLs (start here for consumers) |
 | TypeScript | [sdks/typescript](./sdks/typescript/README.md) | `@launa/sdk` + `/buyer` |
 | Go | [sdks/go](./sdks/go/README.md) | `github.com/AxLabs/launa-sdks/go` |
-| Python | [sdks/python](./sdks/python/README.md) | `ax402-sdk` (PyPI, first upload pending) |
+| Python | [sdks/python](./sdks/python/README.md) | `launa-sdk` (PyPI, first upload pending) |
 | CLI | [cli](./cli/README.md) | `@launa/cli` |
 | MCP | [mcp](./mcp/README.md) | `@launa/mcp-server` |
 | Agents | [agents](./agents/README.md) | CLI + MCP recipes |

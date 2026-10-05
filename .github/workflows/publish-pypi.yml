@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   publish:
-    name: Publish ax402-sdk
+    name: Publish launa-sdk
     runs-on: ubuntu-latest
     defaults:
       run:
