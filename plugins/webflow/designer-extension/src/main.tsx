@@ -20,7 +20,7 @@ declare global {
 
 function App() {
   const [config, setConfig] = useState<BuyerPaywallConfig>({
-    resourceUrl: "https://echo.staging.ax402.io/echo/get?test=1",
+    resourceUrl: "https://echo.staging.launa.io/echo/get?test=1",
     policy: DEFAULT_BUYER_POLICY,
     title: "Continue reading",
     description: "Pay once to unlock this content.",
@@ -44,8 +44,8 @@ function App() {
       for (const [key, value] of Object.entries(attrs)) {
         await el.setCustomAttribute(key, value)
       }
-      webflow.notify({ type: "Success", message: "Ax402 paywall config attached." })
-      setStatus("Config stored on selected element. Insert Ax402 Paywall DevLink component for runtime UI.")
+      webflow.notify({ type: "Success", message: "Launa paywall config attached." })
+      setStatus("Config stored on selected element. Insert Launa Paywall DevLink component for runtime UI.")
     } catch (err) {
       setStatus(err instanceof Error ? err.message : String(err))
     }
@@ -54,7 +54,7 @@ function App() {
   return (
     <StrictMode>
       <div style={{ padding: 12, fontFamily: "system-ui, sans-serif" }}>
-        <h2 style={{ margin: "0 0 8px", fontSize: 16 }}>Ax402 Paywall</h2>
+        <h2 style={{ margin: "0 0 8px", fontSize: 16 }}>Launa Paywall</h2>
         <p style={{ margin: "0 0 12px", fontSize: 12, opacity: 0.7 }}>
           Configure buyer-side gateway paywall. Import DevLink library for canvas component.
         </p>

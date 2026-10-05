@@ -1,4 +1,4 @@
-# Ax402 Webflow plugin
+# Launa Webflow plugin
 
 Hybrid Webflow app: Designer Extension wizard + DevLink paywall component + OAuth backend.
 
@@ -19,7 +19,7 @@ pnpm install
 webflow devlink import
 ```
 
-Drag **Ax402 Paywall** from the library onto the canvas. Each instance embeds its own `PaywallProvider` (isolated React root).
+Drag **Launa Paywall** from the library onto the canvas. Each instance embeds its own `PaywallProvider` (isolated React root).
 
 ## Designer Extension
 
@@ -29,7 +29,7 @@ pnpm install
 pnpm dev
 ```
 
-Open from Webflow Designer → Apps → Ax402 Paywall. Use the wizard, then **Attach config to selected element** or insert the DevLink component.
+Open from Webflow Designer → Apps → Launa Paywall. Use the wizard, then **Attach config to selected element** or insert the DevLink component.
 
 ## OAuth backend (marketplace)
 

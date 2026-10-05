@@ -1,14 +1,14 @@
 import type { Config, Plugin } from "payload"
 import { createPaywallGroupField } from "./fields.js"
 
-export type Ax402PayloadPluginOptions = {
+export type LaunaPayloadPluginOptions = {
   enabled?: boolean
   /** Collection slugs to inject paywall fields into. */
   collections?: string[]
 }
 
-export const ax402PayloadPlugin =
-  (pluginOptions: Ax402PayloadPluginOptions = {}): Plugin =>
+export const launaPayloadPlugin =
+  (pluginOptions: LaunaPayloadPluginOptions = {}): Plugin =>
   (incomingConfig: Config): Config => {
     if (pluginOptions.enabled === false) return incomingConfig
 
@@ -30,4 +30,4 @@ export const ax402PayloadPlugin =
   }
 
 export { createPaywallGroupField, paywallFieldsFromDoc, PAYWALL_FIELD_NAME } from "./fields.js"
-export type { Ax402PaywallDocFields } from "./fields.js"
+export type { LaunaPaywallDocFields } from "./fields.js"

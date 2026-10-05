@@ -116,7 +116,7 @@ class BuyerClient:
     def from_env(cls, *, batch: BatchBuyerOptions | None = None) -> BuyerClient:
         import os
 
-        key = os.environ.get("AX402_EVM_PRIVATE_KEY") or os.environ.get("EVM_PRIVATE_KEY")
+        key = os.environ.get("LAUNA_EVM_PRIVATE_KEY") or os.environ.get("EVM_PRIVATE_KEY")
         if not key:
-            raise BuyerDepsError("AX402_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required")
+            raise BuyerDepsError("LAUNA_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required")
         return cls.from_private_key(key, batch=batch)

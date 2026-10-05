@@ -15,11 +15,11 @@ pnpm add @x402/fetch @x402/evm viem
 ## Control plane
 
 ```typescript
-import { Ax402Client, buildUsdcAccept, usdcToAtomic } from "@axlabs/ax402-sdk";
+import { LaunaClient, buildUsdcAccept, usdcToAtomic } from "@axlabs/ax402-sdk";
 
-const client = new Ax402Client({
-  baseUrl: process.env.AX402_BASE_URL!,
-  apiKey: process.env.AX402_API_KEY,
+const client = new LaunaClient({
+  baseUrl: process.env.LAUNA_BASE_URL!,
+  apiKey: process.env.LAUNA_API_KEY,
 });
 
 const apis = await client.apis.list();
@@ -36,7 +36,7 @@ import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
 
 const client = await buyerClientFromEnv();
 const { response, payment } = await client.pay({
-  url: "https://my-api.ax402.io/v1/echo?test=1",
+  url: "https://my-api.launa.io/v1/echo?test=1",
 });
 ```
 

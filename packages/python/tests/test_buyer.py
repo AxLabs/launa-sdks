@@ -1,6 +1,6 @@
 import pytest
 
-from ax402_sdk.buyer import BuyerClient, BuyerDepsError, evm_signer_from_private_key
+from launa_sdk.buyer import BuyerClient, BuyerDepsError, evm_signer_from_private_key
 
 
 def test_evm_signer_from_private_key() -> None:
@@ -24,7 +24,7 @@ def test_buyer_deps_error_message() -> None:
 
 
 def test_buyer_client_with_batch() -> None:
-    from ax402_sdk.buyer import BatchBuyerOptions
+    from launa_sdk.buyer import BatchBuyerOptions
 
     signer = evm_signer_from_private_key(
         "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"

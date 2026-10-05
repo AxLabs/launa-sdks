@@ -39,8 +39,8 @@ export function InspectGatewayField() {
       {summary && <p style={{ margin: 0, fontSize: 13 }}>{summary}</p>}
       <p style={{ margin: 0, fontSize: 12, opacity: 0.7 }}>
         Sellers create gateway URLs in the{' '}
-        <a href="https://ax402.io/docs" target="_blank" rel="noreferrer">
-          Ax402 dashboard
+        <a href="https://launa.io/docs" target="_blank" rel="noreferrer">
+          Launa dashboard
         </a>
         .
       </p>

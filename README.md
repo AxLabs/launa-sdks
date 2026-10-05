@@ -1,8 +1,8 @@
 # ax402-sdk
 
-Official SDKs and tools for the [Ax402](https://ax402.io) platform — control-plane clients, buyer helpers, CLI, and MCP server.
+Official SDKs and tools for the [Launa](https://launa.io) platform — control-plane clients, buyer helpers, CLI, and MCP server.
 
-**Payment protocol (402, signing, facilitator)** is defined by [x402-foundation/x402](https://github.com/x402-foundation/x402). Use `@x402/fetch` or `github.com/x402-foundation/x402/go` to pay gateway URLs. This repository covers the Ax402 **control plane API** and automation tooling.
+**Payment protocol (402, signing, facilitator)** is defined by [x402-foundation/x402](https://github.com/x402-foundation/x402). Use `@x402/fetch` or `github.com/x402-foundation/x402/go` to pay gateway URLs. This repository covers the Launa **control plane API** and automation tooling.
 
 ## Which package do I need?
 
@@ -11,7 +11,7 @@ Official SDKs and tools for the [Ax402](https://ax402.io) platform — control-p
 | Manage APIs/endpoints/domains from Node/TS | `@axlabs/ax402-sdk` |
 | CI/CD automation (Go) | `github.com/AxLabs/ax402-sdk/go` |
 | AI agents (Python) | `ax402-sdk` on PyPI |
-| CLI / shell scripts | `ax402` CLI in `tools/cli` |
+| CLI / shell scripts | `launa` CLI in `tools/cli` |
 | Cursor / Claude MCP tools | `tools/mcp-server` |
 | Pay a wrapped API (buyer) | `@axlabs/ax402-sdk/buyer` (`BuyerClient`, `payAndFetch`) |
 
@@ -22,11 +22,11 @@ pnpm add @axlabs/ax402-sdk
 ```
 
 ```typescript
-import { Ax402Client } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/ax402-sdk";
 
-const client = new Ax402Client({
-  baseUrl: process.env.AX402_BASE_URL!,
-  apiKey: process.env.AX402_API_KEY!,
+const client = new LaunaClient({
+  baseUrl: process.env.LAUNA_BASE_URL!,
+  apiKey: process.env.LAUNA_API_KEY!,
 });
 
 const apis = await client.apis.list();
@@ -36,10 +36,10 @@ const apis = await client.apis.list();
 
 | Variable | Used by |
 |----------|---------|
-| `AX402_BASE_URL` | CLI, MCP, SDKs — your Ax402 API URL (from the dashboard) |
-| `AX402_API_KEY` | CLI, MCP, automation (`ax402_live_...`) |
-| `AX402_JWT` | Interactive CLI auth |
-| `AX402_EVM_PRIVATE_KEY` | Buyer CLI/MCP pay |
+| `LAUNA_BASE_URL` | CLI, MCP, SDKs — your Launa API URL (from the dashboard) |
+| `LAUNA_API_KEY` | CLI, MCP, automation (`launa_live_...`) |
+| `LAUNA_JWT` | Interactive CLI auth |
+| `LAUNA_EVM_PRIVATE_KEY` | Buyer CLI/MCP pay |
 
 ## Layout
 

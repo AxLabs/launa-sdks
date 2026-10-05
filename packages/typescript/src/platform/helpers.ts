@@ -1,5 +1,5 @@
 import type { AcceptOption, PaymentToken } from "../types.js";
-import type { Ax402Client } from "../client.js";
+import type { LaunaClient } from "../client.js";
 
 export const USDC_DECIMALS = 6;
 
@@ -176,7 +176,7 @@ export function gatewayURL(
 }
 
 export async function setupApiWithDefaultDomain(
-  client: Ax402Client,
+  client: LaunaClient,
   input: {
     name: string;
     slug: string;
@@ -192,7 +192,7 @@ export async function setupApiWithDefaultDomain(
 }
 
 export async function wrapOpenAPI(
-  client: Ax402Client,
+  client: LaunaClient,
   apiId: string,
   spec: string,
   accepts: AcceptOption[],

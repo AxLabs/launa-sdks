@@ -1,7 +1,7 @@
 {
   "name": "@axlabs/x402-webflow-devlink",
   "version": "0.1.0",
-  "description": "Webflow DevLink code component library for Ax402 paywall",
+  "description": "Webflow DevLink code component library for Launa paywall",
   "type": "module",
   "scripts": {
     "build": "tsc",

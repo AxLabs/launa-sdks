@@ -1,10 +1,10 @@
 {
-  "name": "@axlabs/ax402-mcp-server",
+  "name": "@axlabs/launa-mcp-server",
   "version": "0.2.0",
   "private": true,
   "type": "module",
   "bin": {
-    "ax402-mcp": "./dist/index.js"
+    "launa-mcp": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",

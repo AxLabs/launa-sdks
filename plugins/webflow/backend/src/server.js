@@ -72,5 +72,5 @@ const server = http.createServer(async (req, res) => {
 })
 
 server.listen(PORT, () => {
-  console.log(`Ax402 Webflow OAuth backend on http://localhost:${PORT}`)
+  console.log(`Launa Webflow OAuth backend on http://localhost:${PORT}`)
 })

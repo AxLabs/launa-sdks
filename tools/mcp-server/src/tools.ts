@@ -1,12 +1,12 @@
-import type { Ax402Client } from "@axlabs/ax402-sdk";
+import type { LaunaClient } from "@axlabs/ax402-sdk";
 import { buildUsdcAccept, usdcToAtomic, wrapOpenAPI, type PaymentScheme } from "@axlabs/ax402-sdk";
 import { inspectGatewayUrl } from "@axlabs/ax402-sdk/shell";
 
-export function createToolHandlers(getClient: () => Ax402Client) {
+export function createToolHandlers(getClient: () => LaunaClient) {
   return {
     listApis: async () => getClient().apis.list(),
     getApi: async (api_id: string) => getClient().apis.get(api_id),
-    createApi: async (body: Parameters<Ax402Client["apis"]["create"]>[0]) => getClient().apis.create(body),
+    createApi: async (body: Parameters<LaunaClient["apis"]["create"]>[0]) => getClient().apis.create(body),
     addEndpoint: async (
       api_id: string,
       method: string,
@@ -48,12 +48,12 @@ export function createToolHandlers(getClient: () => Ax402Client) {
     platformConfig: async () => getClient().config.platform(),
     inspectUrl: async (url: string, method = "GET") => inspectGatewayUrl(url, method),
     payUrl: async (url: string, method = "GET") => {
-      const pk = process.env.AX402_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
+      const pk = process.env.LAUNA_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
       if (!pk) {
         return {
           status: "wallet_required",
           url,
-          hint: "Set AX402_EVM_PRIVATE_KEY to pay from MCP, or use @axlabs/ax402-sdk/buyer in your agent runtime",
+          hint: "Set LAUNA_EVM_PRIVATE_KEY to pay from MCP, or use @axlabs/ax402-sdk/buyer in your agent runtime",
         };
       }
       const { buyerClientFromPrivateKey } = await import("@axlabs/ax402-sdk/buyer");

@@ -1,6 +1,6 @@
 {
-  "id": "ax402-paywall",
-  "name": "Ax402 Paywall",
+  "id": "launa-paywall",
+  "name": "Launa Paywall",
   "modes": ["canvas"],
-  "icon": "https://ax402.io/favicon.ico"
+  "icon": "https://launa.io/favicon.ico"
 }

@@ -1,5 +1,5 @@
 import type { Config } from 'payload'
-import { ax402PayloadPlugin } from '@axlabs/ax402-payload'
+import { launaPayloadPlugin } from '@axlabs/launa-payload'
 
 /**
  * Example Payload config for local plugin development.
@@ -17,7 +17,7 @@ export default {
     },
   ],
   plugins: [
-    ax402PayloadPlugin({
+    launaPayloadPlugin({
       collections: ['posts', 'pages'],
     }),
   ],

@@ -2,7 +2,7 @@
 //
 // Usage:
 //
-//	export AX402_API_KEY=ax402_live_...
+//	export LAUNA_API_KEY=launa_live_...
 //	go run ./setup_api/ [slug] [upstream-url] [price-usdc]
 package main
 
@@ -13,7 +13,7 @@ import (
 	"os"
 	"strings"
 
-	ax402 "github.com/AxLabs/ax402-sdk/go"
+	launa "github.com/AxLabs/ax402-sdk/go"
 )
 
 func main() {
@@ -30,26 +30,26 @@ func main() {
 		price = os.Args[3]
 	}
 
-	key := os.Getenv("AX402_API_KEY")
+	key := os.Getenv("LAUNA_API_KEY")
 	if key == "" {
-		fmt.Fprintln(os.Stderr, "AX402_API_KEY is required")
+		fmt.Fprintln(os.Stderr, "LAUNA_API_KEY is required")
 		os.Exit(1)
 	}
 
-	base := os.Getenv("AX402_BASE_URL")
+	base := os.Getenv("LAUNA_BASE_URL")
 	if base == "" {
-		base = "https://api.ax402.io"
+		base = "https://api.launa.io"
 	}
 
 	ctx := context.Background()
-	client := ax402.NewClient(base, ax402.Credentials{APIKey: key})
+	client := launa.NewClient(base, launa.Credentials{APIKey: key})
 
 	platform, err := client.PlatformConfig(ctx)
 	if err != nil {
 		fatal(err)
 	}
 
-	api, err := client.CreateAPI(ctx, ax402.CreateAPIInput{
+	api, err := client.CreateAPI(ctx, launa.CreateAPIInput{
 		Name:            titleSlug(slug),
 		Slug:            slug,
 		UpstreamBaseURL: upstream,
@@ -63,11 +63,11 @@ func main() {
 		fatal(err)
 	}
 
-	endpoint, err := client.CreateEndpoint(ctx, api.ID, ax402.CreateEndpointInput{
+	endpoint, err := client.CreateEndpoint(ctx, api.ID, launa.CreateEndpointInput{
 		Method:      "GET",
 		PathPattern: "/get",
 		Description: "Paid echo via httpbin",
-		Accepts:     []ax402.AcceptOption{ax402.BuildUsdcAccept("exact", atomic)},
+		Accepts:     []launa.AcceptOption{launa.BuildUsdcAccept("exact", atomic)},
 	})
 	if err != nil {
 		fatal(err)
@@ -78,7 +78,7 @@ func main() {
 		"apiId":       api.ID,
 		"slug":        api.Slug,
 		"endpointId":  endpoint.ID,
-		"gatewayUrl":  ax402.GatewayURL(host, "/get", platform.GatewayPort),
+		"gatewayUrl":  launa.GatewayURL(host, "/get", platform.GatewayPort),
 		"priceUsdc":   price,
 	}
 	enc := json.NewEncoder(os.Stdout)

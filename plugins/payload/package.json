@@ -1,5 +1,5 @@
 {
-  "name": "@axlabs/ax402-payload",
+  "name": "@axlabs/launa-payload",
   "version": "0.1.0",
   "description": "Payload CMS buyer-side x402 paywall plugin",
   "type": "module",

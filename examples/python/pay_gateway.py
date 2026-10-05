@@ -2,7 +2,7 @@
 """Pay a gateway URL with an EVM wallet.
 
 Usage:
-  export AX402_EVM_PRIVATE_KEY=0x...
+  export LAUNA_EVM_PRIVATE_KEY=0x...
   python examples/python/pay_gateway.py [gateway-url]
 
 Batch-settlement gateway:
@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 import sys
 
-from ax402_sdk.buyer import BatchBuyerOptions, BuyerClient
+from launa_sdk.buyer import BatchBuyerOptions, BuyerClient
 
 
 def main() -> None:
@@ -24,7 +24,7 @@ def main() -> None:
         batch = True
         args = args[1:]
 
-    url = args[0] if args else "https://my-api.ax402.io/v1/echo?test=1"
+    url = args[0] if args else "https://my-api.launa.io/v1/echo?test=1"
     client = BuyerClient.from_env(batch=BatchBuyerOptions(deposit_multiplier=5) if batch else None)
     result = client.get(url)
 

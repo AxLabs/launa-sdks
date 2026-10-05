@@ -2,7 +2,7 @@
 
 Embeddable React overlay for x402 micropayments (pay-per-fetch). Works with any x402 gateway and wallet signing via `@x402/fetch`.
 
-Docs: [getting started](./getting-started.md) · [examples](./examples.md) · [ax402.io/docs/react-paywall](https://ax402.io/docs/react-paywall)
+Docs: [getting started](./getting-started.md) · [examples](./examples.md) · [launa.io/docs/react-paywall](https://launa.io/docs/react-paywall)
 
 ## Install
 
@@ -19,7 +19,7 @@ export function App() {
   return (
     <PaywallProvider>
       <PaywallGate
-        resourceUrl="https://my-api.ax402.io/v1/echo?test=1"
+        resourceUrl="https://my-api.launa.io/v1/echo?test=1"
         title="Unlock content"
       />
     </PaywallProvider>

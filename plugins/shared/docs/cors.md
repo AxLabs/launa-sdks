@@ -7,7 +7,7 @@ Browser-based paywalls (Framer, Webflow, Payload frontend) call the **gateway UR
 - `Access-Control-Allow-Origin` — your site origin, or `*` for public content APIs
 - `Access-Control-Expose-Headers` — include x402 payment headers (`PAYMENT-REQUIRED`, `PAYMENT-SIGNATURE`, `PAYMENT-RESPONSE`, or legacy `X-PAYMENT*`)
 
-Ax402-hosted gateways set these when the seller configures allowed origins in the dashboard.
+Launa-hosted gateways set these when the seller configures allowed origins in the dashboard.
 
 ## Local development
 
@@ -19,7 +19,7 @@ export default {
   server: {
     proxy: {
       '/gateway': {
-        target: 'https://echo.staging.ax402.io',
+        target: 'https://echo.staging.launa.io',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/gateway/, ''),
       },

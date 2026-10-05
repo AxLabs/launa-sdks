@@ -1,9 +1,9 @@
 import type { Field, GroupField } from "payload"
 import type { BuyerPaywallPolicy } from "@axlabs/x402-buyer-plugin-core"
 
-export const PAYWALL_FIELD_NAME = "ax402Paywall"
+export const PAYWALL_FIELD_NAME = "launaPaywall"
 
-export type Ax402PaywallDocFields = {
+export type LaunaPaywallDocFields = {
   paywallEnabled?: boolean
   gatewayResourceUrl?: string
   paywallPolicy?: BuyerPaywallPolicy
@@ -14,9 +14,9 @@ export function createPaywallGroupField(): GroupField {
   return {
     name: PAYWALL_FIELD_NAME,
     type: "group",
-    label: "Ax402 Paywall",
+    label: "Launa Paywall",
     admin: {
-      description: "Gate this document behind an Ax402 gateway URL (buyer-side x402 payment).",
+      description: "Gate this document behind an Launa gateway URL (buyer-side x402 payment).",
     },
     fields: [
       {
@@ -31,7 +31,7 @@ export function createPaywallGroupField(): GroupField {
         label: "Gateway resource URL",
         admin: {
           condition: (_, siblingData) => siblingData?.paywallEnabled === true,
-          description: "Full gateway URL, e.g. https://my-api.ax402.io/v1/posts/slug",
+          description: "Full gateway URL, e.g. https://my-api.launa.io/v1/posts/slug",
         },
       },
       {
@@ -57,7 +57,7 @@ export function createPaywallGroupField(): GroupField {
         admin: {
           condition: (_, siblingData) => siblingData?.paywallEnabled === true,
           components: {
-            Field: "@axlabs/ax402-payload/client#InspectGatewayField",
+            Field: "@axlabs/launa-payload/client#InspectGatewayField",
           },
         },
       },
@@ -71,7 +71,7 @@ export function paywallFieldsFromDoc(doc: Record<string, unknown>): {
   policy?: BuyerPaywallPolicy
   teaser?: string
 } {
-  const group = doc[PAYWALL_FIELD_NAME] as Ax402PaywallDocFields | undefined
+  const group = doc[PAYWALL_FIELD_NAME] as LaunaPaywallDocFields | undefined
   return {
     enabled: group?.paywallEnabled === true,
     gatewayResourceUrl: group?.gatewayResourceUrl,

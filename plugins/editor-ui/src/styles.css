@@ -1,4 +1,4 @@
-.ax402-wizard {
+.launa-wizard {
   font-family: system-ui, sans-serif;
   font-size: 13px;
   color: #111;
@@ -7,29 +7,29 @@
   gap: 12px;
 }
 
-.ax402-wizard label {
+.launa-wizard label {
   display: flex;
   flex-direction: column;
   gap: 4px;
   font-weight: 500;
 }
 
-.ax402-wizard input,
-.ax402-wizard select,
-.ax402-wizard textarea {
+.launa-wizard input,
+.launa-wizard select,
+.launa-wizard textarea {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font: inherit;
 }
 
-.ax402-wizard__tabs {
+.launa-wizard__tabs {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
 }
 
-.ax402-wizard__tab {
+.launa-wizard__tab {
   padding: 6px 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -37,18 +37,18 @@
   cursor: pointer;
 }
 
-.ax402-wizard__tab--active {
+.launa-wizard__tab--active {
   background: #111;
   color: #fff;
   border-color: #111;
 }
 
-.ax402-wizard__actions {
+.launa-wizard__actions {
   display: flex;
   gap: 8px;
 }
 
-.ax402-wizard__btn {
+.launa-wizard__btn {
   padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid #111;
@@ -58,12 +58,12 @@
   font: inherit;
 }
 
-.ax402-wizard__btn--secondary {
+.launa-wizard__btn--secondary {
   background: #fff;
   color: #111;
 }
 
-.ax402-wizard__inspect {
+.launa-wizard__inspect {
   padding: 8px;
   border-radius: 6px;
   background: #f0f7ff;
@@ -71,7 +71,7 @@
   font-size: 12px;
 }
 
-.ax402-wizard__error {
+.launa-wizard__error {
   color: #b00020;
   font-size: 12px;
 }

@@ -2,7 +2,7 @@
 
 export { InspectGatewayField } from './InspectGatewayField.js'
 export {
-  Ax402Paywall,
+  LaunaPaywall,
   PaywallProvider,
   PaywallGate,
   usePaywall,

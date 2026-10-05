@@ -1,8 +1,8 @@
 /**
- * Inlined paywall component source written alongside Ax402Paywall.tsx by the editor plugin.
+ * Inlined paywall component source written alongside LaunaPaywall.tsx by the editor plugin.
  * Copy from @axlabs/x402-framer-component when publishing to Framer Marketplace.
  */
-import { Ax402Paywall } from "@axlabs/x402-buyer-plugin-react"
+import { LaunaPaywall } from "@axlabs/x402-buyer-plugin-react"
 import "@axlabs/x402-react-paywall/styles.css"
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
   payLabel: string
 }
 
-export default function Ax402PaywallFramer({
+export default function LaunaPaywallFramer({
   resourceUrl,
   title,
   description,
@@ -37,7 +37,7 @@ export default function Ax402PaywallFramer({
   }
 
   return (
-    <Ax402Paywall
+    <LaunaPaywall
       resourceUrl={resourceUrl}
       title={title}
       description={description}

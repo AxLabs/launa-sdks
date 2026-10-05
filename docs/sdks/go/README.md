@@ -7,16 +7,16 @@ Buyer module: `github.com/AxLabs/ax402-sdk/go/buyer`.
 ## Control plane
 
 ```go
-import ax402 "github.com/AxLabs/ax402-sdk/go"
+import launa "github.com/AxLabs/ax402-sdk/go"
 
-client := ax402.NewClient(baseURL, ax402.Credentials{APIKey: os.Getenv("AX402_API_KEY")})
+client := launa.NewClient(baseURL, launa.Credentials{APIKey: os.Getenv("LAUNA_API_KEY")})
 apis, err := client.ListAPIs(ctx)
-api, err := client.CreateAPI(ctx, ax402.CreateAPIInput{...})
+api, err := client.CreateAPI(ctx, launa.CreateAPIInput{...})
 ```
 
 Flat methods mirror the TypeScript resources: auth, keys, apis, endpoints, domains, openapi, stats, settlements, billing, income, exchange rates, and config.
 
-Helpers: `ax402.GatewayURL`, `ax402.BuildUsdcAccept`, `ax402.UsdcToAtomic`, `ax402.WrapOpenAPI`, `ax402.SetupAPIWithDefaultDomain`, `ax402.ScopePresets`.
+Helpers: `launa.GatewayURL`, `launa.BuildUsdcAccept`, `launa.UsdcToAtomic`, `launa.WrapOpenAPI`, `launa.SetupAPIWithDefaultDomain`, `launa.ScopePresets`.
 
 ## Buyer
 
@@ -25,10 +25,10 @@ Pay gateway URLs with EVM `exact` and `batch-settlement`. Full guide: [buyers](.
 ```go
 import "github.com/AxLabs/ax402-sdk/go/buyer"
 
-c, err := buyer.NewFromPrivateKey(os.Getenv("AX402_EVM_PRIVATE_KEY"))
+c, err := buyer.NewFromPrivateKey(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))
 if err != nil { /* handle */ }
 
-resp, err := c.Get(ctx, "https://my-api.ax402.io/v1/echo?test=1")
+resp, err := c.Get(ctx, "https://my-api.launa.io/v1/echo?test=1")
 defer resp.Body.Close()
 
 settle, _ := c.SettleResponseFrom(resp)

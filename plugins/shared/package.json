@@ -1,7 +1,7 @@
 {
   "name": "@axlabs/x402-buyer-plugin-core",
   "version": "0.1.0",
-  "description": "Shared buyer paywall config for Ax402 CMS plugins",
+  "description": "Shared buyer paywall config for Launa CMS plugins",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

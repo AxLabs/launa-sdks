@@ -2,7 +2,7 @@
 //
 // Usage:
 //
-//	export AX402_EVM_PRIVATE_KEY=0x...
+//	export LAUNA_EVM_PRIVATE_KEY=0x...
 //	go run ./pay_gateway/ [gateway-url]
 //
 // Batch-settlement gateway:
@@ -28,17 +28,17 @@ func main() {
 		args = args[1:]
 	}
 
-	url := "https://my-api.ax402.io/v1/echo?test=1"
+	url := "https://my-api.launa.io/v1/echo?test=1"
 	if len(args) > 0 {
 		url = args[0]
 	}
 
-	key := os.Getenv("AX402_EVM_PRIVATE_KEY")
+	key := os.Getenv("LAUNA_EVM_PRIVATE_KEY")
 	if key == "" {
 		key = os.Getenv("EVM_PRIVATE_KEY")
 	}
 	if key == "" {
-		fmt.Fprintln(os.Stderr, "AX402_EVM_PRIVATE_KEY is required")
+		fmt.Fprintln(os.Stderr, "LAUNA_EVM_PRIVATE_KEY is required")
 		os.Exit(1)
 	}
 

@@ -3,7 +3,7 @@ import { PaywallGate, PaywallProvider } from "@axlabs/x402-react-paywall"
 import type { BuyerPaywallConfig } from "@axlabs/x402-buyer-plugin-core"
 import { DEFAULT_BUYER_POLICY, mergeBuyerConfig } from "@axlabs/x402-buyer-plugin-core"
 
-export type Ax402PaywallProps = Partial<BuyerPaywallConfig> & {
+export type LaunaPaywallProps = Partial<BuyerPaywallConfig> & {
   resourceUrl: string
   children?: ReactNode
   className?: string
@@ -13,7 +13,7 @@ export type Ax402PaywallProps = Partial<BuyerPaywallConfig> & {
  * Self-contained paywall: embeds PaywallProvider + PaywallGate.
  * Required for platforms with isolated React roots (Framer, Webflow code components).
  */
-export function Ax402Paywall({
+export function LaunaPaywall({
   resourceUrl,
   title = "Continue reading",
   description = "Pay once to unlock this content.",
@@ -26,7 +26,7 @@ export function Ax402Paywall({
   agentDiscovery = true,
   children,
   className,
-}: Ax402PaywallProps) {
+}: LaunaPaywallProps) {
   const merged = mergeBuyerConfig(
     { resourceUrl, title, description, policy: DEFAULT_BUYER_POLICY },
     {

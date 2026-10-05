@@ -1,10 +1,10 @@
 {
   "name": "@axlabs/x402-framer-component",
   "version": "0.1.0",
-  "description": "Framer code component for Ax402 buyer paywall",
+  "description": "Framer code component for Launa buyer paywall",
   "type": "module",
-  "main": "./dist/Ax402Paywall.js",
-  "types": "./dist/Ax402Paywall.d.ts",
+  "main": "./dist/LaunaPaywall.js",
+  "types": "./dist/LaunaPaywall.d.ts",
   "scripts": {
     "build": "tsc",
     "prepare": "pnpm run build"

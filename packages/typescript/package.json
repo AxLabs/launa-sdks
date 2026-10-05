@@ -1,7 +1,7 @@
 {
   "name": "@axlabs/ax402-sdk",
   "version": "0.2.0",
-  "description": "Ax402 platform control-plane SDK",
+  "description": "Launa platform control-plane SDK",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

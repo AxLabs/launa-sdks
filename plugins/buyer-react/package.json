@@ -1,7 +1,7 @@
 {
   "name": "@axlabs/x402-buyer-plugin-react",
   "version": "0.1.0",
-  "description": "Self-contained Ax402 paywall React component for CMS plugins",
+  "description": "Self-contained Launa paywall React component for CMS plugins",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

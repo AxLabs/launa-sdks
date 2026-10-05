@@ -1,11 +1,11 @@
-# @axlabs/ax402-payload
+# @axlabs/launa-payload
 
-Buyer-side Payload CMS plugin — gate documents behind Ax402 gateway URLs.
+Buyer-side Payload CMS plugin — gate documents behind Launa gateway URLs.
 
 ## Install
 
 ```bash
-pnpm add @axlabs/ax402-payload @axlabs/x402-react-paywall
+pnpm add @axlabs/launa-payload @axlabs/x402-react-paywall
 ```
 
 Peer dependencies: `payload` ^3, `@payloadcms/ui`, React 18+.
@@ -19,11 +19,11 @@ import '@axlabs/x402-react-paywall/styles.css'
 ## Payload config
 
 ```ts
-import { ax402PayloadPlugin } from '@axlabs/ax402-payload'
+import { launaPayloadPlugin } from '@axlabs/launa-payload'
 
 export default buildConfig({
   plugins: [
-    ax402PayloadPlugin({
+    launaPayloadPlugin({
       collections: ['posts', 'pages'],
     }),
   ],
@@ -35,15 +35,15 @@ export default buildConfig({
 Wrap the root layout once:
 
 ```tsx
-import { Ax402PaywallProvider } from '@axlabs/ax402-payload/rsc'
+import { LaunaPaywallProvider } from '@axlabs/launa-payload/rsc'
 
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <Ax402PaywallProvider policy={{ preferredNetworks: 'eip155:84532' }}>
+        <LaunaPaywallProvider policy={{ preferredNetworks: 'eip155:84532' }}>
           {children}
-        </Ax402PaywallProvider>
+        </LaunaPaywallProvider>
       </body>
     </html>
   )
@@ -53,13 +53,13 @@ export default function RootLayout({ children }) {
 Gate a document:
 
 ```tsx
-import { Ax402PaywallBlock } from '@axlabs/ax402-payload/rsc'
+import { LaunaPaywallBlock } from '@axlabs/launa-payload/rsc'
 
 export function PostPage({ post }) {
   return (
-    <Ax402PaywallBlock doc={post}>
+    <LaunaPaywallBlock doc={post}>
       <article>{post.body}</article>
-    </Ax402PaywallBlock>
+    </LaunaPaywallBlock>
   )
 }
 ```
@@ -67,12 +67,12 @@ export function PostPage({ post }) {
 ## Low-level buyer hooks
 
 ```tsx
-import { usePaidFetch, usePaywall } from '@axlabs/ax402-payload/client'
+import { usePaidFetch, usePaywall } from '@axlabs/launa-payload/client'
 ```
 
 ## Admin fields
 
-Each configured collection gets an **Ax402 Paywall** group:
+Each configured collection gets an **Launa Paywall** group:
 
 | Field | Purpose |
 |-------|---------|
@@ -82,4 +82,4 @@ Each configured collection gets an **Ax402 Paywall** group:
 | `paywallTeaser` | Teaser before payment |
 | Inspect gateway | Admin UI button (402 preview) |
 
-Sellers create gateway URLs in the [Ax402 dashboard](https://ax402.io/docs) — this plugin is buyer-side only.
+Sellers create gateway URLs in the [Launa dashboard](https://launa.io/docs) — this plugin is buyer-side only.

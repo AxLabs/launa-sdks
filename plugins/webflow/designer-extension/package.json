@@ -2,7 +2,7 @@
   "name": "@axlabs/x402-webflow-designer-extension",
   "version": "0.1.0",
   "private": true,
-  "description": "Webflow Designer Extension for Ax402 buyer paywall",
+  "description": "Webflow Designer Extension for Launa buyer paywall",
   "type": "module",
   "scripts": {
     "dev": "webflow extension serve",

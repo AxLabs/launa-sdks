@@ -8,7 +8,7 @@ import {
 import type { BuyerPaywallConfig } from "./config.js"
 
 const sample: BuyerPaywallConfig = {
-  resourceUrl: "https://echo.staging.ax402.io/echo/get?test=1",
+  resourceUrl: "https://echo.staging.launa.io/echo/get?test=1",
   policy: { preferredNetworks: "eip155:84532" },
   title: "Unlock",
 }
@@ -26,7 +26,7 @@ describe("serializeBuyerConfig", () => {
 
   it("falls back to resource URL only", () => {
     expect(
-      configFromDataAttributes({ "data-ax402-resource-url": sample.resourceUrl }),
+      configFromDataAttributes({ "data-launa-resource-url": sample.resourceUrl }),
     ).toEqual({ resourceUrl: sample.resourceUrl })
   })
 })

@@ -6,19 +6,19 @@ import { DEFAULT_BUYER_POLICY, serializeBuyerConfig } from "@axlabs/x402-buyer-p
 import { BuyerConfigWizard } from "@axlabs/x402-buyer-plugin-editor-ui"
 import "@axlabs/x402-buyer-plugin-editor-ui/styles.css"
 
-import framerImplSource from "./Ax402PaywallFramer.template.tsx?raw"
+import framerImplSource from "./LaunaPaywallFramer.template.tsx?raw"
 
-const FRAMER_IMPL_FILE = "Ax402PaywallFramer.tsx"
+const FRAMER_IMPL_FILE = "LaunaPaywallFramer.tsx"
 
-const COMPONENT_FILE = "Ax402Paywall.tsx"
+const COMPONENT_FILE = "LaunaPaywall.tsx"
 
 const COMPONENT_SOURCE = `import { addPropertyControls, ControlType } from "framer"
-import Ax402PaywallFramer from "./Ax402PaywallFramer"
+import LaunaPaywallFramer from "./LaunaPaywallFramer"
 
-export default Ax402PaywallFramer
+export default LaunaPaywallFramer
 
-addPropertyControls(Ax402PaywallFramer, {
-  resourceUrl: { type: ControlType.String, title: "Gateway URL", defaultValue: "https://echo.staging.ax402.io/echo/get?test=1" },
+addPropertyControls(LaunaPaywallFramer, {
+  resourceUrl: { type: ControlType.String, title: "Gateway URL", defaultValue: "https://echo.staging.launa.io/echo/get?test=1" },
   title: { type: ControlType.String, title: "Title", defaultValue: "Continue reading" },
   description: { type: ControlType.String, title: "Description", defaultValue: "Pay once to unlock this content." },
   preferredNetworks: { type: ControlType.String, title: "Preferred networks", defaultValue: "eip155:84532" },
@@ -38,7 +38,7 @@ framer.showUI({
 
 function App() {
   const [config, setConfig] = useState<BuyerPaywallConfig>({
-    resourceUrl: "https://echo.staging.ax402.io/echo/get?test=1",
+    resourceUrl: "https://echo.staging.launa.io/echo/get?test=1",
     policy: DEFAULT_BUYER_POLICY,
     title: "Continue reading",
     description: "Pay once to unlock this content.",
@@ -102,9 +102,9 @@ function App() {
   return (
     <StrictMode>
       <div style={{ padding: 12 }}>
-        <h2 style={{ margin: "0 0 8px", fontSize: 16 }}>Ax402 Paywall</h2>
+        <h2 style={{ margin: "0 0 8px", fontSize: 16 }}>Launa Paywall</h2>
         <p style={{ margin: "0 0 12px", fontSize: 12, opacity: 0.7 }}>
-          Buyer-side gateway paywall — routes payments through Ax402.
+          Buyer-side gateway paywall — routes payments through Launa.
         </p>
         <BuyerConfigWizard value={config} onChange={setConfig} requireHttps={false} />
         <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>

@@ -1,9 +1,9 @@
 import { props } from "@webflow/data-types"
 import { declareComponent } from "@webflow/react"
-import { Ax402Paywall } from "@axlabs/x402-buyer-plugin-react"
+import { LaunaPaywall } from "@axlabs/x402-buyer-plugin-react"
 import "@axlabs/x402-react-paywall/styles.css"
 
-function Ax402PaywallWebflow({
+function LaunaPaywallWebflow({
   resourceUrl,
   title,
   description,
@@ -33,7 +33,7 @@ function Ax402PaywallWebflow({
   }
 
   return (
-    <Ax402Paywall
+    <LaunaPaywall
       resourceUrl={resourceUrl}
       title={title}
       description={description}
@@ -51,13 +51,13 @@ function Ax402PaywallWebflow({
   )
 }
 
-export default declareComponent(Ax402PaywallWebflow, {
-  name: "Ax402 Paywall",
-  description: "Buyer-side x402 paywall routed through Ax402 gateway",
+export default declareComponent(LaunaPaywallWebflow, {
+  name: "Launa Paywall",
+  description: "Buyer-side x402 paywall routed through Launa gateway",
   props: {
     resourceUrl: props.Text({
       name: "Gateway URL",
-      defaultValue: "https://echo.staging.ax402.io/echo/get?test=1",
+      defaultValue: "https://echo.staging.launa.io/echo/get?test=1",
     }),
     title: props.Text({ name: "Title", defaultValue: "Continue reading" }),
     description: props.Text({

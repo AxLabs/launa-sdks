@@ -22,7 +22,7 @@ export function BuyerConfigWizard({
   onChange,
   requireHttps = true,
   style,
-  className = "ax402-wizard",
+  className = "launa-wizard",
 }: BuyerConfigWizardProps) {
   const [tab, setTab] = useState<Tab>("gateway")
   const [inspect, setInspect] = useState<BuyerInspectSummary | null>(null)
@@ -69,12 +69,12 @@ export function BuyerConfigWizard({
 
   return (
     <div className={className} style={style}>
-      <div className="ax402-wizard__tabs">
+      <div className="launa-wizard__tabs">
         {(["gateway", "policy", "advanced", "appearance"] as Tab[]).map((t) => (
           <button
             key={t}
             type="button"
-            className={`ax402-wizard__tab${tab === t ? " ax402-wizard__tab--active" : ""}`}
+            className={`launa-wizard__tab${tab === t ? " launa-wizard__tab--active" : ""}`}
             onClick={() => setTab(t)}
           >
             {t}
@@ -89,7 +89,7 @@ export function BuyerConfigWizard({
             <input
               value={config.resourceUrl}
               onChange={(e) => update({ resourceUrl: e.target.value })}
-              placeholder="https://my-api.ax402.io/v1/article"
+              placeholder="https://my-api.launa.io/v1/article"
             />
           </label>
           <label>
@@ -104,16 +104,16 @@ export function BuyerConfigWizard({
               rows={3}
             />
           </label>
-          <div className="ax402-wizard__actions">
-            <button type="button" className="ax402-wizard__btn ax402-wizard__btn--secondary" onClick={runInspect} disabled={inspecting}>
+          <div className="launa-wizard__actions">
+            <button type="button" className="launa-wizard__btn launa-wizard__btn--secondary" onClick={runInspect} disabled={inspecting}>
               {inspecting ? "Inspecting…" : "Test inspect"}
             </button>
-            <button type="button" className="ax402-wizard__btn" onClick={save}>
+            <button type="button" className="launa-wizard__btn" onClick={save}>
               Save config
             </button>
           </div>
           {inspect && (
-            <div className="ax402-wizard__inspect">
+            <div className="launa-wizard__inspect">
               {inspect.ok ? (
                 <>
                   <div>402 OK — schemes: {inspect.schemes.join(", ") || "—"}</div>
@@ -243,7 +243,7 @@ export function BuyerConfigWizard({
       )}
 
       {errors.length > 0 && (
-        <ul className="ax402-wizard__error">
+        <ul className="launa-wizard__error">
           {errors.map((e) => (
             <li key={e}>{e}</li>
           ))}

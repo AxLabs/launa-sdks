@@ -1,11 +1,11 @@
-from ax402_sdk import (
+from launa_sdk import (
     atomic_to_usdc,
     build_usdc_accept,
     gateway_base_url,
     gateway_url,
     usdc_to_atomic,
 )
-from ax402_sdk.platform.helpers import (
+from launa_sdk.platform.helpers import (
     DEFAULT_BATCH_WITHDRAW_DELAY,
     amount_to_atomic,
     atomic_to_display,

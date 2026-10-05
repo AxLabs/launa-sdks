@@ -42,7 +42,7 @@ export async function createEvmSignerFromBrowserProvider(
   const eth = provider ?? (globalThis as { ethereum?: Eip1193Provider }).ethereum;
   if (!eth) {
     throw new BuyerDepsError(
-      "No wallet detected. Connect MetaMask or use the CLI: ax402 pay url --url ... with AX402_EVM_PRIVATE_KEY",
+      "No wallet detected. Connect MetaMask or use the CLI: launa pay url --url ... with LAUNA_EVM_PRIVATE_KEY",
     );
   }
 
@@ -94,9 +94,9 @@ export async function buyerClientFromPrivateKey(
 }
 
 export async function buyerClientFromEnv(opts?: BuyerClientOptions) {
-  const key = process.env.AX402_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
+  const key = process.env.LAUNA_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
   if (!key) {
-    throw new BuyerDepsError("AX402_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required");
+    throw new BuyerDepsError("LAUNA_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required");
   }
   return buyerClientFromPrivateKey(key, opts);
 }

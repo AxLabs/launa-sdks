@@ -1,6 +1,6 @@
 import { addPropertyControls, ControlType } from "framer"
 import type { ReactNode } from "react"
-import { Ax402Paywall } from "@axlabs/x402-buyer-plugin-react"
+import { LaunaPaywall } from "@axlabs/x402-buyer-plugin-react"
 import "@axlabs/x402-react-paywall/styles.css"
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
   children?: ReactNode
 }
 
-export default function Ax402PaywallFramer({
+export default function LaunaPaywallFramer({
   resourceUrl,
   title,
   description,
@@ -37,7 +37,7 @@ export default function Ax402PaywallFramer({
   }
 
   return (
-    <Ax402Paywall
+    <LaunaPaywall
       resourceUrl={resourceUrl}
       title={title}
       description={description}
@@ -53,15 +53,15 @@ export default function Ax402PaywallFramer({
       }}
     >
       {children}
-    </Ax402Paywall>
+    </LaunaPaywall>
   )
 }
 
-addPropertyControls(Ax402PaywallFramer, {
+addPropertyControls(LaunaPaywallFramer, {
   resourceUrl: {
     type: ControlType.String,
     title: "Gateway URL",
-    defaultValue: "https://echo.staging.ax402.io/echo/get?test=1",
+    defaultValue: "https://echo.staging.launa.io/echo/get?test=1",
   },
   title: { type: ControlType.String, title: "Title", defaultValue: "Continue reading" },
   description: {

@@ -3,7 +3,7 @@ import { validateBuyerConfig, validateResourceUrl } from "./validate.js"
 
 describe("validateResourceUrl", () => {
   it("accepts https URLs", () => {
-    expect(validateResourceUrl("https://echo.staging.ax402.io/echo/get")).toEqual({ ok: true })
+    expect(validateResourceUrl("https://echo.staging.launa.io/echo/get")).toEqual({ ok: true })
   })
 
   it("rejects http in production mode", () => {

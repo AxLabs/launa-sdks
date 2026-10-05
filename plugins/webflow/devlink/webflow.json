@@ -1,6 +1,6 @@
 {
   "devlink": {
     "rootDir": "./src",
-    "components": ["Ax402Paywall.webflow.tsx"]
+    "components": ["LaunaPaywall.webflow.tsx"]
   }
 }

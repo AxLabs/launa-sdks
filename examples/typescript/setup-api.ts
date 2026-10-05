@@ -2,12 +2,12 @@
  * Create an API with default subdomain and one paid endpoint.
  *
  * Usage:
- *   export AX402_API_KEY=ax402_live_...
- *   export AX402_BASE_URL=https://api.ax402.io
+ *   export LAUNA_API_KEY=launa_live_...
+ *   export LAUNA_BASE_URL=https://api.launa.io
  *   npx tsx examples/typescript/setup-api.ts [slug] [upstream-url] [price-usdc]
  */
 import {
-  Ax402Client,
+  LaunaClient,
   buildUsdcAccept,
   setupApiWithDefaultDomain,
   usdcToAtomic,
@@ -17,14 +17,14 @@ const slug = process.argv[2] ?? "demo-api";
 const upstream = process.argv[3] ?? "https://httpbin.org";
 const price = process.argv[4] ?? "0.01";
 
-const client = new Ax402Client({
-  baseUrl: process.env.AX402_BASE_URL ?? "https://api.ax402.io",
-  apiKey: process.env.AX402_API_KEY!,
+const client = new LaunaClient({
+  baseUrl: process.env.LAUNA_BASE_URL ?? "https://api.launa.io",
+  apiKey: process.env.LAUNA_API_KEY!,
 });
 
 async function main() {
-  if (!process.env.AX402_API_KEY) {
-    throw new Error("AX402_API_KEY is required");
+  if (!process.env.LAUNA_API_KEY) {
+    throw new Error("LAUNA_API_KEY is required");
   }
 
   const { api, gatewayUrl } = await setupApiWithDefaultDomain(client, {

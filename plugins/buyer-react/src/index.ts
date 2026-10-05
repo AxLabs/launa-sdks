@@ -1,4 +1,4 @@
-export { Ax402Paywall, type Ax402PaywallProps } from "./Ax402Paywall.js"
+export { LaunaPaywall, type LaunaPaywallProps } from "./LaunaPaywall.js"
 export {
   PaywallProvider,
   PaywallGate,
@@ -6,4 +6,4 @@ export {
   usePaidFetch,
   type PaywallPolicy,
   type PaywallAppearance,
-} from "./Ax402Paywall.js"
+} from "./LaunaPaywall.js"

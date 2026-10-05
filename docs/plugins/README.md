@@ -1,6 +1,6 @@
-# Ax402 buyer CMS plugins
+# Launa buyer CMS plugins
 
-Buyer-side plugins wrap `@axlabs/x402-react-paywall` and route payments through **Ax402 gateway URLs**. They do **not** call the control plane or hold seller API keys.
+Buyer-side plugins wrap `@axlabs/x402-react-paywall` and route payments through **Launa gateway URLs**. They do **not** call the control plane or hold seller API keys.
 
 ## Packages
 
@@ -9,7 +9,7 @@ Buyer-side plugins wrap `@axlabs/x402-react-paywall` and route payments through 
 | Shared config | [shared/](shared/) | `@axlabs/x402-buyer-plugin-core` |
 | React wrapper | [buyer-react/](buyer-react/) | `@axlabs/x402-buyer-plugin-react` |
 | Editor wizard UI | [editor-ui/](editor-ui/) | `@axlabs/x402-buyer-plugin-editor-ui` |
-| Payload CMS | [payload/](payload/) | `@axlabs/ax402-payload` |
+| Payload CMS | [payload/](payload/) | `@axlabs/launa-payload` |
 | Framer | [framer/](framer/) | Framer Marketplace plugin + code component |
 | Webflow | [webflow/](webflow/) | DevLink library + Designer Extension |
 
@@ -32,7 +32,7 @@ Browser plugins require CORS on gateway 402/200 responses. See [shared/docs/cors
 Use gateway URL:
 
 ```
-https://echo.staging.ax402.io/echo/get?test=1
+https://echo.staging.launa.io/echo/get?test=1
 ```
 
 Policy: `preferredNetworks: eip155:84532`, Base Sepolia testnet USDC + wallet.

@@ -2,7 +2,7 @@
   "name": "@axlabs/x402-framer-plugin",
   "version": "0.1.0",
   "private": true,
-  "description": "Framer editor plugin for Ax402 buyer paywall setup",
+  "description": "Framer editor plugin for Launa buyer paywall setup",
   "type": "module",
   "scripts": {
     "dev": "vite",

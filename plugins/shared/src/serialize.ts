@@ -26,17 +26,17 @@ export function deserializeBuyerConfig(raw: string): BuyerPaywallConfig {
 
 export function configToDataAttributes(config: BuyerPaywallConfig): Record<string, string> {
   return {
-    "data-ax402-resource-url": config.resourceUrl,
-    "data-ax402-config": serializeBuyerConfig(config),
+    "data-launa-resource-url": config.resourceUrl,
+    "data-launa-config": serializeBuyerConfig(config),
   }
 }
 
 export function configFromDataAttributes(attrs: Record<string, string | undefined>): BuyerPaywallConfig | null {
-  const inline = attrs["data-ax402-config"]
+  const inline = attrs["data-launa-config"]
   if (inline) {
     return deserializeBuyerConfig(inline)
   }
-  const url = attrs["data-ax402-resource-url"]
+  const url = attrs["data-launa-resource-url"]
   if (!url) return null
   return { resourceUrl: url }
 }

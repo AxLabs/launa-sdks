@@ -467,7 +467,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
 ];
 
 export function shellUsageText(): string {
-  const lines = ["Usage: ax402 [--json] <command> [options]", "", "Commands:"];
+  const lines = ["Usage: launa [--json] <command> [options]", "", "Commands:"];
   for (const resource of SHELL_RESOURCES) {
     for (const method of resource.methods) {
       const flagParts = method.flags
@@ -482,9 +482,9 @@ export function shellUsageText(): string {
     }
   }
   lines.push("  inspect url — gateway URL only (no API key)");
-  lines.push("  pay url — gateway URL + AX402_EVM_PRIVATE_KEY (no API key)");
+  lines.push("  pay url — gateway URL + LAUNA_EVM_PRIVATE_KEY (no API key)");
   lines.push("");
-  lines.push("Env: AX402_API_KEY or AX402_JWT (control plane), AX402_EVM_PRIVATE_KEY (pay url)");
+  lines.push("Env: LAUNA_API_KEY or LAUNA_JWT (control plane), LAUNA_EVM_PRIVATE_KEY (pay url)");
   return lines.join("\n");
 }
 

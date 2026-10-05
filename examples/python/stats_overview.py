@@ -2,7 +2,7 @@
 """List APIs and print platform stats.
 
 Usage:
-  export AX402_API_KEY=ax402_live_...
+  export LAUNA_API_KEY=launa_live_...
   python examples/python/stats_overview.py [days]
 """
 
@@ -11,12 +11,12 @@ from __future__ import annotations
 import json
 import sys
 
-from ax402_sdk import Ax402Client
+from launa_sdk import LaunaClient
 
 
 def main() -> None:
     days = int(sys.argv[1]) if len(sys.argv) > 1 else 30
-    client = Ax402Client.from_env()
+    client = LaunaClient.from_env()
 
     apis = client.apis.list()
     overview = client.stats.overview(days)
