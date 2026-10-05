@@ -18,7 +18,7 @@ Traffic flow:
 Buyer (x402 client) → gateway.{platform} → launa verify/settle → upstream (WP/WC/Shopify API)
 ```
 
-Store admin configures via launa dashboard or plugin using `@axlabs/ax402-sdk`.
+Store admin configures via launa dashboard or plugin using `@axlabs/launa-sdk`.
 
 ## Phase 2 — Checkout hybrid (explore)
 

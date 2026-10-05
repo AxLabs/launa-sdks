@@ -1,13 +1,13 @@
 # Go SDK
 
-Module: `github.com/AxLabs/ax402-sdk/go` in `packages/golang/`.
+Module: `github.com/AxLabs/launa-sdk/go` in `packages/golang/`.
 
-Buyer module: `github.com/AxLabs/ax402-sdk/go/buyer`.
+Buyer module: `github.com/AxLabs/launa-sdk/go/buyer`.
 
 ## Control plane
 
 ```go
-import launa "github.com/AxLabs/ax402-sdk/go"
+import launa "github.com/AxLabs/launa-sdk/go"
 
 client := launa.NewClient(baseURL, launa.Credentials{APIKey: os.Getenv("LAUNA_API_KEY")})
 apis, err := client.ListAPIs(ctx)
@@ -25,7 +25,7 @@ Helpers: `launa.GatewayURL`, `launa.BuildUsdcAccept`, `launa.ScopePresets`.
 Pay gateway URLs with EVM `exact` and optional `batch-settlement`. Full guide: [buyers](../buyers/README.md).
 
 ```go
-import "github.com/AxLabs/ax402-sdk/go/buyer"
+import "github.com/AxLabs/launa-sdk/go/buyer"
 
 c, err := buyer.NewFromPrivateKey(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))
 if err != nil { /* handle */ }

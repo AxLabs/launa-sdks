@@ -4,7 +4,7 @@ Agent automation combines the [CLI](../cli/README.md) and [MCP server](../mcp/RE
 
 Platform guide (dashboard, gateway, MCP setup): [ax402-frontend `/docs/agents`](https://github.com/AxLabs/ax402-frontend).
 
-Run pnpm commands below from the **ax402-sdk** repository root.
+Run pnpm commands below from the **launa-sdk** repository root.
 
 ## MCP server
 

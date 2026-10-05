@@ -32,7 +32,7 @@ Onboard the WordPress site with upstream `https://your-store.com/wp-json` (defau
 ## Testing
 
 ```bash
-cd ax402-sdk/plugins && composer test
+cd launa-sdk/plugins && composer test
 ```
 
 Path helpers are covered in `tests/WcPathsTest.php`.

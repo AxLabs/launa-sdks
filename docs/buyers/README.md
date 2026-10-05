@@ -46,13 +46,13 @@ Control-plane clients (seller automation) are documented per language in [sdks/]
 Install buyer deps (optional extras on the main package):
 
 ```bash
-pnpm add @axlabs/ax402-sdk @x402/fetch @x402/evm viem
+pnpm add @axlabs/launa-sdk @x402/fetch @x402/evm viem
 ```
 
 ### Private key (scripts, CI, agents)
 
 ```typescript
-import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
+import { buyerClientFromEnv } from "@axlabs/launa-sdk/buyer";
 
 const client = await buyerClientFromEnv();
 const result = await client.pay({ url: "https://echo.staging.launa.io/echo/get?test=1" });
@@ -63,7 +63,7 @@ console.log(result.response.status, body, result.payment);
 ### One-shot fetch
 
 ```typescript
-import { payAndFetch, createEvmSignerFromPrivateKey } from "@axlabs/ax402-sdk/buyer";
+import { payAndFetch, createEvmSignerFromPrivateKey } from "@axlabs/launa-sdk/buyer";
 
 const signer = await createEvmSignerFromPrivateKey(process.env.LAUNA_EVM_PRIVATE_KEY!);
 const res = await payAndFetch(signer, {
@@ -74,7 +74,7 @@ const res = await payAndFetch(signer, {
 ### Reusable payment fetch
 
 ```typescript
-import { createPaymentFetch, createEvmSignerFromPrivateKey } from "@axlabs/ax402-sdk/buyer";
+import { createPaymentFetch, createEvmSignerFromPrivateKey } from "@axlabs/launa-sdk/buyer";
 
 const signer = await createEvmSignerFromPrivateKey(process.env.LAUNA_EVM_PRIVATE_KEY!);
 const fetchWithPay = await createPaymentFetch(signer);
@@ -86,7 +86,7 @@ const res = await fetchWithPay("https://myapi.example.com/v1/data");
 When the gateway endpoint accepts `batch-settlement`, register the batch scheme alongside `exact`:
 
 ```typescript
-import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
+import { buyerClientFromEnv } from "@axlabs/launa-sdk/buyer";
 
 const client = await buyerClientFromEnv({
   batch: {
@@ -100,7 +100,7 @@ const result = await client.pay({ url: "https://echo.staging.launa.io/echo/get?t
 ### Browser wallet (extension)
 
 ```typescript
-import { createEvmSignerFromBrowserProvider, BuyerClient } from "@axlabs/ax402-sdk/buyer";
+import { createEvmSignerFromBrowserProvider, BuyerClient } from "@axlabs/launa-sdk/buyer";
 
 const signer = await createEvmSignerFromBrowserProvider(); // window.ethereum
 const client = await BuyerClient.create(signer);
@@ -109,10 +109,10 @@ const res = await client.fetch("https://myapi.example.com/v1/data");
 
 ## Go
 
-Module: `github.com/AxLabs/ax402-sdk/go/buyer`. Underlying protocol: `github.com/x402-foundation/x402/go`.
+Module: `github.com/AxLabs/launa-sdk/go/buyer`. Underlying protocol: `github.com/x402-foundation/x402/go`.
 
 ```go
-import "github.com/AxLabs/ax402-sdk/go/buyer"
+import "github.com/AxLabs/launa-sdk/go/buyer"
 
 c, err := buyer.NewFromPrivateKey(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))
 if err != nil { /* handle */ }
@@ -139,7 +139,7 @@ c, err := buyer.NewFromPrivateKey(key, buyer.Options{
 Install the buyer extra:
 
 ```bash
-pip install "ax402-sdk[buyer]"
+pip install "launa-sdk[buyer]"
 ```
 
 ### Sync
@@ -186,7 +186,7 @@ MCP tool `launa_pay_url` uses the same env var when set. See [mcp](../mcp/README
 
 | Runtime | Recommendation |
 |---------|----------------|
-| Node / TS agent or backend | `@axlabs/ax402-sdk/buyer` |
+| Node / TS agent or backend | `@axlabs/launa-sdk/buyer` |
 | Go service or CI | `go/buyer` |
 | Python script or async service | `launa_sdk.buyer` |
 | Browser SPA with wallet UI | `@axlabs/x402-react-paywall` |

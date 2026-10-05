@@ -4,9 +4,9 @@ Launa ships control-plane clients (seller automation) and buyer helpers (pay gat
 
 | Language | Package | Control plane | Buyer |
 |----------|---------|:-------------:|:-----:|
-| TypeScript | `@axlabs/ax402-sdk` | Full (+ MFA, facilitator) | `exact` + `batch-settlement` |
-| Go | `github.com/AxLabs/ax402-sdk/go` | Core automation | `exact` |
-| Python | `ax402-sdk` | Core automation | `exact` (+ async) |
+| TypeScript | `@axlabs/launa-sdk` | Full (+ MFA, facilitator) | `exact` + `batch-settlement` |
+| Go | `github.com/AxLabs/launa-sdk/go` | Core automation | `exact` |
+| Python | `launa-sdk` | Core automation | `exact` (+ async) |
 
 ## Guides
 

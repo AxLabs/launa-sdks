@@ -10,7 +10,7 @@
     "test:integration": "vitest run app/lib/shopify-actions.integration.test.ts"
   },
   "dependencies": {
-    "@axlabs/ax402-sdk": "file:../../packages/typescript",
+    "@axlabs/launa-sdk": "file:../../packages/typescript",
     "@remix-run/node": "^2.15.0",
     "@remix-run/react": "^2.15.0",
     "isbot": "^4",

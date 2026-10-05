@@ -3,8 +3,8 @@ import {
   gatewayURL,
   type PaymentScheme,
   usdcToAtomic,
-} from "@axlabs/ax402-sdk";
-import type { PlatformConfig } from "@axlabs/ax402-sdk";
+} from "@axlabs/launa-sdk";
+import type { PlatformConfig } from "@axlabs/launa-sdk";
 
 export type ProductPathKind = "rest-product" | "storefront-product";
 

@@ -1,4 +1,4 @@
-import { LaunaClient } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/launa-sdk";
 import type { ShopCredentials } from "./crypto.server.js";
 
 export type LaunaPluginConfig = {

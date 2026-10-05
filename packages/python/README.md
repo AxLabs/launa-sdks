@@ -1,4 +1,4 @@
-# ax402-sdk (Python)
+# launa-sdk (Python)
 
 Control-plane client for launa-backend.
 

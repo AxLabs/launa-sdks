@@ -1,4 +1,4 @@
-# ax402-sdk
+# launa-sdk
 
 Platform kit for [launa-backend](https://github.com/AxLabs/launa-backend) — control-plane clients, AI-agent tools, and e-commerce plugins.
 
@@ -8,14 +8,14 @@ Platform kit for [launa-backend](https://github.com/AxLabs/launa-backend) — co
 
 | Task | Package |
 |------|---------|
-| Manage APIs/endpoints/domains from Node/TS | `@axlabs/ax402-sdk` |
-| CI/CD automation (Go) | `github.com/AxLabs/ax402-sdk/go` |
-| AI agents (Python) | `ax402-sdk` on PyPI |
+| Manage APIs/endpoints/domains from Node/TS | `@axlabs/launa-sdk` |
+| CI/CD automation (Go) | `github.com/AxLabs/launa-sdk/go` |
+| AI agents (Python) | `launa-sdk` on PyPI |
 | CLI / shell scripts | `launa` CLI in `tools/cli` |
 | Cursor / Claude MCP tools | `tools/mcp-server` |
 | WordPress / WooCommerce | `plugins/wordpress`, `plugins/woocommerce` (`composer test` in `plugins/`) |
 | Shopify app | `plugins/shopify` |
-| Pay a wrapped API (buyer) | `@axlabs/ax402-sdk/buyer` (`BuyerClient`, `payAndFetch`) |
+| Pay a wrapped API (buyer) | `@axlabs/launa-sdk/buyer` (`BuyerClient`, `payAndFetch`) |
 
 ## Quick start (TypeScript)
 
@@ -23,7 +23,7 @@ From this repository root:
 
 ```bash
 pnpm install
-pnpm --filter @axlabs/ax402-sdk build
+pnpm --filter @axlabs/launa-sdk build
 ```
 
 Or from the package directory:
@@ -33,7 +33,7 @@ cd packages/typescript && pnpm run build
 ```
 
 ```typescript
-import { LaunaClient } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/launa-sdk";
 
 const client = new LaunaClient({
   baseUrl: "http://api.localhost:8090",

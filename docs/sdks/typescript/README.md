@@ -1,13 +1,13 @@
 # TypeScript SDK
 
-Package: `@axlabs/ax402-sdk` in `packages/typescript/`.
+Package: `@axlabs/launa-sdk` in `packages/typescript/`.
 
 Subpaths: main entry, `/buyer`, `/platform`.
 
 ## Install
 
 ```bash
-pnpm add @axlabs/ax402-sdk
+pnpm add @axlabs/launa-sdk
 # Buyer (optional)
 pnpm add @x402/fetch @x402/evm viem
 ```
@@ -15,7 +15,7 @@ pnpm add @x402/fetch @x402/evm viem
 ## Control plane
 
 ```typescript
-import { LaunaClient, buildUsdcAccept, usdcToAtomic } from "@axlabs/ax402-sdk";
+import { LaunaClient, buildUsdcAccept, usdcToAtomic } from "@axlabs/launa-sdk";
 
 const client = new LaunaClient({
   baseUrl: process.env.LAUNA_BASE_URL!,
@@ -34,7 +34,7 @@ TypeScript has the broadest control-plane surface (MFA, passkeys, facilitator st
 Pay gateway URLs — not the control plane. Full guide: [buyers](../buyers/README.md).
 
 ```typescript
-import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
+import { buyerClientFromEnv } from "@axlabs/launa-sdk/buyer";
 
 const client = await buyerClientFromEnv();
 const { response, payment } = await client.pay({
@@ -57,6 +57,6 @@ Browser wallet: `createEvmSignerFromBrowserProvider()` + `BuyerClient.create(sig
 ## Build & test
 
 ```bash
-pnpm --filter @axlabs/ax402-sdk build
-pnpm --filter @axlabs/ax402-sdk test
+pnpm --filter @axlabs/launa-sdk build
+pnpm --filter @axlabs/launa-sdk test
 ```

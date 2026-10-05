@@ -1,12 +1,12 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { atomicToUsdc } from "@axlabs/ax402-sdk";
+import { atomicToUsdc } from "@axlabs/launa-sdk";
 import { clientFromCredentials, createLaunaClient, getLaunaConfig } from "../launa.server.js";
 import { loadCredentials, storeCredentials } from "../crypto.server.js";
 import { endpointBuyerUrl, loadShopDashboard, monetizeProduct, onboardShop } from "../lib/shopify-actions.js";
 import type { ProductPathKind } from "../lib/mapping.js";
-import type { PaymentScheme } from "@axlabs/ax402-sdk";
+import type { PaymentScheme } from "@axlabs/launa-sdk";
 import { listProducts } from "../lib/products.js";
 import { getSession, saveSession } from "../shopify.server.js";
 

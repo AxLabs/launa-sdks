@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { LaunaClient, buildUsdcAccept, usdcToAtomic, wrapOpenAPI } from "@axlabs/ax402-sdk";
+import { LaunaClient, buildUsdcAccept, usdcToAtomic, wrapOpenAPI } from "@axlabs/launa-sdk";
 
 const [, , specPath, apiId, price = "0.10"] = process.argv;
 if (!specPath || !apiId) {

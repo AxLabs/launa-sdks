@@ -1,6 +1,6 @@
 # CLI
 
-Binary: `launa` in `tools/cli/`. Workspace-only — build from the ax402-sdk repo.
+Binary: `launa` in `tools/cli/`. Workspace-only — build from the launa-sdk repo.
 
 ## Build
 

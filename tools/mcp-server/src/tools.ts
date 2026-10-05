@@ -1,6 +1,6 @@
-import type { LaunaClient } from "@axlabs/ax402-sdk";
-import { buildUsdcAccept, usdcToAtomic, wrapOpenAPI, type PaymentScheme } from "@axlabs/ax402-sdk";
-import { inspectGatewayUrl } from "@axlabs/ax402-sdk/shell";
+import type { LaunaClient } from "@axlabs/launa-sdk";
+import { buildUsdcAccept, usdcToAtomic, wrapOpenAPI, type PaymentScheme } from "@axlabs/launa-sdk";
+import { inspectGatewayUrl } from "@axlabs/launa-sdk/shell";
 
 export function createToolHandlers(getClient: () => LaunaClient) {
   return {
@@ -39,10 +39,10 @@ export function createToolHandlers(getClient: () => LaunaClient) {
         return {
           status: "wallet_required",
           url,
-          hint: "Set LAUNA_EVM_PRIVATE_KEY to pay from MCP, or use @axlabs/ax402-sdk/buyer in your agent runtime",
+          hint: "Set LAUNA_EVM_PRIVATE_KEY to pay from MCP, or use @axlabs/launa-sdk/buyer in your agent runtime",
         };
       }
-      const { buyerClientFromPrivateKey } = await import("@axlabs/ax402-sdk/buyer");
+      const { buyerClientFromPrivateKey } = await import("@axlabs/launa-sdk/buyer");
       const buyer = await buyerClientFromPrivateKey(pk);
       const result = await buyer.pay({ url, method });
       const body = await result.response.text();

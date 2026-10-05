@@ -11,9 +11,9 @@ Remix app that links Shopify products to launa gateway endpoints (Phase 1 gatewa
 ## Quick start (local dev)
 
 ```bash
-cd ax402-sdk
+cd launa-sdk
 pnpm install --frozen-lockfile
-pnpm --filter @axlabs/ax402-sdk build
+pnpm --filter @axlabs/launa-sdk build
 
 cd plugins/shopify
 npm install
@@ -35,7 +35,7 @@ All tests run in CI (`npm test` from `plugins/shopify`).
 | `npm run test:integration` | Integration flow only (onboard → monetize → dashboard) |
 | `npm run test:watch` | Vitest watch mode |
 
-Integration tests live in `app/lib/shopify-actions.integration.test.ts` and use `ax402-sdk/test/fixtures/mock-control-plane.ts` — no Shopify or live launa stack required.
+Integration tests live in `app/lib/shopify-actions.integration.test.ts` and use `launa-sdk/test/fixtures/mock-control-plane.ts` — no Shopify or live launa stack required.
 
 Manual UI check:
 

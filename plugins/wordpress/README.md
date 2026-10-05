@@ -22,7 +22,7 @@ launa-gateway/
 Recommended layout in `wp-content/plugins/`:
 
 ```
-launa-shared/          ← copy from ax402-sdk/plugins/shared/
+launa-shared/          ← copy from launa-sdk/plugins/shared/
 launa-gateway/         ← this plugin (wordpress/)
 launa-woocommerce/     ← optional WooCommerce extension
 ```
@@ -53,7 +53,7 @@ Falls back to `AUTH_KEY` if unset.
 ## Testing (no WordPress install required)
 
 ```bash
-cd ax402-sdk/plugins
+cd launa-sdk/plugins
 composer install
 composer test
 ```

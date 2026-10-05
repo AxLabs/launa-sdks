@@ -5,7 +5,7 @@ import {
   type Endpoint,
   type PaymentScheme,
   type PlatformConfig,
-} from "@axlabs/ax402-sdk";
+} from "@axlabs/launa-sdk";
 import type { ShopCredentials } from "../crypto.server.js";
 import {
   gatewayLink,

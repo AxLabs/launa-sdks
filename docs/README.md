@@ -1,6 +1,6 @@
 # Launa SDK documentation
 
-Docs for **@axlabs/ax402-sdk** and related automation tools (CLI, MCP). Control plane API is implemented by [launa-backend](../launa-backend/).
+Docs for **@axlabs/launa-sdk** and related automation tools (CLI, MCP). Control plane API is implemented by [launa-backend](../launa-backend/).
 
 **Platform docs** (hosted gateway, dashboard, domains, OpenAPI import, React paywall, e-commerce plugins) live on the [ax402-frontend](../ax402-frontend/) site at `/docs`.
 
@@ -11,9 +11,9 @@ Payment protocol (402, signing, facilitator) is defined by [x402-foundation/x402
 | Language / tool | Guide | Package |
 |-----------------|-------|---------|
 | **Buyers** | **[buyers](./buyers/README.md)** | Pay gateway URLs (start here for consumers) |
-| TypeScript | [sdks/typescript](./sdks/typescript/README.md) | `@axlabs/ax402-sdk` + `/buyer` |
-| Go | [sdks/go](./sdks/go/README.md) | `github.com/AxLabs/ax402-sdk/go` |
-| Python | [sdks/python](./sdks/python/README.md) | `ax402-sdk` (PyPI) |
+| TypeScript | [sdks/typescript](./sdks/typescript/README.md) | `@axlabs/launa-sdk` + `/buyer` |
+| Go | [sdks/go](./sdks/go/README.md) | `github.com/AxLabs/launa-sdk/go` |
+| Python | [sdks/python](./sdks/python/README.md) | `launa-sdk` (PyPI) |
 | CLI | [cli](./cli/README.md) | `@axlabs/launa-cli` |
 | MCP | [mcp](./mcp/README.md) | `@axlabs/launa-mcp-server` |
 | Agents | [agents](./agents/README.md) | CLI + MCP recipes |

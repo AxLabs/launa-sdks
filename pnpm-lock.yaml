@@ -60,7 +60,7 @@ importers:
 
   tools/cli:
     dependencies:
-      '@axlabs/ax402-sdk':
+      '@axlabs/launa-sdk':
         specifier: workspace:*
         version: link:../../packages/typescript
     devDependencies:
@@ -76,7 +76,7 @@ importers:
 
   tools/mcp-server:
     dependencies:
-      '@axlabs/ax402-sdk':
+      '@axlabs/launa-sdk':
         specifier: workspace:*
         version: link:../../packages/typescript
       '@modelcontextprotocol/sdk':

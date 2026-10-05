@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LaunaClient } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/launa-sdk";
 import { startMockServer } from "../../../../test/fixtures/mock-control-plane.js";
 import { loadShopDashboard, monetizeProduct, onboardShop } from "./shopify-actions.js";
 

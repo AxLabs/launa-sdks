@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { LaunaClient } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/launa-sdk";
 import { monetizeProduct, onboardShop } from "./shopify-actions.js";
 
 describe("shopify-actions", () => {

@@ -103,9 +103,9 @@ Pay **gateway URLs** (not the control plane) using the buyer subpackage:
 
 | SDK | Install | Usage |
 |-----|---------|-------|
-| TypeScript | `npm install @x402/fetch @x402/evm viem` | `import { BuyerClient, buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer"` |
+| TypeScript | `npm install @x402/fetch @x402/evm viem` | `import { BuyerClient, buyerClientFromEnv } from "@axlabs/launa-sdk/buyer"` |
 | Go | `go get github.com/x402-foundation/x402/go` | `buyer.NewFromPrivateKey(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))` |
-| Python | `pip install "ax402-sdk[buyer]"` | `BuyerClient.from_env().get(gateway_url)` |
+| Python | `pip install "launa-sdk[buyer]"` | `BuyerClient.from_env().get(gateway_url)` |
 
 CLI: `launa pay url --url https://gateway.example/v1/foo` with `LAUNA_EVM_PRIVATE_KEY` set.
 

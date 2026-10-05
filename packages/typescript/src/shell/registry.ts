@@ -316,7 +316,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
         id: "presets",
         label: "Presets",
         flags: [],
-        sdkSnippet: "import { SCOPE_PRESETS } from '@axlabs/ax402-sdk'",
+        sdkSnippet: "import { SCOPE_PRESETS } from '@axlabs/launa-sdk'",
       },
     ],
   },
