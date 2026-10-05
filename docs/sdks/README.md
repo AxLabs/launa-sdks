@@ -6,7 +6,7 @@ Launa ships control-plane clients (seller automation) and buyer helpers (pay gat
 |----------|---------|:-------------:|:-----:|
 | TypeScript | `@launa/sdk` | Core seller API | `exact` + `batch-settlement` |
 | Go | `github.com/AxLabs/launa-sdks/go` | Core seller API | `exact` + `batch-settlement` |
-| Python | `ax402-sdk` | Core seller API | `exact` + `batch-settlement` (+ async) |
+| Python | `launa-sdk` | Core seller API | `exact` + `batch-settlement` (+ async) |
 
 All three SDKs expose the same control-plane resources: `auth`, `keys`, `apis`, `endpoints`, `domains`, `openapi`, `stats`, `settlements`, `billing`, `income`, `exchangeRates`, and `config`. Platform helpers (`buildUsdcAccept`, `wrapOpenAPI`, `setupApiWithDefaultDomain`, etc.) are available in each language.
 

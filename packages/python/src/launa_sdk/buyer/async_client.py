@@ -14,7 +14,7 @@ def _load_x402_async():
         from x402.mechanisms.evm.exact.register import register_exact_evm_client
     except ImportError as exc:
         raise BuyerDepsError(
-            'Buyer helpers require: pip install "ax402-sdk[buyer]" '
+            'Buyer helpers require: pip install "launa-sdk[buyer]" '
             '(installs x402[httpx,evm] and eth-account)'
         ) from exc
     return {

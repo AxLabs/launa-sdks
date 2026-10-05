@@ -1,12 +1,12 @@
 # Python SDK
 
-Package: `ax402-sdk` in `packages/python/`.
+Package: `launa-sdk` in `packages/python/`.
 
 ## Install
 
 ```bash
-pip install ax402-sdk
-pip install "ax402-sdk[buyer]"  # x402 signing + eth-account
+pip install launa-sdk
+pip install "launa-sdk[buyer]"  # x402 signing + eth-account
 ```
 
 ## Control plane

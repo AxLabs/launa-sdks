@@ -147,7 +147,7 @@ c, err := buyer.NewFromPrivateKey(key, buyer.Options{
 Install the buyer extra:
 
 ```bash
-pip install "ax402-sdk[buyer]"
+pip install "launa-sdk[buyer]"
 ```
 
 EVM only — Hedera buyer signing is TypeScript (`buyerClientFromEnv` / `HEDERA_*`). `BuyerClient.from_env()` raises if only Hedera credentials are set.
