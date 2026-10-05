@@ -2,12 +2,12 @@
 
 Agent automation combines the [CLI](../cli/README.md) and [MCP server](../mcp/README.md).
 
-Dashboard guide (gateway, MCP setup): [ax402.io/docs/agents](https://ax402.io/docs/agents).
+Dashboard guide (gateway, MCP setup): [launa.io/docs/agents](https://launa.io/docs/agents).
 
 ## MCP server
 
 ```bash
-npx @ax402/mcp-server
+npx @launa/mcp-server
 ```
 
 Full tool list: [../mcp/README.md](../mcp/README.md).
@@ -15,10 +15,10 @@ Full tool list: [../mcp/README.md](../mcp/README.md).
 ## CLI
 
 ```bash
-npm install -g @ax402/cli
-export AX402_API_KEY=ax402_live_...
-ax402 apis list --json
-ax402 endpoints create --api-id ID --method GET --path "/wp-json/wp/v2/posts" --price-usdc 0.01 --json
+npm install -g @launa/cli
+export LAUNA_API_KEY=launa_live_...
+launa apis list --json
+launa endpoints create --api-id ID --method GET --path "/wp-json/wp/v2/posts" --price-usdc 0.01 --json
 ```
 
 See [../cli/README.md](../cli/README.md).

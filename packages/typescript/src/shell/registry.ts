@@ -21,7 +21,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
   name: "My API",
   slug: "my-api",
   upstream_base_url: "https://api.example.com",
-  webhook_url: "https://app.example/webhooks/ax402/settlement",
+  webhook_url: "https://app.example/webhooks/launa/settlement",
   webhook_secret: "whsec_...",
 })`,
       },
@@ -57,7 +57,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
           { name: "--clear-webhook", required: false, type: "boolean" },
         ],
         sdkSnippet: `await client.apis.update("API_ID", {
-  webhook_url: "https://app.example/webhooks/ax402/settlement",
+  webhook_url: "https://app.example/webhooks/launa/settlement",
   webhook_secret: "whsec_...",
 })`,
       },
@@ -497,7 +497,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
         id: "presets",
         label: "Presets",
         flags: [],
-        sdkSnippet: "import { SCOPE_PRESETS } from '@ax402/sdk'",
+        sdkSnippet: "import { SCOPE_PRESETS } from '@launa/sdk'",
       },
       {
         id: "list",
@@ -540,7 +540,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
 ];
 
 export function shellUsageText(): string {
-  const lines = ["Usage: ax402 [--json] <command> [options]", "", "Commands:"];
+  const lines = ["Usage: launa [--json] <command> [options]", "", "Commands:"];
   for (const resource of SHELL_RESOURCES) {
     for (const method of resource.methods) {
       const flagParts = method.flags
@@ -558,7 +558,7 @@ export function shellUsageText(): string {
   lines.push("  pay url — gateway URL + EVM and/or Hedera buyer env (no API key)");
   lines.push("");
   lines.push(
-    "Env: AX402_API_KEY or AX402_JWT (control plane); pay url: AX402_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
+    "Env: LAUNA_API_KEY or LAUNA_JWT (control plane); pay url: LAUNA_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
   );
   return lines.join("\n");
 }

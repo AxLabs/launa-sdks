@@ -38,7 +38,7 @@ export type ShellResult =
   | { ok: false; error: string; kind?: "usage" | "api"; status?: number; data?: Record<string, unknown> };
 
 export type ShellExecuteContext = {
-  client: import("../client.js").Ax402Client;
+  client: import("../client.js").LaunaClient;
   /** Base URL for auth login (guest client) */
   baseUrl?: string;
   /** Read file path to string (Node CLI --file flags) */

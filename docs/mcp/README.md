@@ -1,37 +1,37 @@
 # MCP server
 
-Model Context Protocol server — published as `@ax402/mcp-server` on npm.
+Model Context Protocol server — published as `@launa/mcp-server` on npm.
 
 ## Install / run
 
 ```bash
-npx @ax402/mcp-server
+npx @launa/mcp-server
 ```
 
 Or from source:
 
 ```bash
-pnpm --filter @ax402/mcp-server build
+pnpm --filter @launa/mcp-server build
 
-AX402_API_KEY=ax402_live_... \
-AX402_BASE_URL=https://api.ax402.io \
+LAUNA_API_KEY=launa_live_... \
+LAUNA_BASE_URL=https://api.launa.io \
 node tools/mcp-server/dist/index.js
 ```
 
-Auth: `AX402_API_KEY` only (no JWT).
+Auth: `LAUNA_API_KEY` only (no JWT).
 
 ## Cursor configuration
 
 ```json
 {
   "mcpServers": {
-    "ax402": {
+    "launa": {
       "command": "npx",
-      "args": ["-y", "@ax402/mcp-server"],
+      "args": ["-y", "@launa/mcp-server"],
       "env": {
-        "AX402_BASE_URL": "https://api.ax402.io",
-        "AX402_API_KEY": "ax402_live_...",
-        "AX402_EVM_PRIVATE_KEY": "0x..."
+        "LAUNA_BASE_URL": "https://api.launa.io",
+        "LAUNA_API_KEY": "launa_live_...",
+        "LAUNA_EVM_PRIVATE_KEY": "0x..."
       }
     }
   }
@@ -44,22 +44,22 @@ See [examples/agent-mcp/cursor-mcp.json.example](../../examples/agent-mcp/cursor
 
 | Tool | Scope |
 |------|-------|
-| `ax402_list_apis` | apis:read |
-| `ax402_get_api` | apis:read |
-| `ax402_list_endpoints` | endpoints:read |
-| `ax402_create_api` | apis:write + verified email |
-| `ax402_add_endpoint` | endpoints:write |
-| `ax402_import_openapi` | openapi:read |
-| `ax402_add_domain` | domains:write |
-| `ax402_list_domains` | domains:read |
-| `ax402_verify_domain` | domains:write |
-| `ax402_domain_suggest` | domains:read |
-| `ax402_stats_overview` | stats:read |
-| `ax402_stats_api` | stats:read |
-| `ax402_settlements_list` | settlements:read |
-| `ax402_inspect_url` | buyer (no wallet) |
-| `ax402_supported_networks` | authenticated |
-| `ax402_platform_config` | public |
-| `ax402_pay_url` | buyer (`AX402_EVM_PRIVATE_KEY`) |
+| `launa_list_apis` | apis:read |
+| `launa_get_api` | apis:read |
+| `launa_list_endpoints` | endpoints:read |
+| `launa_create_api` | apis:write + verified email |
+| `launa_add_endpoint` | endpoints:write |
+| `launa_import_openapi` | openapi:read |
+| `launa_add_domain` | domains:write |
+| `launa_list_domains` | domains:read |
+| `launa_verify_domain` | domains:write |
+| `launa_domain_suggest` | domains:read |
+| `launa_stats_overview` | stats:read |
+| `launa_stats_api` | stats:read |
+| `launa_settlements_list` | settlements:read |
+| `launa_inspect_url` | buyer (no wallet) |
+| `launa_supported_networks` | authenticated |
+| `launa_platform_config` | public |
+| `launa_pay_url` | buyer (`LAUNA_EVM_PRIVATE_KEY`) |
 
 See [agents](../agents/README.md). Publishing: [publishing](../publishing/README.md).

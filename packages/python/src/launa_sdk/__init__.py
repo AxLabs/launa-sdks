@@ -1,8 +1,8 @@
-from .client import Ax402Client
+from .client import LaunaClient
 from .models import (
     API,
     APICorsOrigins,
-    Ax402Error,
+    LaunaError,
     Endpoint,
     ExchangeRateLookup,
     ExchangeRatesAll,
@@ -45,8 +45,8 @@ from .platform.helpers import (
 )
 
 __all__ = [
-    "Ax402Client",
-    "Ax402Error",
+    "LaunaClient",
+    "LaunaError",
     "API",
     "APICorsOrigins",
     "WebhookDelivery",

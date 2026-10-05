@@ -1,12 +1,12 @@
-import type { Ax402Client } from "@ax402/sdk";
-import { buildUsdcAccept, usdcToAtomic, wrapOpenAPI, type PaymentScheme } from "@ax402/sdk";
-import { inspectGatewayUrl } from "@ax402/sdk/shell";
+import type { LaunaClient } from "@launa/sdk";
+import { buildUsdcAccept, usdcToAtomic, wrapOpenAPI, type PaymentScheme } from "@launa/sdk";
+import { inspectGatewayUrl } from "@launa/sdk/shell";
 
-export function createToolHandlers(getClient: () => Ax402Client) {
+export function createToolHandlers(getClient: () => LaunaClient) {
   return {
     listApis: async () => getClient().apis.list(),
     getApi: async (api_id: string) => getClient().apis.get(api_id),
-    createApi: async (body: Parameters<Ax402Client["apis"]["create"]>[0]) => getClient().apis.create(body),
+    createApi: async (body: Parameters<LaunaClient["apis"]["create"]>[0]) => getClient().apis.create(body),
     addEndpoint: async (
       api_id: string,
       method: string,
@@ -48,7 +48,7 @@ export function createToolHandlers(getClient: () => Ax402Client) {
     platformConfig: async () => getClient().config.platform(),
     inspectUrl: async (url: string, method = "GET") => inspectGatewayUrl(url, method),
     payUrl: async (url: string, method = "GET") => {
-      const { buyerClientFromEnv, BuyerDepsError } = await import("@ax402/sdk/buyer");
+      const { buyerClientFromEnv, BuyerDepsError } = await import("@launa/sdk/buyer");
       let buyer;
       try {
         buyer = await buyerClientFromEnv();
@@ -57,7 +57,7 @@ export function createToolHandlers(getClient: () => Ax402Client) {
           return {
             status: "wallet_required",
             url,
-            hint: "Set AX402_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY, or use @ax402/sdk/buyer in your agent runtime",
+            hint: "Set LAUNA_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY, or use @launa/sdk/buyer in your agent runtime",
           };
         }
         throw err;

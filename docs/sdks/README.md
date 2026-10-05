@@ -1,11 +1,11 @@
 # SDKs
 
-Ax402 ships control-plane clients (seller automation) and buyer helpers (pay gateway URLs) in three languages.
+Launa ships control-plane clients (seller automation) and buyer helpers (pay gateway URLs) in three languages.
 
 | Language | Package | Control plane | Buyer |
 |----------|---------|:-------------:|:-----:|
-| TypeScript | `@ax402/sdk` | Core seller API | `exact` + `batch-settlement` |
-| Go | `github.com/AxLabs/ax402-sdks/go` | Core seller API | `exact` + `batch-settlement` |
+| TypeScript | `@launa/sdk` | Core seller API | `exact` + `batch-settlement` |
+| Go | `github.com/AxLabs/launa-sdks/go` | Core seller API | `exact` + `batch-settlement` |
 | Python | `ax402-sdk` | Core seller API | `exact` + `batch-settlement` (+ async) |
 
 All three SDKs expose the same control-plane resources: `auth`, `keys`, `apis`, `endpoints`, `domains`, `openapi`, `stats`, `settlements`, `billing`, `income`, `exchangeRates`, and `config`. Platform helpers (`buildUsdcAccept`, `wrapOpenAPI`, `setupApiWithDefaultDomain`, etc.) are available in each language.
@@ -41,6 +41,6 @@ Publishing: [publishing](../publishing/README.md).
 
 Start here if you consume paid APIs: **[buyers](../buyers/README.md)**.
 
-Buyer clients sign x402 payments against **gateway hostnames** — not `AX402_BASE_URL`. Use the same `AX402_EVM_PRIVATE_KEY` as `ax402 pay url` and MCP `ax402_pay_url`.
+Buyer clients sign x402 payments against **gateway hostnames** — not `LAUNA_BASE_URL`. Use the same `LAUNA_EVM_PRIVATE_KEY` as `launa pay url` and MCP `launa_pay_url`.
 
-For browser SPAs, use [`@ax402/react-paywall`](../packages/react-paywall/docs/README.md).
+For browser SPAs, use [`@launa/react-paywall`](../packages/react-paywall/docs/README.md).
