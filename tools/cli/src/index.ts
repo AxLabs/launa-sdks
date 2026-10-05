@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Ax402Client } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/ax402-sdk";
 import {
   formatShellError,
   formatShellOutput,
@@ -18,12 +18,12 @@ function usage(msg?: string): never {
   process.exit(2);
 }
 
-function client(): Ax402Client {
-  const baseUrl = process.env.AX402_BASE_URL ?? "http://api.localhost:8090";
-  const apiKey = process.env.AX402_API_KEY;
-  const token = process.env.AX402_JWT;
-  if (!apiKey && !token) usage("AX402_API_KEY or AX402_JWT required");
-  return new Ax402Client({ baseUrl, apiKey, token });
+function client(): LaunaClient {
+  const baseUrl = process.env.LAUNA_BASE_URL ?? "http://api.localhost:8090";
+  const apiKey = process.env.LAUNA_API_KEY;
+  const token = process.env.LAUNA_JWT;
+  if (!apiKey && !token) usage("LAUNA_API_KEY or LAUNA_JWT required");
+  return new LaunaClient({ baseUrl, apiKey, token });
 }
 
 async function main() {
@@ -31,7 +31,7 @@ async function main() {
   if (!parsed.cmd) usage();
 
   const c = client();
-  const baseUrl = process.env.AX402_BASE_URL ?? "http://api.localhost:8090";
+  const baseUrl = process.env.LAUNA_BASE_URL ?? "http://api.localhost:8090";
 
   const result = await runShellCommand(parsed, {
     client: c,
@@ -42,8 +42,8 @@ async function main() {
     },
     runInspectUrl: inspectGatewayUrl,
     runPayUrl: async (url, method) => {
-      const pk = process.env.AX402_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
-      if (!pk) usage("AX402_EVM_PRIVATE_KEY required for pay url");
+      const pk = process.env.LAUNA_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
+      if (!pk) usage("LAUNA_EVM_PRIVATE_KEY required for pay url");
       const { buyerClientFromPrivateKey } = await import("@axlabs/ax402-sdk/buyer");
       const buyer = await buyerClientFromPrivateKey(pk);
       const payResult = await buyer.pay({ url, method });

@@ -6,11 +6,11 @@ if (!defined('ABSPATH')) {
 }
 
 require_once __DIR__ . '/crypto.php';
-require_once __DIR__ . '/class-ax402-http-client.php';
+require_once __DIR__ . '/class-launa-http-client.php';
 
-const AX402_OPTION_KEY = 'ax402_settings';
+const LAUNA_OPTION_KEY = 'launa_settings';
 
-function ax402_default_settings(): array
+function launa_default_settings(): array
 {
     return [
         'base_url' => 'http://api.localhost:8090',
@@ -22,24 +22,24 @@ function ax402_default_settings(): array
     ];
 }
 
-function ax402_get_settings(): array
+function launa_get_settings(): array
 {
     $stored = [];
     if (function_exists('get_option')) {
-        $stored = get_option(AX402_OPTION_KEY, []);
+        $stored = get_option(LAUNA_OPTION_KEY, []);
     }
     if (!is_array($stored)) {
         $stored = [];
     }
 
-    $settings = array_merge(ax402_default_settings(), $stored);
+    $settings = array_merge(launa_default_settings(), $stored);
 
     if (!empty($stored['api_key']) && empty($settings['api_key_enc'])) {
         try {
-            $settings['api_key_enc'] = ax402_encrypt_secret((string) $stored['api_key']);
+            $settings['api_key_enc'] = launa_encrypt_secret((string) $stored['api_key']);
             unset($settings['api_key']);
             if (function_exists('update_option')) {
-                update_option(AX402_OPTION_KEY, $settings);
+                update_option(LAUNA_OPTION_KEY, $settings);
             }
         } catch (Throwable) {
             // keep legacy plaintext until next save
@@ -49,12 +49,12 @@ function ax402_get_settings(): array
     return $settings;
 }
 
-function ax402_get_api_key(): string
+function launa_get_api_key(): string
 {
-    $settings = ax402_get_settings();
+    $settings = launa_get_settings();
     if (!empty($settings['api_key_enc'])) {
         try {
-            return ax402_decrypt_secret((string) $settings['api_key_enc']);
+            return launa_decrypt_secret((string) $settings['api_key_enc']);
         } catch (Throwable $e) {
             return '';
         }
@@ -62,9 +62,9 @@ function ax402_get_api_key(): string
     return (string) ($settings['api_key'] ?? '');
 }
 
-function ax402_save_settings(array $input): void
+function launa_save_settings(array $input): void
 {
-    $current = ax402_get_settings();
+    $current = launa_get_settings();
     $next = array_merge($current, [
         'base_url' => esc_url_raw((string) ($input['base_url'] ?? $current['base_url'])),
         'api_id' => sanitize_text_field((string) ($input['api_id'] ?? $current['api_id'])),
@@ -77,19 +77,19 @@ function ax402_save_settings(array $input): void
 
     $api_key = (string) ($input['api_key'] ?? '');
     if ($api_key !== '') {
-        $next['api_key_enc'] = ax402_encrypt_secret($api_key);
+        $next['api_key_enc'] = launa_encrypt_secret($api_key);
     }
     unset($next['api_key']);
 
-    update_option(AX402_OPTION_KEY, $next);
+    update_option(LAUNA_OPTION_KEY, $next);
 }
 
-function ax402_client(): ?Ax402_Http_Client
+function launa_client(): ?Launa_Http_Client
 {
-    $api_key = ax402_get_api_key();
+    $api_key = launa_get_api_key();
     if ($api_key === '') {
         return null;
     }
-    $settings = ax402_get_settings();
-    return new Ax402_Http_Client((string) $settings['base_url'], $api_key);
+    $settings = launa_get_settings();
+    return new Launa_Http_Client((string) $settings['base_url'], $api_key);
 }

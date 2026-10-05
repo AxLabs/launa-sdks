@@ -5,8 +5,8 @@ from pathlib import Path
 import httpx
 import pytest
 
-from ax402_sdk.client import Ax402Client
-from ax402_sdk.models import Ax402Error, StatsOverview, User
+from launa_sdk.client import LaunaClient
+from launa_sdk.models import LaunaError, StatsOverview, User
 
 FIXTURES = json.loads(
     (Path(__file__).resolve().parents[3] / "test" / "fixtures" / "responses.json").read_text()
@@ -82,13 +82,13 @@ def _mock_handler(request: httpx.Request) -> httpx.Response:
 
 
 @pytest.fixture
-def client() -> Ax402Client:
+def client() -> LaunaClient:
     transport = httpx.MockTransport(_mock_handler)
     http = httpx.Client(transport=transport, base_url="http://test")
-    return Ax402Client("http://test", api_key="ax402_live_test", http_client=http)
+    return LaunaClient("http://test", api_key="launa_live_test", http_client=http)
 
 
-def test_all_routes(client: Ax402Client) -> None:
+def test_all_routes(client: LaunaClient) -> None:
     client.auth.signup("a@b.com", "password1")
     client.auth.login("a@b.com", "password1")
     client.auth.logout()
@@ -131,7 +131,7 @@ def test_error_parsing() -> None:
 
     transport = httpx.MockTransport(handler)
     http = httpx.Client(transport=transport, base_url="http://test")
-    client = Ax402Client("http://test", api_key="k", http_client=http)
-    with pytest.raises(Ax402Error) as exc:
+    client = LaunaClient("http://test", api_key="k", http_client=http)
+    with pytest.raises(LaunaError) as exc:
         client.apis.list()
     assert exc.value.status == 403

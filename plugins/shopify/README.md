@@ -1,11 +1,11 @@
-# Ax402 Shopify App
+# Launa Shopify App
 
-Remix app that links Shopify products to ax402 gateway endpoints (Phase 1 gateway wrap).
+Remix app that links Shopify products to launa gateway endpoints (Phase 1 gateway wrap).
 
 ## Prerequisites
 
 - Node.js 22+
-- ax402 API key with SDK `apiManager` scope preset
+- launa API key with SDK `apiManager` scope preset
 - Shopify Partner account (for production OAuth)
 
 ## Quick start (local dev)
@@ -23,7 +23,7 @@ npm run dev
 
 Open [http://localhost:5173/app?session=offline_dev](http://localhost:5173/app?session=offline_dev) — dev mode uses mock products and an in-memory Shopify session.
 
-Point `AX402_BASE_URL` at your control plane (or the mock server is only used in automated tests).
+Point `LAUNA_BASE_URL` at your control plane (or the mock server is only used in automated tests).
 
 ## Testing
 
@@ -35,20 +35,20 @@ All tests run in CI (`npm test` from `plugins/shopify`).
 | `npm run test:integration` | Integration flow only (onboard → monetize → dashboard) |
 | `npm run test:watch` | Vitest watch mode |
 
-Integration tests live in `app/lib/shopify-actions.integration.test.ts` and use `ax402-sdk/test/fixtures/mock-control-plane.ts` — no Shopify or live ax402 stack required.
+Integration tests live in `app/lib/shopify-actions.integration.test.ts` and use `ax402-sdk/test/fixtures/mock-control-plane.ts` — no Shopify or live launa stack required.
 
 Manual UI check:
 
 ```bash
 npm run dev
-# Connect with a real apiManager key, or use onboard with AX402_BASE_URL=http://api.localhost:8090
+# Connect with a real apiManager key, or use onboard with LAUNA_BASE_URL=http://api.localhost:8090
 ```
 
 ## Configuration
 
 | Variable | Purpose |
 |----------|---------|
-| `AX402_BASE_URL` | Control plane URL |
+| `LAUNA_BASE_URL` | Control plane URL |
 | `SHOPIFY_ENCRYPTION_SECRET` | AES-GCM key for stored merchant API keys (required in production) |
 | `SHOPIFY_DEV_MODE` | `1` (default): sample products + dev session; `0`: production |
 | `SHOPIFY_DEV_SHOP` | Shop domain in dev mode |
@@ -63,7 +63,7 @@ npm run dev
 Traffic:
 
 ```
-Buyer (x402 client) → gateway hostname → ax402 verify/settle → https://{shop}.myshopify.com
+Buyer (x402 client) → gateway hostname → launa verify/settle → https://{shop}.myshopify.com
 ```
 
 ## SDK parity

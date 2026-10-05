@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { Ax402Client } from "./client.js";
-import { Ax402Error } from "./http.js";
+import { LaunaClient } from "./client.js";
+import { LaunaError } from "./http.js";
 import { startMockServer } from "../../test/fixtures/mock-control-plane.js";
 
-describe("Ax402Client integration", () => {
+describe("LaunaClient integration", () => {
   it("calls all resource methods against mock server", async () => {
     const mock = await startMockServer();
-    const client = new Ax402Client({
+    const client = new LaunaClient({
       baseUrl: mock.url,
-      apiKey: "ax402_live_test",
+      apiKey: "launa_live_test",
     });
 
     await client.auth.signup("a@b.com", "password1");
@@ -61,17 +61,17 @@ describe("Ax402Client integration", () => {
     await mock.close();
   });
 
-  it("throws Ax402Error on 401", async () => {
+  it("throws LaunaError on 401", async () => {
     const mock = await startMockServer();
-    const client = new Ax402Client({ baseUrl: mock.url });
-    await expect(client.auth.me()).rejects.toBeInstanceOf(Ax402Error);
+    const client = new LaunaClient({ baseUrl: mock.url });
+    await expect(client.auth.me()).rejects.toBeInstanceOf(LaunaError);
     await mock.close();
   });
 });
 
-describe("Ax402Error", () => {
+describe("LaunaError", () => {
   it("carries status", () => {
-    const err = new Ax402Error(409, "duplicate");
+    const err = new LaunaError(409, "duplicate");
     expect(err.status).toBe(409);
     expect(err.message).toBe("duplicate");
   });

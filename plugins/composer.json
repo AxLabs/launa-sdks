@@ -1,6 +1,6 @@
 {
-  "name": "axlabs/ax402-wp-plugins",
-  "description": "Ax402 WordPress and WooCommerce plugins",
+  "name": "axlabs/launa-wp-plugins",
+  "description": "Launa WordPress and WooCommerce plugins",
   "type": "project",
   "require": {
     "php": ">=8.0"

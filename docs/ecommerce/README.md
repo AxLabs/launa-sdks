@@ -1,6 +1,6 @@
 # E-commerce integration guide
 
-Ax402 monetizes HTTP APIs via x402 payment gating. E-commerce plugins connect a store to the **control plane** and expose paid resources through the **gateway**.
+Launa monetizes HTTP APIs via x402 payment gating. E-commerce plugins connect a store to the **control plane** and expose paid resources through the **gateway**.
 
 ## Phase 1 — Gateway wrap (recommended first)
 
@@ -15,10 +15,10 @@ Buyers pay with x402-capable clients/wallets to access protected resources.
 Traffic flow:
 
 ```
-Buyer (x402 client) → gateway.{platform} → ax402 verify/settle → upstream (WP/WC/Shopify API)
+Buyer (x402 client) → gateway.{platform} → launa verify/settle → upstream (WP/WC/Shopify API)
 ```
 
-Store admin configures via ax402 dashboard or plugin using `@axlabs/ax402-sdk`.
+Store admin configures via launa dashboard or plugin using `@axlabs/ax402-sdk`.
 
 ## Phase 2 — Checkout hybrid (explore)
 

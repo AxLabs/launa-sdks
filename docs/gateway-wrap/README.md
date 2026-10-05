@@ -1,6 +1,6 @@
 # Gateway wrap
 
-Monetize an existing HTTP API through the Ax402 hosted gateway.
+Monetize an existing HTTP API through the Launa hosted gateway.
 
 ## Flow
 

@@ -7,18 +7,18 @@ Buyer module: `github.com/AxLabs/ax402-sdk/go/buyer`.
 ## Control plane
 
 ```go
-import ax402 "github.com/AxLabs/ax402-sdk/go"
+import launa "github.com/AxLabs/ax402-sdk/go"
 
-client := ax402.NewClient(baseURL, ax402.Credentials{APIKey: os.Getenv("AX402_API_KEY")})
+client := launa.NewClient(baseURL, launa.Credentials{APIKey: os.Getenv("LAUNA_API_KEY")})
 apis, err := client.ListAPIs(ctx)
-api, err := client.CreateAPI(ctx, ax402.CreateAPIInput{...})
+api, err := client.CreateAPI(ctx, launa.CreateAPIInput{...})
 ```
 
 Flat methods: `ListAPIs`, `CreateAPI`, `ListEndpoints`, `DomainSuggest`, `StatsOverview`, `ListSettlements`, `ListPaymentHistory`, `BatchOverview`, `UpdateBatchSettings`, `ForgotPassword`, `ResetPassword`, etc.
 
 Go covers core seller automation (apis, endpoints, domains, openapi, stats, settlements, batch overview). JWT-only backend routes (MFA, billing checkout, income payout writes) are TypeScript-only today.
 
-Helpers: `ax402.GatewayURL`, `ax402.BuildUsdcAccept`, `ax402.ScopePresets`.
+Helpers: `launa.GatewayURL`, `launa.BuildUsdcAccept`, `launa.ScopePresets`.
 
 ## Buyer
 
@@ -27,10 +27,10 @@ Pay gateway URLs with EVM `exact` and optional `batch-settlement`. Full guide: [
 ```go
 import "github.com/AxLabs/ax402-sdk/go/buyer"
 
-c, err := buyer.NewFromPrivateKey(os.Getenv("AX402_EVM_PRIVATE_KEY"))
+c, err := buyer.NewFromPrivateKey(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))
 if err != nil { /* handle */ }
 
-resp, err := c.Get(ctx, "https://echo.staging.ax402.io/echo/get?test=1")
+resp, err := c.Get(ctx, "https://echo.staging.launa.io/echo/get?test=1")
 defer resp.Body.Close()
 
 settle, _ := c.SettleResponseFrom(resp)

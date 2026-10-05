@@ -1,4 +1,4 @@
-import { Ax402Client } from "../client.js";
+import { LaunaClient } from "../client.js";
 import { SCOPE_PRESETS } from "../scopes.js";
 import { buildUsdcAccept, usdcToAtomic, type PaymentScheme } from "../platform/helpers.js";
 import { flag } from "./parse.js";
@@ -179,7 +179,7 @@ export async function runShellCommand(
       const password = flag(parsed, "--password");
       if (!email || !password) return usage("--email and --password required");
       const baseUrl = ctx.baseUrl ?? "http://api.localhost:8090";
-      const guest = new Ax402Client({ baseUrl });
+      const guest = new LaunaClient({ baseUrl });
       return { ok: true, data: await guest.auth.login(email, password) };
     }
 

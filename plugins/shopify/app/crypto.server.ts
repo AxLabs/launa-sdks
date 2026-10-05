@@ -3,7 +3,7 @@ import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from "node:
 const ALGO = "aes-256-gcm";
 
 export function encryptSecret(plaintext: string, secret: string): string {
-  const key = scryptSync(secret, "ax402-shopify", 32);
+  const key = scryptSync(secret, "launa-shopify", 32);
   const iv = randomBytes(12);
   const cipher = createCipheriv(ALGO, key, iv);
   const enc = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
@@ -12,7 +12,7 @@ export function encryptSecret(plaintext: string, secret: string): string {
 }
 
 export function decryptSecret(payload: string, secret: string): string {
-  const key = scryptSync(secret, "ax402-shopify", 32);
+  const key = scryptSync(secret, "launa-shopify", 32);
   const buf = Buffer.from(payload, "base64");
   const iv = buf.subarray(0, 12);
   const tag = buf.subarray(12, 28);

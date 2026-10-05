@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/helpers.php';
 
-class Ax402_Http_Client
+class Launa_Http_Client
 {
     public function __construct(
         private string $base_url,
@@ -86,7 +86,7 @@ class Ax402_Http_Client
             'method' => $method,
             'path_pattern' => $path_pattern,
             'description' => $description,
-            'accepts' => [ax402_build_usdc_accept($scheme, $amount_atomic)],
+            'accepts' => [launa_build_usdc_accept($scheme, $amount_atomic)],
         ]);
     }
 
@@ -103,7 +103,7 @@ class Ax402_Http_Client
             'method' => $method,
             'path_pattern' => $path_pattern,
             'description' => $description,
-            'accepts' => [ax402_build_usdc_accept($scheme, $amount_atomic)],
+            'accepts' => [launa_build_usdc_accept($scheme, $amount_atomic)],
         ]);
     }
 

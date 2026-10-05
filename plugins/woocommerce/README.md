@@ -1,16 +1,16 @@
-# Ax402 Gateway for WooCommerce
+# Launa Gateway for WooCommerce
 
-Extends [Ax402 Gateway for WordPress](../wordpress/). Monetizes products via gateway endpoints with upsert semantics (no duplicate endpoints on re-save).
+Extends [Launa Gateway for WordPress](../wordpress/). Monetizes products via gateway endpoints with upsert semantics (no duplicate endpoints on re-save).
 
 ## Requirements
 
 - WordPress + WooCommerce
-- Ax402 Gateway plugin active
+- Launa Gateway plugin active
 - USDC prices set per product (store currency is **not** auto-converted)
 
 ## Product metabox
 
-Per product (**Ax402 monetization** sidebar):
+Per product (**Launa monetization** sidebar):
 
 | Field | Purpose |
 |-------|---------|
@@ -27,7 +27,7 @@ Onboard the WordPress site with upstream `https://your-store.com/wp-json` (defau
 
 ## Phase 2
 
-`ax402_wc_order_complete` action fires on `woocommerce_order_status_completed` for post-checkout unlock flows. See [docs/ecommerce/README.md](../../docs/ecommerce/README.md).
+`launa_wc_order_complete` action fires on `woocommerce_order_status_completed` for post-checkout unlock flows. See [docs/ecommerce/README.md](../../docs/ecommerce/README.md).
 
 ## Testing
 

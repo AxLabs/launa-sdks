@@ -22,13 +22,13 @@ describe("mcp tool handlers", () => {
   });
 
   it("pay url requires wallet without env key", async () => {
-    const prev = process.env.AX402_EVM_PRIVATE_KEY;
+    const prev = process.env.LAUNA_EVM_PRIVATE_KEY;
     const prev2 = process.env.EVM_PRIVATE_KEY;
-    delete process.env.AX402_EVM_PRIVATE_KEY;
+    delete process.env.LAUNA_EVM_PRIVATE_KEY;
     delete process.env.EVM_PRIVATE_KEY;
     const r = await handlers.payUrl("https://gw.test/v1");
     expect(r.status).toBe("wallet_required");
-    if (prev) process.env.AX402_EVM_PRIVATE_KEY = prev;
+    if (prev) process.env.LAUNA_EVM_PRIVATE_KEY = prev;
     if (prev2) process.env.EVM_PRIVATE_KEY = prev2;
   });
 });

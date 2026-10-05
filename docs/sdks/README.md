@@ -1,6 +1,6 @@
 # SDKs
 
-Ax402 ships control-plane clients (seller automation) and buyer helpers (pay gateway URLs) in three languages.
+Launa ships control-plane clients (seller automation) and buyer helpers (pay gateway URLs) in three languages.
 
 | Language | Package | Control plane | Buyer |
 |----------|---------|:-------------:|:-----:|
@@ -20,7 +20,7 @@ Ax402 ships control-plane clients (seller automation) and buyer helpers (pay gat
 
 Start here if you consume paid APIs: **[buyers](../buyers/README.md)**.
 
-Buyer clients sign x402 payments against **gateway hostnames** — not `AX402_BASE_URL`. Use the same `AX402_EVM_PRIVATE_KEY` as `ax402 pay url` and MCP `ax402_pay_url`.
+Buyer clients sign x402 payments against **gateway hostnames** — not `LAUNA_BASE_URL`. Use the same `LAUNA_EVM_PRIVATE_KEY` as `launa pay url` and MCP `launa_pay_url`.
 
 For browser SPAs, use [`@axlabs/x402-react-paywall`](../packages/react-paywall/docs/README.md).
 

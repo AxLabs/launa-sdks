@@ -5,9 +5,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once __DIR__ . '/class-ax402-http-client.php';
+require_once __DIR__ . '/class-launa-http-client.php';
 
-function ax402_find_endpoint_by_path(array $endpoints, string $method, string $path_pattern): ?array
+function launa_find_endpoint_by_path(array $endpoints, string $method, string $path_pattern): ?array
 {
     $method = strtoupper($method);
     foreach ($endpoints as $ep) {
@@ -25,24 +25,24 @@ function ax402_find_endpoint_by_path(array $endpoints, string $method, string $p
 /**
  * @return array<string, mixed>|WP_Error
  */
-function ax402_upsert_endpoint(
+function launa_upsert_endpoint(
     string $method,
     string $path_pattern,
     string $amount_atomic,
     string $scheme = 'exact',
     ?string $description = null,
 ): array|WP_Error {
-    $client = ax402_client();
+    $client = launa_client();
     if ($client === null) {
-        return new WP_Error('ax402_config', 'API key required');
+        return new WP_Error('launa_config', 'API key required');
     }
-    $settings = ax402_get_settings();
+    $settings = launa_get_settings();
     $api_id = $settings['api_id'] ?? '';
     if ($api_id === '') {
-        return new WP_Error('ax402_config', 'API ID required');
+        return new WP_Error('launa_config', 'API ID required');
     }
 
-    $existing = ax402_find_endpoint_by_path($client->list_endpoints($api_id), $method, $path_pattern);
+    $existing = launa_find_endpoint_by_path($client->list_endpoints($api_id), $method, $path_pattern);
     if ($existing !== null && !empty($existing['id'])) {
         $result = $client->update_endpoint(
             $api_id,
@@ -65,7 +65,7 @@ function ax402_upsert_endpoint(
     }
 
     if (isset($result['error'])) {
-        return new WP_Error('ax402_api', (string) $result['error'], ['status' => $result['status'] ?? 0]);
+        return new WP_Error('launa_api', (string) $result['error'], ['status' => $result['status'] ?? 0]);
     }
     return is_array($result['data'] ?? null) ? $result['data'] : [];
 }
@@ -73,21 +73,21 @@ function ax402_upsert_endpoint(
 /**
  * @return array{api_id:string,gateway_host:string,gateway_url:string,api:array<string,mixed>}|WP_Error
  */
-function ax402_onboard_site(string $name, string $slug, string $upstream, ?string $pay_to_address = null): array|WP_Error
+function launa_onboard_site(string $name, string $slug, string $upstream, ?string $pay_to_address = null): array|WP_Error
 {
-    $client = ax402_client();
+    $client = launa_client();
     if ($client === null) {
-        return new WP_Error('ax402_config', 'API key required');
+        return new WP_Error('launa_config', 'API key required');
     }
 
     $platform = $client->get_platform_config();
     $created = $client->create_api($name, $slug, $upstream, $pay_to_address);
     if (isset($created['error'])) {
-        return new WP_Error('ax402_api', (string) $created['error'], ['status' => $created['status'] ?? 0]);
+        return new WP_Error('launa_api', (string) $created['error'], ['status' => $created['status'] ?? 0]);
     }
     $api = is_array($created['data'] ?? null) ? $created['data'] : [];
     if (empty($api['id'])) {
-        return new WP_Error('ax402_api', 'API creation returned no id');
+        return new WP_Error('launa_api', 'API creation returned no id');
     }
 
     $domains = is_array($api['domains'] ?? null) ? $api['domains'] : [];
@@ -108,7 +108,7 @@ function ax402_onboard_site(string $name, string $slug, string $upstream, ?strin
     return [
         'api_id' => (string) $api['id'],
         'gateway_host' => $gateway_host,
-        'gateway_url' => ax402_gateway_base_url($gateway_host, $platform),
+        'gateway_url' => launa_gateway_base_url($gateway_host, $platform),
         'api' => $api,
     ];
 }
@@ -116,21 +116,21 @@ function ax402_onboard_site(string $name, string $slug, string $upstream, ?strin
 /**
  * @return array{gateway_host:string,gateway_url:string,endpoints:array<int,array<string,mixed>>}|WP_Error
  */
-function ax402_load_dashboard(): array|WP_Error
+function launa_load_dashboard(): array|WP_Error
 {
-    $client = ax402_client();
+    $client = launa_client();
     if ($client === null) {
-        return new WP_Error('ax402_config', 'API key required');
+        return new WP_Error('launa_config', 'API key required');
     }
-    $settings = ax402_get_settings();
+    $settings = launa_get_settings();
     $api_id = $settings['api_id'] ?? '';
     if ($api_id === '') {
-        return new WP_Error('ax402_config', 'API ID required');
+        return new WP_Error('launa_config', 'API ID required');
     }
 
     $api_result = $client->get_api($api_id);
     if (isset($api_result['error'])) {
-        return new WP_Error('ax402_api', (string) $api_result['error']);
+        return new WP_Error('launa_api', (string) $api_result['error']);
     }
     $api = is_array($api_result['data'] ?? null) ? $api_result['data'] : [];
     $platform = $client->get_platform_config();
@@ -150,7 +150,7 @@ function ax402_load_dashboard(): array|WP_Error
 
     return [
         'gateway_host' => $gateway_host,
-        'gateway_url' => ax402_gateway_base_url($gateway_host, $platform),
+        'gateway_url' => launa_gateway_base_url($gateway_host, $platform),
         'endpoints' => $client->list_endpoints($api_id),
         'api' => $api,
     ];

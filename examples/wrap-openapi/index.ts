@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { Ax402Client, buildUsdcAccept, usdcToAtomic, wrapOpenAPI } from "@axlabs/ax402-sdk";
+import { LaunaClient, buildUsdcAccept, usdcToAtomic, wrapOpenAPI } from "@axlabs/ax402-sdk";
 
 const [, , specPath, apiId, price = "0.10"] = process.argv;
 if (!specPath || !apiId) {
@@ -7,9 +7,9 @@ if (!specPath || !apiId) {
   process.exit(2);
 }
 
-const client = new Ax402Client({
-  baseUrl: process.env.AX402_BASE_URL ?? "http://api.localhost:8090",
-  apiKey: process.env.AX402_API_KEY!,
+const client = new LaunaClient({
+  baseUrl: process.env.LAUNA_BASE_URL ?? "http://api.localhost:8090",
+  apiKey: process.env.LAUNA_API_KEY!,
 });
 
 async function main() {

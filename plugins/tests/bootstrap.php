@@ -5,8 +5,8 @@ if (!defined('ABSPATH')) {
     define('ABSPATH', __DIR__);
 }
 
-$GLOBALS['ax402_test_options'] = [];
-$GLOBALS['ax402_http_responses'] = [];
+$GLOBALS['launa_test_options'] = [];
+$GLOBALS['launa_http_responses'] = [];
 
 class WP_Error
 {
@@ -30,18 +30,18 @@ function is_wp_error(mixed $thing): bool
 
 function get_option(string $option, mixed $default = false): mixed
 {
-    return $GLOBALS['ax402_test_options'][$option] ?? $default;
+    return $GLOBALS['launa_test_options'][$option] ?? $default;
 }
 
 function update_option(string $option, mixed $value): bool
 {
-    $GLOBALS['ax402_test_options'][$option] = $value;
+    $GLOBALS['launa_test_options'][$option] = $value;
     return true;
 }
 
 function delete_option(string $option): bool
 {
-    unset($GLOBALS['ax402_test_options'][$option]);
+    unset($GLOBALS['launa_test_options'][$option]);
     return true;
 }
 
@@ -53,11 +53,11 @@ function wp_json_encode(mixed $data): string
 function wp_remote_request(string $url, array $args = []): array
 {
     $key = strtoupper((string) ($args['method'] ?? 'GET')) . ' ' . $url;
-    if (isset($GLOBALS['ax402_http_responses'][$key])) {
-        return $GLOBALS['ax402_http_responses'][$key];
+    if (isset($GLOBALS['launa_http_responses'][$key])) {
+        return $GLOBALS['launa_http_responses'][$key];
     }
-    if (isset($GLOBALS['ax402_http_responses'][$url])) {
-        return $GLOBALS['ax402_http_responses'][$url];
+    if (isset($GLOBALS['launa_http_responses'][$url])) {
+        return $GLOBALS['launa_http_responses'][$url];
     }
     return [
         'response' => ['code' => 404],

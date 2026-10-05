@@ -1,10 +1,10 @@
 # @axlabs/x402-react-paywall
 
-Embeddable React overlay for x402 micropayments (pay-per-fetch). Pairs with an x402 **seller** (e.g. [ax402-backend](https://github.com/AxLabs/ax402-backend)) and wallet signing via `@x402/fetch`.
+Embeddable React overlay for x402 micropayments (pay-per-fetch). Pairs with an x402 **seller** (e.g. [launa-backend](https://github.com/AxLabs/launa-backend)) and wallet signing via `@x402/fetch`.
 
 ## Documentation
 
-**End users:** Ax402 site — [/docs/react-paywall](https://github.com/AxLabs/ax402-frontend) (getting started, theming, examples).
+**End users:** Launa site — [/docs/react-paywall](https://github.com/AxLabs/ax402-frontend) (getting started, theming, examples).
 
 **Package contributors:** [docs/README.md](./docs/README.md)
 
@@ -39,7 +39,7 @@ export function ArticlePage() {
         labels: { payToRead: 'Unlock' },
       }}
     >
-      <PaywallGate resourceUrl="https://echo.staging.ax402.io/echo/get?test=1">
+      <PaywallGate resourceUrl="https://echo.staging.launa.io/echo/get?test=1">
         <p className="teaser">Preview…</p>
       </PaywallGate>
     </PaywallProvider>

@@ -1,4 +1,4 @@
-package ax402
+package launa
 
 import (
 	"context"
@@ -128,7 +128,7 @@ func newMockServer(t *testing.T) *httptest.Server {
 func TestAllRoutes(t *testing.T) {
 	srv := newMockServer(t)
 	defer srv.Close()
-	cl := NewClient(srv.URL, Credentials{APIKey: "ax402_live_test"})
+	cl := NewClient(srv.URL, Credentials{APIKey: "launa_live_test"})
 	ctx := context.Background()
 
 	if _, err := cl.Signup(ctx, "a@b.com", "password1"); err != nil {
@@ -242,7 +242,7 @@ func TestErrorParsing(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	cl := NewClient(srv.URL, Credentials{APIKey: "ax402_live_test"})
+	cl := NewClient(srv.URL, Credentials{APIKey: "launa_live_test"})
 	_, err := cl.ListAPIs(context.Background())
 	if err == nil {
 		t.Fatal("expected error")

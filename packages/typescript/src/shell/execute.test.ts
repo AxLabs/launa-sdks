@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
-import { Ax402Error } from "../http.js";
+import { LaunaError } from "../http.js";
 import { parseShellArgv } from "./parse.js";
 import { runShellCommand } from "./execute.js";
-import type { Ax402Client } from "../client.js";
+import type { LaunaClient } from "../client.js";
 
-function mockClient(overrides: Partial<Ax402Client> = {}): Ax402Client {
+function mockClient(overrides: Partial<LaunaClient> = {}): LaunaClient {
   return {
     apis: { list: vi.fn().mockResolvedValue([{ id: "1", name: "API" }]) },
     auth: { me: vi.fn().mockResolvedValue({ email: "a@b.com" }) },
     keys: { list: vi.fn().mockResolvedValue([]) },
     ...overrides,
-  } as unknown as Ax402Client;
+  } as unknown as LaunaClient;
 }
 
 describe("runShellCommand", () => {
@@ -33,12 +33,12 @@ describe("runShellCommand", () => {
     if (!result.ok) expect(result.kind).toBe("usage");
   });
 
-  it("maps Ax402Error", async () => {
+  it("maps LaunaError", async () => {
     const client = mockClient({
       apis: {
-        list: vi.fn().mockRejectedValue(new Ax402Error(403, "forbidden", { reason: "x" })),
+        list: vi.fn().mockRejectedValue(new LaunaError(403, "forbidden", { reason: "x" })),
       },
-    } as Partial<Ax402Client>);
+    } as Partial<LaunaClient>);
     const result = await runShellCommand(parseShellArgv(["apis", "list"]), { client });
     expect(result.ok).toBe(false);
     if (!result.ok) {

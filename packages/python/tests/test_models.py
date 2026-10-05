@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from ax402_sdk.models import API, Endpoint, StatsOverview, User
+from launa_sdk.models import API, Endpoint, StatsOverview, User
 
 FIXTURES = json.loads(
     (Path(__file__).resolve().parents[3] / "test" / "fixtures" / "responses.json").read_text()

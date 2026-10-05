@@ -18,7 +18,7 @@ from .resources.settlements import SettlementsResource
 from .resources.stats import StatsResource
 
 
-class Ax402Client:
+class LaunaClient:
     def __init__(
         self,
         base_url: str,
@@ -92,6 +92,6 @@ class Ax402Client:
         return self.auth.supported_networks()
 
     @classmethod
-    def from_env(cls) -> Ax402Client:
-        base = os.environ.get("AX402_BASE_URL", "http://api.localhost:8090")
-        return cls(base, api_key=os.environ.get("AX402_API_KEY"), token=os.environ.get("AX402_JWT"))
+    def from_env(cls) -> LaunaClient:
+        base = os.environ.get("LAUNA_BASE_URL", "http://api.localhost:8090")
+        return cls(base, api_key=os.environ.get("LAUNA_API_KEY"), token=os.environ.get("LAUNA_JWT"))

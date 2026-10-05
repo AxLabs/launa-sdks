@@ -17,14 +17,14 @@ You never configure a facilitator URL in buyer code — the gateway handles veri
 
 | Variable | Purpose |
 |----------|---------|
-| `AX402_EVM_PRIVATE_KEY` | Hex EVM key with USDC on the gateway's network (legacy: `EVM_PRIVATE_KEY`) |
+| `LAUNA_EVM_PRIVATE_KEY` | Hex EVM key with USDC on the gateway's network (legacy: `EVM_PRIVATE_KEY`) |
 
 Fund the wallet with **testnet USDC** on the network the gateway accepts (typically Base Sepolia `eip155:84532`).
 
 **Staging smoke test:**
 
 ```text
-https://echo.staging.ax402.io/echo/get?test=1
+https://echo.staging.launa.io/echo/get?test=1
 ```
 
 ## Language parity
@@ -55,7 +55,7 @@ pnpm add @axlabs/ax402-sdk @x402/fetch @x402/evm viem
 import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
 
 const client = await buyerClientFromEnv();
-const result = await client.pay({ url: "https://echo.staging.ax402.io/echo/get?test=1" });
+const result = await client.pay({ url: "https://echo.staging.launa.io/echo/get?test=1" });
 const body = await result.response.text();
 console.log(result.response.status, body, result.payment);
 ```
@@ -65,9 +65,9 @@ console.log(result.response.status, body, result.payment);
 ```typescript
 import { payAndFetch, createEvmSignerFromPrivateKey } from "@axlabs/ax402-sdk/buyer";
 
-const signer = await createEvmSignerFromPrivateKey(process.env.AX402_EVM_PRIVATE_KEY!);
+const signer = await createEvmSignerFromPrivateKey(process.env.LAUNA_EVM_PRIVATE_KEY!);
 const res = await payAndFetch(signer, {
-  url: "https://echo.staging.ax402.io/echo/get?test=1",
+  url: "https://echo.staging.launa.io/echo/get?test=1",
 });
 ```
 
@@ -76,7 +76,7 @@ const res = await payAndFetch(signer, {
 ```typescript
 import { createPaymentFetch, createEvmSignerFromPrivateKey } from "@axlabs/ax402-sdk/buyer";
 
-const signer = await createEvmSignerFromPrivateKey(process.env.AX402_EVM_PRIVATE_KEY!);
+const signer = await createEvmSignerFromPrivateKey(process.env.LAUNA_EVM_PRIVATE_KEY!);
 const fetchWithPay = await createPaymentFetch(signer);
 const res = await fetchWithPay("https://myapi.example.com/v1/data");
 ```
@@ -94,7 +94,7 @@ const client = await buyerClientFromEnv({
     depositMultiplier: 5,
   },
 });
-const result = await client.pay({ url: "https://echo.staging.ax402.io/echo/get?test=1" });
+const result = await client.pay({ url: "https://echo.staging.launa.io/echo/get?test=1" });
 ```
 
 ### Browser wallet (extension)
@@ -114,10 +114,10 @@ Module: `github.com/AxLabs/ax402-sdk/go/buyer`. Underlying protocol: `github.com
 ```go
 import "github.com/AxLabs/ax402-sdk/go/buyer"
 
-c, err := buyer.NewFromPrivateKey(os.Getenv("AX402_EVM_PRIVATE_KEY"))
+c, err := buyer.NewFromPrivateKey(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))
 if err != nil { /* handle */ }
 
-resp, err := c.Get(ctx, "https://echo.staging.ax402.io/echo/get?test=1")
+resp, err := c.Get(ctx, "https://echo.staging.launa.io/echo/get?test=1")
 if err != nil { /* handle */ }
 defer resp.Body.Close()
 
@@ -145,42 +145,42 @@ pip install "ax402-sdk[buyer]"
 ### Sync
 
 ```python
-from ax402_sdk.buyer import BuyerClient
+from launa_sdk.buyer import BuyerClient
 
-result = BuyerClient.from_env().get("https://echo.staging.ax402.io/echo/get?test=1")
+result = BuyerClient.from_env().get("https://echo.staging.launa.io/echo/get?test=1")
 print(result.status_code, result.body, result.settlement)
 ```
 
 ### Async
 
 ```python
-from ax402_sdk.buyer import AsyncBuyerClient, BatchBuyerOptions, evm_signer_from_private_key
+from launa_sdk.buyer import AsyncBuyerClient, BatchBuyerOptions, evm_signer_from_private_key
 import os
 
-signer = evm_signer_from_private_key(os.environ["AX402_EVM_PRIVATE_KEY"])
+signer = evm_signer_from_private_key(os.environ["LAUNA_EVM_PRIVATE_KEY"])
 async with AsyncBuyerClient(signer, batch=BatchBuyerOptions(deposit_multiplier=5)) as client:
-    result = await client.get("https://echo.staging.ax402.io/echo/get?test=1")
+    result = await client.get("https://echo.staging.launa.io/echo/get?test=1")
 ```
 
 ### Batch-settlement (sync)
 
 ```python
-from ax402_sdk.buyer import BuyerClient, BatchBuyerOptions
+from launa_sdk.buyer import BuyerClient, BatchBuyerOptions
 
 result = BuyerClient.from_env(batch=BatchBuyerOptions(deposit_multiplier=5)).get(
-    "https://echo.staging.ax402.io/echo/get?test=1"
+    "https://echo.staging.launa.io/echo/get?test=1"
 )
 ```
 
 ## CLI and MCP
 
 ```bash
-export AX402_EVM_PRIVATE_KEY=0x...
-ax402 inspect url --url https://echo.staging.ax402.io/echo/get?test=1 --json
-ax402 pay url --url https://echo.staging.ax402.io/echo/get?test=1 --json
+export LAUNA_EVM_PRIVATE_KEY=0x...
+launa inspect url --url https://echo.staging.launa.io/echo/get?test=1 --json
+launa pay url --url https://echo.staging.launa.io/echo/get?test=1 --json
 ```
 
-MCP tool `ax402_pay_url` uses the same env var when set. See [mcp](../mcp/README.md).
+MCP tool `launa_pay_url` uses the same env var when set. See [mcp](../mcp/README.md).
 
 ## When to use what
 
@@ -188,12 +188,12 @@ MCP tool `ax402_pay_url` uses the same env var when set. See [mcp](../mcp/README
 |---------|----------------|
 | Node / TS agent or backend | `@axlabs/ax402-sdk/buyer` |
 | Go service or CI | `go/buyer` |
-| Python script or async service | `ax402_sdk.buyer` |
+| Python script or async service | `launa_sdk.buyer` |
 | Browser SPA with wallet UI | `@axlabs/x402-react-paywall` |
-| Shell / Cursor agent | `ax402 pay url` or MCP `ax402_pay_url` |
+| Shell / Cursor agent | `launa pay url` or MCP `launa_pay_url` |
 
 ## Protocol reference
 
 Signing and settlement semantics: [x402-foundation/x402](https://github.com/x402-foundation/x402).
 
-AxLabs testnet facilitator (used by gateways, not called directly from buyer code): `https://ax402.testnet.app.mf.axlabs.net`.
+AxLabs testnet facilitator (used by gateways, not called directly from buyer code): `https://launa.testnet.app.mf.axlabs.net`.

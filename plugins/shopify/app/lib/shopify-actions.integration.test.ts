@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { Ax402Client } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/ax402-sdk";
 import { startMockServer } from "../../../../test/fixtures/mock-control-plane.js";
 import { loadShopDashboard, monetizeProduct, onboardShop } from "./shopify-actions.js";
 
 describe("shopify-actions integration", () => {
   it("onboards, monetizes, and loads dashboard against mock control plane", async () => {
     const mock = await startMockServer();
-    const client = new Ax402Client({ baseUrl: mock.url, apiKey: "ax402_live_test" });
+    const client = new LaunaClient({ baseUrl: mock.url, apiKey: "launa_live_test" });
 
     const onboarded = await onboardShop(client, "demo.myshopify.com");
     expect(onboarded.apiId).toBeTruthy();
@@ -22,7 +22,7 @@ describe("shopify-actions integration", () => {
     expect(endpoint.id).toBeTruthy();
 
     const dashboard = await loadShopDashboard(client, {
-      apiKey: "ax402_live_test",
+      apiKey: "launa_live_test",
       apiId: mockApiId,
     });
     expect(dashboard.endpoints.length).toBeGreaterThanOrEqual(1);

@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function ax402_render_admin_page(): void
+function launa_render_admin_page(): void
 {
     if (!current_user_can('manage_options')) {
         return;
@@ -14,8 +14,8 @@ function ax402_render_admin_page(): void
     $notice = '';
     $error = '';
 
-    if (isset($_POST['ax402_save']) && check_admin_referer('ax402_settings')) {
-        ax402_save_settings([
+    if (isset($_POST['launa_save']) && check_admin_referer('launa_settings')) {
+        launa_save_settings([
             'base_url' => $_POST['base_url'] ?? '',
             'api_key' => $_POST['api_key'] ?? '',
             'api_id' => $_POST['api_id'] ?? '',
@@ -26,13 +26,13 @@ function ax402_render_admin_page(): void
         $notice = 'Settings saved.';
     }
 
-    if (isset($_POST['ax402_onboard']) && check_admin_referer('ax402_onboard')) {
+    if (isset($_POST['launa_onboard']) && check_admin_referer('launa_onboard')) {
         $pay_to = sanitize_text_field($_POST['pay_to_address'] ?? '');
         $slug = sanitize_title(get_bloginfo('name'));
         if ($slug === '') {
             $slug = 'wp-site';
         }
-        $result = ax402_onboard_site(
+        $result = launa_onboard_site(
             get_bloginfo('name'),
             $slug,
             home_url('/wp-json'),
@@ -41,7 +41,7 @@ function ax402_render_admin_page(): void
         if (is_wp_error($result)) {
             $error = $result->get_error_message();
         } else {
-            ax402_save_settings([
+            launa_save_settings([
                 'api_id' => $result['api_id'],
                 'gateway_host' => $result['gateway_host'],
                 'onboarding_done' => true,
@@ -50,18 +50,18 @@ function ax402_render_admin_page(): void
         }
     }
 
-    if (isset($_POST['ax402_sync_route']) && check_admin_referer('ax402_sync_route')) {
+    if (isset($_POST['launa_sync_route']) && check_admin_referer('launa_sync_route')) {
         $route = sanitize_text_field($_POST['route'] ?? '');
         $price = sanitize_text_field($_POST['price_usdc'] ?? '0.01');
         $scheme = sanitize_text_field($_POST['scheme'] ?? 'exact');
         try {
-            $atomic = ax402_usdc_to_atomic($price);
+            $atomic = launa_usdc_to_atomic($price);
         } catch (InvalidArgumentException $e) {
             $error = $e->getMessage();
         }
         if ($error === '' && $route !== '') {
-            $settings = ax402_get_settings();
-            $result = ax402_upsert_endpoint('GET', $route, $atomic, $scheme);
+            $settings = launa_get_settings();
+            $result = launa_upsert_endpoint('GET', $route, $atomic, $scheme);
             if (is_wp_error($result)) {
                 $error = $result->get_error_message();
             } else {
@@ -70,10 +70,10 @@ function ax402_render_admin_page(): void
         }
     }
 
-    if (isset($_POST['ax402_delete_endpoint']) && check_admin_referer('ax402_delete_endpoint')) {
+    if (isset($_POST['launa_delete_endpoint']) && check_admin_referer('launa_delete_endpoint')) {
         $endpoint_id = sanitize_text_field($_POST['endpoint_id'] ?? '');
-        $client = ax402_client();
-        $settings = ax402_get_settings();
+        $client = launa_client();
+        $settings = launa_get_settings();
         if ($client && $endpoint_id !== '' && !empty($settings['api_id'])) {
             $del = $client->delete_endpoint((string) $settings['api_id'], $endpoint_id);
             if (isset($del['error'])) {
@@ -84,11 +84,11 @@ function ax402_render_admin_page(): void
         }
     }
 
-    $settings = ax402_get_settings();
+    $settings = launa_get_settings();
     $dashboard = null;
     $dashboard_error = '';
-    if (!empty($settings['api_id']) && ax402_get_api_key() !== '') {
-        $loaded = ax402_load_dashboard();
+    if (!empty($settings['api_id']) && launa_get_api_key() !== '') {
+        $loaded = launa_load_dashboard();
         if (is_wp_error($loaded)) {
             $dashboard_error = $loaded->get_error_message();
         } else {
@@ -96,11 +96,11 @@ function ax402_render_admin_page(): void
         }
     }
 
-    $routes = ax402_discover_rest_routes();
+    $routes = launa_discover_rest_routes();
     ?>
     <div class="wrap">
-        <h1>Ax402 Gateway</h1>
-        <p>Monetize WordPress REST routes via x402. Buyers pay through your ax402 gateway hostname.</p>
+        <h1>Launa Gateway</h1>
+        <p>Monetize WordPress REST routes via x402. Buyers pay through your launa gateway hostname.</p>
 
         <?php if ($notice !== '') : ?>
             <div class="notice notice-success"><p><?php echo esc_html($notice); ?></p></div>
@@ -111,7 +111,7 @@ function ax402_render_admin_page(): void
 
         <h2>Connection</h2>
         <form method="post">
-            <?php wp_nonce_field('ax402_settings'); ?>
+            <?php wp_nonce_field('launa_settings'); ?>
             <table class="form-table">
                 <tr>
                     <th><label for="base_url">Control plane URL</label></th>
@@ -120,7 +120,7 @@ function ax402_render_admin_page(): void
                 <tr>
                     <th><label for="api_key">API key</label></th>
                     <td>
-                        <input name="api_key" id="api_key" type="password" class="regular-text" value="" autocomplete="off" placeholder="<?php echo ax402_get_api_key() !== '' ? '•••••••• (unchanged)' : ''; ?>" />
+                        <input name="api_key" id="api_key" type="password" class="regular-text" value="" autocomplete="off" placeholder="<?php echo launa_get_api_key() !== '' ? '•••••••• (unchanged)' : ''; ?>" />
                         <p class="description">Use an <code>apiManager</code> scoped key. Stored encrypted (requires OpenSSL).</p>
                     </td>
                 </tr>
@@ -149,20 +149,20 @@ function ax402_render_admin_page(): void
                     <td><label><input type="checkbox" name="onboarding_done" value="1" <?php checked(!empty($settings['onboarding_done'])); ?> /> Mark setup complete</label></td>
                 </tr>
             </table>
-            <p class="submit"><input type="submit" name="ax402_save" class="button-primary" value="Save settings" /></p>
+            <p class="submit"><input type="submit" name="launa_save" class="button-primary" value="Save settings" /></p>
         </form>
 
         <?php if (!$settings['onboarding_done']) : ?>
             <h2>Auto-onboard</h2>
             <form method="post">
-                <?php wp_nonce_field('ax402_onboard'); ?>
-                <p>Creates an ax402 API for upstream <code><?php echo esc_html(home_url('/wp-json')); ?></code> with default gateway subdomain.</p>
+                <?php wp_nonce_field('launa_onboard'); ?>
+                <p>Creates an launa API for upstream <code><?php echo esc_html(home_url('/wp-json')); ?></code> with default gateway subdomain.</p>
                 <p>
                     <label>Pay-to address (optional)
                         <input type="text" name="pay_to_address" class="regular-text" placeholder="0x… user_wallet" />
                     </label>
                 </p>
-                <p class="submit"><input type="submit" name="ax402_onboard" class="button-primary" value="Create API &amp; gateway" /></p>
+                <p class="submit"><input type="submit" name="launa_onboard" class="button-primary" value="Create API &amp; gateway" /></p>
             </form>
         <?php endif; ?>
 
@@ -183,7 +183,7 @@ function ax402_render_admin_page(): void
                     <tbody>
                     <?php
                     $platform_cfg = null;
-                    $dash_client = ax402_client();
+                    $dash_client = launa_client();
                     if ($dash_client !== null) {
                         $platform_cfg = $dash_client->get_platform_config();
                     }
@@ -191,7 +191,7 @@ function ax402_render_admin_page(): void
                         $accept = is_array($ep['accepts'][0] ?? null) ? $ep['accepts'][0] : [];
                         $amount = (string) ($accept['amount'] ?? '0');
                         $scheme = (string) ($accept['scheme'] ?? 'exact');
-                        $buyer = ax402_gateway_url(
+                        $buyer = launa_gateway_url(
                             $dashboard['gateway_host'],
                             (string) $ep['path_pattern'],
                             $platform_cfg,
@@ -200,15 +200,15 @@ function ax402_render_admin_page(): void
                         <tr>
                             <td><?php echo esc_html((string) $ep['method']); ?></td>
                             <td><code><?php echo esc_html((string) $ep['path_pattern']); ?></code></td>
-                            <td><?php echo esc_html(ax402_atomic_to_usdc($amount)); ?> USDC (<?php echo esc_html($scheme); ?>)</td>
+                            <td><?php echo esc_html(launa_atomic_to_usdc($amount)); ?> USDC (<?php echo esc_html($scheme); ?>)</td>
                             <td>
                                 <?php if ($buyer !== '') : ?>
                                     <a href="<?php echo esc_url($buyer); ?>" target="_blank" rel="noopener">Test URL</a>
                                 <?php endif; ?>
                                 <form method="post" style="display:inline;margin-left:8px">
-                                    <?php wp_nonce_field('ax402_delete_endpoint'); ?>
+                                    <?php wp_nonce_field('launa_delete_endpoint'); ?>
                                     <input type="hidden" name="endpoint_id" value="<?php echo esc_attr((string) ($ep['id'] ?? '')); ?>" />
-                                    <button type="submit" name="ax402_delete_endpoint" class="button-link-delete" onclick="return confirm('Remove this endpoint?');">Delete</button>
+                                    <button type="submit" name="launa_delete_endpoint" class="button-link-delete" onclick="return confirm('Remove this endpoint?');">Delete</button>
                                 </form>
                             </td>
                         </tr>
@@ -220,7 +220,7 @@ function ax402_render_admin_page(): void
 
         <h2>Sync REST route</h2>
         <form method="post">
-            <?php wp_nonce_field('ax402_sync_route'); ?>
+            <?php wp_nonce_field('launa_sync_route'); ?>
             <p>
                 <select name="route" style="min-width:320px">
                     <?php foreach (array_slice($routes, 0, 100) as $route) : ?>
@@ -237,7 +237,7 @@ function ax402_render_admin_page(): void
                     </select>
                 </label>
             </p>
-            <p class="submit"><button type="submit" name="ax402_sync_route" class="button button-primary">Sync route</button></p>
+            <p class="submit"><button type="submit" name="launa_sync_route" class="button button-primary">Sync route</button></p>
         </form>
     </div>
     <?php

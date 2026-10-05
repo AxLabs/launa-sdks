@@ -44,12 +44,12 @@ import type {
   UserPasskey,
 } from "./types.js";
 
-export type Ax402ClientOptions = ClientOptions & {
+export type LaunaClientOptions = ClientOptions & {
   apiKey?: string;
   token?: string;
 };
 
-export class Ax402Client {
+export class LaunaClient {
   readonly http: HttpClient;
   readonly auth: AuthResource;
   readonly keys: KeysResource;
@@ -64,7 +64,7 @@ export class Ax402Client {
   readonly exchangeRates: ExchangeRatesResource;
   readonly config: ConfigResource;
 
-  constructor(opts: Ax402ClientOptions) {
+  constructor(opts: LaunaClientOptions) {
     let credentials = opts.credentials;
     if (opts.apiKey) credentials = { type: "apiKey", apiKey: opts.apiKey };
     else if (opts.token) credentials = { type: "jwt", token: opts.token };

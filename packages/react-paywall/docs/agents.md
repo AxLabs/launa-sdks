@@ -11,7 +11,7 @@ While content is locked, `PaywallGate` exposes machine-readable payment hints fo
 | `<meta name="x402:resource">` | Protected URL |
 | `<meta name="x402:protected">` | `true` |
 
-Agents should **not** click “Connect wallet”. They should use `@x402/fetch` or ax402 buyer SDKs with an EVM signer.
+Agents should **not** click “Connect wallet”. They should use `@x402/fetch` or launa buyer SDKs with an EVM signer.
 
 ## Customize copy
 

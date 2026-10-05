@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Ax402 Control Plane API
+  title: Launa Control Plane API
   version: 1.0.0
-  description: Admin API for ax402-backend. Gateway payment flows use standard x402, not this API. Operator routes under /internal are omitted.
+  description: Admin API for launa-backend. Gateway payment flows use standard x402, not this API. Operator routes under /internal are omitted.
 servers:
   - url: http://api.localhost:8090
     description: Local default (ADMIN_HOST)
@@ -15,11 +15,11 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
-      description: Scoped key ax402_live_...
+      description: Scoped key launa_live_...
     BearerAuth:
       type: http
       scheme: bearer
-      description: JWT from signup/login or ax402_live_ API key
+      description: JWT from signup/login or launa_live_ API key
   schemas:
     Error:
       type: object

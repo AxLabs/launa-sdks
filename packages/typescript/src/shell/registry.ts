@@ -353,7 +353,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
 ];
 
 export function shellUsageText(): string {
-  const lines = ["Usage: ax402 [--json] <command> [options]", "", "Commands:"];
+  const lines = ["Usage: launa [--json] <command> [options]", "", "Commands:"];
   for (const resource of SHELL_RESOURCES) {
     for (const method of resource.methods) {
       const flagParts = method.flags
@@ -367,9 +367,9 @@ export function shellUsageText(): string {
       lines.push(`  ${resource.id} ${method.id}${flagParts ? " " + flagParts : ""}${optional ? " " + optional : ""}`);
     }
   }
-  lines.push("  pay url requires AX402_EVM_PRIVATE_KEY (CLI) or a browser wallet (Workbench)");
+  lines.push("  pay url requires LAUNA_EVM_PRIVATE_KEY (CLI) or a browser wallet (Workbench)");
   lines.push("");
-  lines.push("Env: AX402_BASE_URL, AX402_API_KEY or AX402_JWT, AX402_EVM_PRIVATE_KEY (buyer CLI)");
+  lines.push("Env: LAUNA_BASE_URL, LAUNA_API_KEY or LAUNA_JWT, LAUNA_EVM_PRIVATE_KEY (buyer CLI)");
   return lines.join("\n");
 }
 

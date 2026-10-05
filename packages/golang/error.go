@@ -1,4 +1,4 @@
-package ax402
+package launa
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("ax402: %d %s", e.Status, e.Message)
+	return fmt.Sprintf("launa: %d %s", e.Status, e.Message)
 }
 
 func parseError(status int, body []byte) error {

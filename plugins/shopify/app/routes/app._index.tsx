@@ -2,7 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { atomicToUsdc } from "@axlabs/ax402-sdk";
-import { clientFromCredentials, createAx402Client, getAx402Config } from "../ax402.server.js";
+import { clientFromCredentials, createLaunaClient, getLaunaConfig } from "../launa.server.js";
 import { loadCredentials, storeCredentials } from "../crypto.server.js";
 import { endpointBuyerUrl, loadShopDashboard, monetizeProduct, onboardShop } from "../lib/shopify-actions.js";
 import type { ProductPathKind } from "../lib/mapping.js";
@@ -11,7 +11,7 @@ import { listProducts } from "../lib/products.js";
 import { getSession, saveSession } from "../shopify.server.js";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const config = getAx402Config();
+  const config = getLaunaConfig();
   const url = new URL(request.url);
   const sessionId = url.searchParams.get("session") ?? "offline_dev";
   const session = getSession(sessionId) ?? {
@@ -22,8 +22,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   saveSession(session);
 
   let dashboard = null;
-  if (session.ax402Credentials) {
-    const creds = loadCredentials(session.ax402Credentials, config.encryptionSecret);
+  if (session.launaCredentials) {
+    const creds = loadCredentials(session.launaCredentials, config.encryptionSecret);
     const client = clientFromCredentials(creds, config.baseUrl);
     dashboard = await loadShopDashboard(client, creds);
   }
@@ -32,14 +32,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     config: { baseUrl: config.baseUrl, devMode: config.devMode },
     sessionId: session.id,
     shop: session.shop,
-    hasCredentials: Boolean(session.ax402Credentials),
+    hasCredentials: Boolean(session.launaCredentials),
     dashboard,
     products: listProducts(config.devMode, session.shop, session.accessToken),
   });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const config = getAx402Config();
+  const config = getLaunaConfig();
   const form = await request.formData();
   const intent = String(form.get("intent"));
   const sessionId = String(form.get("sessionId"));
@@ -52,7 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
     if (!apiKey || !apiId) {
       return json({ error: "API key and API ID are required" }, { status: 400 });
     }
-    session.ax402Credentials = storeCredentials({ apiKey, apiId }, config.encryptionSecret);
+    session.launaCredentials = storeCredentials({ apiKey, apiId }, config.encryptionSecret);
     saveSession(session);
     return json({ ok: true, message: "Credentials saved" });
   }
@@ -61,9 +61,9 @@ export async function action({ request }: ActionFunctionArgs) {
     const apiKey = String(form.get("apiKey") ?? "").trim();
     const payTo = String(form.get("payToAddress") ?? "").trim();
     if (!apiKey) return json({ error: "API key is required" }, { status: 400 });
-    const client = createAx402Client(apiKey, config.baseUrl);
+    const client = createLaunaClient(apiKey, config.baseUrl);
     const result = await onboardShop(client, session.shop, payTo || undefined);
-    session.ax402Credentials = storeCredentials(
+    session.launaCredentials = storeCredentials(
       { apiKey, apiId: result.apiId },
       config.encryptionSecret,
     );
@@ -72,10 +72,10 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === "monetize") {
-    if (!session.ax402Credentials) {
-      return json({ error: "Connect ax402 first" }, { status: 400 });
+    if (!session.launaCredentials) {
+      return json({ error: "Connect launa first" }, { status: 400 });
     }
-    const creds = loadCredentials(session.ax402Credentials, config.encryptionSecret);
+    const creds = loadCredentials(session.launaCredentials, config.encryptionSecret);
     const client = clientFromCredentials(creds, config.baseUrl);
     const scheme = String(form.get("scheme") ?? "exact") as PaymentScheme;
     const pathKind = String(form.get("pathKind") ?? "rest-product") as ProductPathKind;
@@ -101,7 +101,7 @@ export default function AppIndex() {
 
   return (
     <div style={{ fontFamily: "system-ui", padding: 24, maxWidth: 800, lineHeight: 1.5 }}>
-      <h1 style={{ marginTop: 0 }}>Ax402 × Shopify</h1>
+      <h1 style={{ marginTop: 0 }}>Launa × Shopify</h1>
       <p>
         Shop: <strong>{data.shop}</strong>
         {data.config.devMode ? " (dev mode — sample products)" : null}
@@ -121,7 +121,7 @@ export default function AppIndex() {
       <section style={sectionStyle}>
         <h2>Control plane</h2>
         <p>
-          Base URL: <code>{data.config.baseUrl}</code> (set <code>AX402_BASE_URL</code> in .env)
+          Base URL: <code>{data.config.baseUrl}</code> (set <code>LAUNA_BASE_URL</code> in .env)
         </p>
         <p style={{ fontSize: 14, color: "#555" }}>
           Use an API key with the SDK <code>apiManager</code> scope preset. Keys are encrypted at rest with{" "}
@@ -131,7 +131,7 @@ export default function AppIndex() {
 
       {!data.hasCredentials ? (
         <section style={sectionStyle}>
-          <h2>Connect ax402</h2>
+          <h2>Connect launa</h2>
           <Form method="post" style={{ marginBottom: 24 }}>
             <input type="hidden" name="intent" value="save-credentials" />
             <input type="hidden" name="sessionId" value={data.sessionId} />
@@ -141,14 +141,14 @@ export default function AppIndex() {
             </label>
             <label style={fieldStyle}>
               Existing API ID
-              <input name="apiId" required placeholder="From ax402 dashboard" style={{ width: "100%" }} />
+              <input name="apiId" required placeholder="From launa dashboard" style={{ width: "100%" }} />
             </label>
             <button type="submit">Save credentials</button>
           </Form>
 
           <h3>Or auto-onboard this shop</h3>
           <p style={{ fontSize: 14 }}>
-            Creates an ax402 API with upstream <code>https://{data.shop}</code> and the default gateway subdomain.
+            Creates an launa API with upstream <code>https://{data.shop}</code> and the default gateway subdomain.
           </p>
           <Form method="post">
             <input type="hidden" name="intent" value="onboard" />

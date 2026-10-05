@@ -2,7 +2,7 @@ export type Session = {
   id: string;
   shop: string;
   accessToken: string;
-  ax402Credentials?: string;
+  launaCredentials?: string;
 };
 
 const sessions = new Map<string, Session>();

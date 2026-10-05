@@ -37,7 +37,7 @@ export function ArticleRoute() {
       rpc={{ defaultUrl: 'https://sepolia.base.org' }}
     >
       <PaywallGate
-        resourceUrl="https://echo.staging.ax402.io/echo/get?test=1"
+        resourceUrl="https://echo.staging.launa.io/echo/get?test=1"
         title="Unlock full article"
         description="One-time micropayment via x402."
       >

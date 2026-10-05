@@ -1,7 +1,7 @@
 import {
   gatewayBaseURL,
   setupApiWithDefaultDomain,
-  type Ax402Client,
+  type LaunaClient,
   type Endpoint,
   type PaymentScheme,
   type PlatformConfig,
@@ -41,7 +41,7 @@ export type ShopDashboard = {
 };
 
 export async function onboardShop(
-  client: Ax402Client,
+  client: LaunaClient,
   shopDomain: string,
   payToAddress?: string,
 ): Promise<OnboardResult> {
@@ -62,7 +62,7 @@ export async function onboardShop(
 }
 
 export async function monetizeProduct(
-  client: Ax402Client,
+  client: LaunaClient,
   apiId: string,
   input: MonetizeInput,
 ): Promise<Endpoint> {
@@ -77,7 +77,7 @@ export async function monetizeProduct(
 }
 
 export async function loadShopDashboard(
-  client: Ax402Client,
+  client: LaunaClient,
   creds: ShopCredentials,
 ): Promise<ShopDashboard> {
   const [api, endpoints, platform] = await Promise.all([

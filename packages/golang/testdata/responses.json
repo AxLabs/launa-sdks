@@ -65,17 +65,17 @@
   "apiKey": {
     "id": "507f1f77bcf86cd799439016",
     "name": "ci",
-    "key_prefix": "ax402_live_ab",
+    "key_prefix": "launa_live_ab",
     "scopes": ["apis:read"],
     "created_at": "2026-01-01T00:00:00Z"
   },
   "createdApiKey": {
     "id": "507f1f77bcf86cd799439016",
     "name": "ci",
-    "key_prefix": "ax402_live_ab",
+    "key_prefix": "launa_live_ab",
     "scopes": ["apis:read"],
     "created_at": "2026-01-01T00:00:00Z",
-    "key": "ax402_live_abc123secret"
+    "key": "launa_live_abc123secret"
   },
   "scopes": {
     "scopes": ["apis:read", "apis:write", "endpoints:read", "endpoints:write"]

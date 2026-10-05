@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { Ax402Client } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/ax402-sdk";
 import { monetizeProduct, onboardShop } from "./shopify-actions.js";
 
 describe("shopify-actions", () => {
@@ -14,7 +14,7 @@ describe("shopify-actions", () => {
           domains: [{ hostname: "demo-myshopify-com.localhost", is_primary: true }],
         }),
       },
-    } as unknown as Ax402Client;
+    } as unknown as LaunaClient;
 
     const result = await onboardShop(client, "demo.myshopify.com");
     expect(result.apiId).toBe("api1");
@@ -28,7 +28,7 @@ describe("shopify-actions", () => {
 
   it("monetizeProduct creates endpoint with path and accept", async () => {
     const create = vi.fn().mockResolvedValue({ id: "ep1", path_pattern: "/products/9.json" });
-    const client = { endpoints: { create } } as unknown as Ax402Client;
+    const client = { endpoints: { create } } as unknown as LaunaClient;
 
     await monetizeProduct(client, "api1", {
       productId: "9",

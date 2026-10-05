@@ -1,32 +1,32 @@
 # CLI
 
-Binary: `ax402` in `tools/cli/`. Workspace-only — build from the ax402-sdk repo.
+Binary: `launa` in `tools/cli/`. Workspace-only — build from the ax402-sdk repo.
 
 ## Build
 
 ```bash
-pnpm --filter @axlabs/ax402-cli build
+pnpm --filter @axlabs/launa-cli build
 node tools/cli/dist/index.js apis list --json
 ```
 
 ## Quick start (local)
 
-Requires a running control plane (default `http://api.localhost:8090`). See the [ax402 full-stack dev guide](../../ax402/DEVELOPMENT.md) or run ax402-backend locally.
+Requires a running control plane (default `http://api.localhost:8090`). See the [launa full-stack dev guide](../../ax402/DEVELOPMENT.md) or run launa-backend locally.
 
 ```bash
-pnpm --filter @axlabs/ax402-cli build
-export AX402_BASE_URL=http://api.localhost:8090
+pnpm --filter @axlabs/launa-cli build
+export LAUNA_BASE_URL=http://api.localhost:8090
 
 # 1. Log in (JWT) — prints the token to stdout when --json is omitted
-export AX402_JWT=$(node tools/cli/dist/index.js auth login \
+export LAUNA_JWT=$(node tools/cli/dist/index.js auth login \
   --email you@example.com --password 'your-password')
 
 # 2. Create a scoped API key for scripts/CI (keys commands require JWT)
 node tools/cli/dist/index.js keys create \
   --name local-cli --scopes apis:read,apis:write,endpoints:read,endpoints:write --json
 # Save the returned key — shown once. Then:
-export AX402_API_KEY=ax402_live_...
-unset AX402_JWT
+export LAUNA_API_KEY=launa_live_...
+unset LAUNA_JWT
 
 # 3. List APIs
 node tools/cli/dist/index.js apis list
@@ -46,16 +46,16 @@ node tools/cli/dist/index.js inspect url \
   --url "https://my-api.YOUR_PLATFORM_DOMAIN/v1/hello"
 ```
 
-Run `ax402 config platform --json` for `platform_domain` and gateway hostname patterns.
+Run `launa config platform --json` for `platform_domain` and gateway hostname patterns.
 
 ## Environment
 
 | Variable | Purpose |
 |----------|---------|
-| `AX402_BASE_URL` | Control plane URL (default `http://api.localhost:8090`) |
-| `AX402_API_KEY` | Scoped API key (`ax402_live_...`) for automation |
-| `AX402_JWT` | Session token from `auth login` — alternative to API key |
-| `AX402_EVM_PRIVATE_KEY` | `pay url` only — signs x402 payments (legacy alias: `EVM_PRIVATE_KEY`) |
+| `LAUNA_BASE_URL` | Control plane URL (default `http://api.localhost:8090`) |
+| `LAUNA_API_KEY` | Scoped API key (`launa_live_...`) for automation |
+| `LAUNA_JWT` | Session token from `auth login` — alternative to API key |
+| `LAUNA_EVM_PRIVATE_KEY` | `pay url` only — signs x402 payments (legacy alias: `EVM_PRIVATE_KEY`) |
 
 Global flag: `--json` on any command.
 
@@ -63,61 +63,61 @@ Global flag: `--json` on any command.
 
 | Credential | Use for |
 |------------|---------|
-| `AX402_API_KEY` | Automation — most commands (apis, endpoints, domains, stats, settlements, openapi, config) |
-| `AX402_JWT` | Interactive session — **required** for `keys list/create/revoke` and `auth me` |
+| `LAUNA_API_KEY` | Automation — most commands (apis, endpoints, domains, stats, settlements, openapi, config) |
+| `LAUNA_JWT` | Interactive session — **required** for `keys list/create/revoke` and `auth me` |
 
-Create keys in the dashboard or via `auth login` → `keys create`. Scope presets: `ax402 scopes presets --json`. See [agents](../agents/README.md) for bootstrap flow.
+Create keys in the dashboard or via `auth login` → `keys create`. Scope presets: `launa scopes presets --json`. See [agents](../agents/README.md) for bootstrap flow.
 
 ## Output
 
-Without `--json`, commands print human-readable tables and summaries. With `--json`, stdout is JSON (errors too). `auth login` without `--json` prints only the JWT token — useful for `export AX402_JWT=$(ax402 auth login ...)`.
+Without `--json`, commands print human-readable tables and summaries. With `--json`, stdout is JSON (errors too). `auth login` without `--json` prints only the JWT token — useful for `export LAUNA_JWT=$(launa auth login ...)`.
 
 ## Command reference
 
 ```bash
-ax402 apis list [--json]
-ax402 apis create --name NAME --slug SLUG --upstream URL [--pay-to 0x...] [--json]
-ax402 apis get --id ID [--json]
-ax402 apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to 0x...] [--json]
-ax402 apis delete --id ID [--json]
+launa apis list [--json]
+launa apis create --name NAME --slug SLUG --upstream URL [--pay-to 0x...] [--json]
+launa apis get --id ID [--json]
+launa apis update --id ID [--name NAME] [--slug SLUG] [--upstream URL] [--pay-to 0x...] [--json]
+launa apis delete --id ID [--json]
 
-ax402 endpoints list --api-id ID [--json]
-ax402 endpoints create --api-id ID --path "/v1/*" [--method GET] [--price-usdc 0.10] [--scheme exact|batch-settlement] [--json]
-ax402 endpoints update --api-id ID --endpoint-id EP [--enabled true|false] [--json]
-ax402 endpoints delete --api-id ID --endpoint-id EP [--json]
+launa endpoints list --api-id ID [--json]
+launa endpoints create --api-id ID --path "/v1/*" [--method GET] [--price-usdc 0.10] [--scheme exact|batch-settlement] [--json]
+launa endpoints update --api-id ID --endpoint-id EP [--enabled true|false] [--json]
+launa endpoints delete --api-id ID --endpoint-id EP [--json]
 
-ax402 domains suggest --apex example.com [--prefix x402] [--json]
-ax402 domains add --api-id ID --hostname HOST [--json]
-ax402 domains list --api-id ID [--json]
-ax402 domains verify --api-id ID --domain-id ID [--json]
-ax402 domains delete --api-id ID --domain-id ID [--json]
+launa domains suggest --apex example.com [--prefix x402] [--json]
+launa domains add --api-id ID --hostname HOST [--json]
+launa domains list --api-id ID [--json]
+launa domains verify --api-id ID --domain-id ID [--json]
+launa domains delete --api-id ID --domain-id ID [--json]
 
-ax402 keys list [--json]                              # JWT only
-ax402 keys create --name NAME --scopes apis:read,... [--json]  # JWT only
-ax402 keys revoke --id ID [--json]                    # JWT only
+launa keys list [--json]                              # JWT only
+launa keys create --name NAME --scopes apis:read,... [--json]  # JWT only
+launa keys revoke --id ID [--json]                    # JWT only
 
-ax402 auth login --email EMAIL --password PASS [--json]
-ax402 auth me [--json]                                # JWT only
+launa auth login --email EMAIL --password PASS [--json]
+launa auth me [--json]                                # JWT only
 
-ax402 openapi parse [--file PATH] [--spec YAML_OR_JSON] [--json]
-ax402 openapi import --api-id ID [--file PATH] [--spec YAML_OR_JSON] [--price-usdc 0.10] [--json]
+launa openapi parse [--file PATH] [--spec YAML_OR_JSON] [--json]
+launa openapi import --api-id ID [--file PATH] [--spec YAML_OR_JSON] [--price-usdc 0.10] [--json]
 
-ax402 stats overview [--days 30] [--json]
-ax402 stats api --api-id ID [--days 30] [--json]
+launa stats overview [--days 30] [--json]
+launa stats api --api-id ID [--days 30] [--json]
 
-ax402 settlements list --api-id ID [--json]
-ax402 settlements batch --api-id ID [--json]
-ax402 settlements history [--days 30] [--api-id ID] [--limit N] [--offset N] [--json]
+launa settlements list --api-id ID [--json]
+launa settlements batch --api-id ID [--json]
+launa settlements history [--days 30] [--api-id ID] [--limit N] [--offset N] [--json]
 
-ax402 batch overview --api-id ID [--json]
-ax402 batch settings --api-id ID --claim-interval-secs N --settle-interval-secs N --refund-interval-secs N [--json]
+launa batch overview --api-id ID [--json]
+launa batch settings --api-id ID --claim-interval-secs N --settle-interval-secs N --refund-interval-secs N [--json]
 
-ax402 config platform [--json]
-ax402 networks supported [--json]
-ax402 scopes presets [--json]
+launa config platform [--json]
+launa networks supported [--json]
+launa scopes presets [--json]
 
-ax402 inspect url --url GATEWAY_URL [--method GET] [--json]
-ax402 pay url --url GATEWAY_URL [--method GET] [--json]
+launa inspect url --url GATEWAY_URL [--method GET] [--json]
+launa pay url --url GATEWAY_URL [--method GET] [--json]
 ```
 
 `apis create --pay-to` is required when the account uses `user_wallet` payout mode (typical for seller accounts).

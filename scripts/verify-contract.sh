@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-ROUTER="$ROOT/../ax402-backend/internal/admin/router.go"
+ROUTER="$ROOT/../launa-backend/internal/admin/router.go"
 OPENAPI="$ROOT/openapi/control-plane.yaml"
 
 if [[ ! -f "$ROUTER" ]]; then
@@ -10,7 +10,7 @@ if [[ ! -f "$ROUTER" ]]; then
   exit 1
 fi
 
-# Expected routes from ax402-backend router (method + chi path pattern)
+# Expected routes from launa-backend router (method + chi path pattern)
 EXPECTED=(
   "POST /auth/signup"
   "POST /auth/login"

@@ -1,10 +1,10 @@
 {
-  "name": "@axlabs/ax402-cli",
+  "name": "@axlabs/launa-cli",
   "version": "0.2.0",
   "private": true,
   "type": "module",
   "bin": {
-    "ax402": "./dist/index.js"
+    "launa": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",

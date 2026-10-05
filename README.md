@@ -1,6 +1,6 @@
 # ax402-sdk
 
-Platform kit for [ax402-backend](https://github.com/AxLabs/ax402-backend) — control-plane clients, AI-agent tools, and e-commerce plugins.
+Platform kit for [launa-backend](https://github.com/AxLabs/launa-backend) — control-plane clients, AI-agent tools, and e-commerce plugins.
 
 **Payment protocol (402, signing, facilitator)** lives in [x402-foundation/x402](https://github.com/x402-foundation/x402). Use `@x402/fetch` or `github.com/x402-foundation/x402/go` to pay gateway URLs. This repo wraps the AxLabs **control plane** only.
 
@@ -11,7 +11,7 @@ Platform kit for [ax402-backend](https://github.com/AxLabs/ax402-backend) — co
 | Manage APIs/endpoints/domains from Node/TS | `@axlabs/ax402-sdk` |
 | CI/CD automation (Go) | `github.com/AxLabs/ax402-sdk/go` |
 | AI agents (Python) | `ax402-sdk` on PyPI |
-| CLI / shell scripts | `ax402` CLI in `tools/cli` |
+| CLI / shell scripts | `launa` CLI in `tools/cli` |
 | Cursor / Claude MCP tools | `tools/mcp-server` |
 | WordPress / WooCommerce | `plugins/wordpress`, `plugins/woocommerce` (`composer test` in `plugins/`) |
 | Shopify app | `plugins/shopify` |
@@ -33,11 +33,11 @@ cd packages/typescript && pnpm run build
 ```
 
 ```typescript
-import { Ax402Client } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/ax402-sdk";
 
-const client = new Ax402Client({
+const client = new LaunaClient({
   baseUrl: "http://api.localhost:8090",
-  apiKey: process.env.AX402_API_KEY!,
+  apiKey: process.env.LAUNA_API_KEY!,
 });
 
 const apis = await client.apis.list();
@@ -47,9 +47,9 @@ const apis = await client.apis.list();
 
 | Variable | Used by |
 |----------|---------|
-| `AX402_BASE_URL` | CLI, MCP, SDKs |
-| `AX402_API_KEY` | CLI, MCP, automation (`ax402_live_...`) |
-| `AX402_JWT` | Interactive CLI auth |
+| `LAUNA_BASE_URL` | CLI, MCP, SDKs |
+| `LAUNA_API_KEY` | CLI, MCP, automation (`launa_live_...`) |
+| `LAUNA_JWT` | Interactive CLI auth |
 
 ## Layout
 

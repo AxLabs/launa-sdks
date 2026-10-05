@@ -1,6 +1,6 @@
 # Package docs (contributors)
 
-End-user documentation is published on the Ax402 site:
+End-user documentation is published on the Launa site:
 
 - **[/docs/react-paywall](https://github.com/AxLabs/ax402-frontend)** — overview and guides (theming, components, examples)
 - Repo demo: [ax402-paywall-demo](../../../../ax402-paywall-demo/README.md)

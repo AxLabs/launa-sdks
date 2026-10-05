@@ -1,7 +1,7 @@
-from .client import Ax402Client
+from .client import LaunaClient
 from .models import (
     API,
-    Ax402Error,
+    LaunaError,
     Endpoint,
     PlatformConfig,
     SCOPE_PRESETS,
@@ -11,8 +11,8 @@ from .models import (
 )
 
 __all__ = [
-    "Ax402Client",
-    "Ax402Error",
+    "LaunaClient",
+    "LaunaError",
     "API",
     "Endpoint",
     "PlatformConfig",

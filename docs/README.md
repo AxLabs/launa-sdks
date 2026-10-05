@@ -1,6 +1,6 @@
-# Ax402 SDK documentation
+# Launa SDK documentation
 
-Docs for **@axlabs/ax402-sdk** and related automation tools (CLI, MCP). Control plane API is implemented by [ax402-backend](../ax402-backend/).
+Docs for **@axlabs/ax402-sdk** and related automation tools (CLI, MCP). Control plane API is implemented by [launa-backend](../launa-backend/).
 
 **Platform docs** (hosted gateway, dashboard, domains, OpenAPI import, React paywall, e-commerce plugins) live on the [ax402-frontend](../ax402-frontend/) site at `/docs`.
 
@@ -14,8 +14,8 @@ Payment protocol (402, signing, facilitator) is defined by [x402-foundation/x402
 | TypeScript | [sdks/typescript](./sdks/typescript/README.md) | `@axlabs/ax402-sdk` + `/buyer` |
 | Go | [sdks/go](./sdks/go/README.md) | `github.com/AxLabs/ax402-sdk/go` |
 | Python | [sdks/python](./sdks/python/README.md) | `ax402-sdk` (PyPI) |
-| CLI | [cli](./cli/README.md) | `@axlabs/ax402-cli` |
-| MCP | [mcp](./mcp/README.md) | `@axlabs/ax402-mcp-server` |
+| CLI | [cli](./cli/README.md) | `@axlabs/launa-cli` |
+| MCP | [mcp](./mcp/README.md) | `@axlabs/launa-mcp-server` |
 | Agents | [agents](./agents/README.md) | CLI + MCP recipes |
 | React paywall | [packages/react-paywall/docs](../packages/react-paywall/docs/README.md) | `@axlabs/x402-react-paywall` |
 
@@ -43,6 +43,6 @@ Gateway setup, DNS, and dashboard workflows: **[/docs on ax402-frontend](https:/
 
 | Variable | Used by |
 |----------|---------|
-| `AX402_BASE_URL` | SDKs, CLI, MCP |
-| `AX402_API_KEY` | Automation (`ax402_live_...`) |
-| `AX402_EVM_PRIVATE_KEY` | Buyer CLI/MCP pay |
+| `LAUNA_BASE_URL` | SDKs, CLI, MCP |
+| `LAUNA_API_KEY` | Automation (`launa_live_...`) |
+| `LAUNA_EVM_PRIVATE_KEY` | Buyer CLI/MCP pay |

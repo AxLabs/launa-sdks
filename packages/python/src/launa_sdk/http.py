@@ -5,7 +5,7 @@ from typing import Any
 
 import httpx
 
-from .models import Ax402Error
+from .models import LaunaError
 
 
 class HttpTransport:
@@ -61,9 +61,9 @@ class HttpTransport:
         return resp.json()
 
 
-def _parse_error(status: int, body: str) -> Ax402Error:
+def _parse_error(status: int, body: str) -> LaunaError:
     try:
         data = json.loads(body)
-        return Ax402Error(status, data.get("error", body))
+        return LaunaError(status, data.get("error", body))
     except json.JSONDecodeError:
-        return Ax402Error(status, body)
+        return LaunaError(status, body)
