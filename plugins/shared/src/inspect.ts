@@ -1,4 +1,4 @@
-import { inspectGatewayUrl, type InspectGatewayResult } from "@axlabs/ax402-sdk/shell"
+import { inspectGatewayUrl, type InspectGatewayResult } from "@axlabs/launa-sdk/shell"
 
 export type { InspectGatewayResult }
 

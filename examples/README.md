@@ -6,7 +6,7 @@ Runnable scripts for control-plane automation (seller) and gateway payments (buy
 
 | Language | Install | Env vars |
 |----------|---------|----------|
-| TypeScript | `pnpm install && pnpm --filter @axlabs/ax402-sdk build` | `LAUNA_API_KEY`, `LAUNA_BASE_URL` (seller) · `LAUNA_EVM_PRIVATE_KEY` (buyer) |
+| TypeScript | `pnpm install && pnpm --filter @axlabs/launa-sdk build` | `LAUNA_API_KEY`, `LAUNA_BASE_URL` (seller) · `LAUNA_EVM_PRIVATE_KEY` (buyer) |
 | Python | `pip install -e "packages/python[buyer,dev]"` | same |
 | Go | `cd examples/go && go mod tidy` | same |
 

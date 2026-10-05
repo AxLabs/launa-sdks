@@ -1,6 +1,6 @@
 # MCP server
 
-Model Context Protocol server in `tools/mcp-server/`. Workspace-only — build from ax402-sdk.
+Model Context Protocol server in `tools/mcp-server/`. Workspace-only — build from launa-sdk.
 
 ## Run
 

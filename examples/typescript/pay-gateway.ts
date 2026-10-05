@@ -8,7 +8,7 @@
  * Batch-settlement gateway:
  *   npx tsx examples/typescript/pay-gateway.ts --batch [gateway-url]
  */
-import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
+import { buyerClientFromEnv } from "@axlabs/launa-sdk/buyer";
 
 const args = process.argv.slice(2);
 const batch = args[0] === "--batch";

@@ -1,8 +1,8 @@
-module github.com/AxLabs/ax402-sdk/examples
+module github.com/AxLabs/launa-sdk/examples
 
 go 1.24.0
 
-require github.com/AxLabs/ax402-sdk/go v0.0.0
+require github.com/AxLabs/launa-sdk/go v0.0.0
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
@@ -30,4 +30,4 @@ require (
 	golang.org/x/sys v0.39.0 // indirect
 )
 
-replace github.com/AxLabs/ax402-sdk/go => ../../packages/golang
+replace github.com/AxLabs/launa-sdk/go => ../../packages/golang

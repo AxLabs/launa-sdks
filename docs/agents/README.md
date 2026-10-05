@@ -4,7 +4,7 @@ Agent automation combines the [CLI](../cli/README.md) and [MCP server](../mcp/RE
 
 Dashboard guide (gateway, MCP setup): [launa.io/docs/agents](https://launa.io/docs/agents).
 
-Run pnpm commands below from the **ax402-sdk** repository root.
+Run pnpm commands below from the **launa-sdk** repository root.
 
 ## MCP server
 

@@ -18,7 +18,7 @@
     "prepare": "pnpm run build"
   },
   "dependencies": {
-    "@axlabs/ax402-sdk": "workspace:*"
+    "@axlabs/launa-sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -1,4 +1,4 @@
-module github.com/AxLabs/ax402-sdk/go
+module github.com/AxLabs/launa-sdk/go
 
 go 1.24.0
 

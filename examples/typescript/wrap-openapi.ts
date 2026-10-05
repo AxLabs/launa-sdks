@@ -6,7 +6,7 @@
  *   npx tsx examples/typescript/wrap-openapi.ts path/to/openapi.yaml YOUR_API_ID [price-usdc]
  */
 import { readFileSync } from "node:fs";
-import { LaunaClient, buildUsdcAccept, usdcToAtomic, wrapOpenAPI } from "@axlabs/ax402-sdk";
+import { LaunaClient, buildUsdcAccept, usdcToAtomic, wrapOpenAPI } from "@axlabs/launa-sdk";
 
 const [, , specPath, apiId, price = "0.10"] = process.argv;
 if (!specPath || !apiId) {

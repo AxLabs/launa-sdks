@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"os"
 
-	launa "github.com/AxLabs/ax402-sdk/go"
+	launa "github.com/AxLabs/launa-sdk/go"
 )
 
 func main() {

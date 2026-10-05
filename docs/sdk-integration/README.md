@@ -18,7 +18,7 @@ Example gateway URL: `https://my-api.launa.io/v1/echo?test=1`
 ### TypeScript
 
 ```typescript
-import { buyerClientFromEnv } from "@axlabs/ax402-sdk/buyer";
+import { buyerClientFromEnv } from "@axlabs/launa-sdk/buyer";
 
 const client = await buyerClientFromEnv();
 const { response } = await client.pay({ url: "https://my-api.launa.io/v1/echo?test=1" });
@@ -41,14 +41,14 @@ from launa_sdk.buyer import BuyerClient
 result = BuyerClient.from_env().get("https://my-api.launa.io/v1/echo?test=1")
 ```
 
-Install: `pip install "ax402-sdk[buyer]"`.
+Install: `pip install "launa-sdk[buyer]"`.
 
 ## Control plane quick start
 
 ### TypeScript
 
 ```typescript
-import { LaunaClient } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/launa-sdk";
 
 const client = new LaunaClient({
   baseUrl: process.env.LAUNA_BASE_URL!,

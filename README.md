@@ -1,4 +1,4 @@
-# ax402-sdk
+# launa-sdk
 
 Official SDKs and tools for the [Launa](https://launa.io) platform — control-plane clients, buyer helpers, CLI, and MCP server.
 
@@ -8,21 +8,21 @@ Official SDKs and tools for the [Launa](https://launa.io) platform — control-p
 
 | Task | Package |
 |------|---------|
-| Manage APIs/endpoints/domains from Node/TS | `@axlabs/ax402-sdk` |
-| CI/CD automation (Go) | `github.com/AxLabs/ax402-sdk/go` |
-| AI agents (Python) | `ax402-sdk` on PyPI |
+| Manage APIs/endpoints/domains from Node/TS | `@axlabs/launa-sdk` |
+| CI/CD automation (Go) | `github.com/AxLabs/launa-sdk/go` |
+| AI agents (Python) | `launa-sdk` on PyPI |
 | CLI / shell scripts | `launa` CLI in `tools/cli` |
 | Cursor / Claude MCP tools | `tools/mcp-server` |
-| Pay a wrapped API (buyer) | `@axlabs/ax402-sdk/buyer` (`BuyerClient`, `payAndFetch`) |
+| Pay a wrapped API (buyer) | `@axlabs/launa-sdk/buyer` (`BuyerClient`, `payAndFetch`) |
 
 ## Quick start (TypeScript)
 
 ```bash
-pnpm add @axlabs/ax402-sdk
+pnpm add @axlabs/launa-sdk
 ```
 
 ```typescript
-import { LaunaClient } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/launa-sdk";
 
 const client = new LaunaClient({
   baseUrl: process.env.LAUNA_BASE_URL!,

@@ -1,5 +1,5 @@
 {
-  "name": "@axlabs/ax402-sdk",
+  "name": "@axlabs/launa-sdk",
   "version": "0.2.0",
   "description": "Launa platform control-plane SDK",
   "type": "module",

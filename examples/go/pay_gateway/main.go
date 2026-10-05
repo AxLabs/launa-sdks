@@ -17,7 +17,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/AxLabs/ax402-sdk/go/buyer"
+	"github.com/AxLabs/launa-sdk/go/buyer"
 )
 
 func main() {

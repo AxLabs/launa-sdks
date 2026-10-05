@@ -11,7 +11,7 @@ import {
   buildUsdcAccept,
   setupApiWithDefaultDomain,
   usdcToAtomic,
-} from "@axlabs/ax402-sdk";
+} from "@axlabs/launa-sdk";
 
 const slug = process.argv[2] ?? "demo-api";
 const upstream = process.argv[3] ?? "https://httpbin.org";

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { LaunaClient } from "@axlabs/ax402-sdk";
+import { LaunaClient } from "@axlabs/launa-sdk";
 import {
   formatShellError,
   formatShellOutput,
@@ -8,7 +8,7 @@ import {
   runShellCommand,
   shellCommandNeedsCredentials,
   shellUsageText,
-} from "@axlabs/ax402-sdk/shell";
+} from "@axlabs/launa-sdk/shell";
 
 const json = process.argv.includes("--json");
 const args = process.argv.slice(2).filter((a) => a !== "--json");
@@ -47,7 +47,7 @@ async function main() {
     runPayUrl: async (url, method) => {
       const pk = process.env.LAUNA_EVM_PRIVATE_KEY ?? process.env.EVM_PRIVATE_KEY;
       if (!pk) usage("LAUNA_EVM_PRIVATE_KEY required for pay url");
-      const { buyerClientFromPrivateKey } = await import("@axlabs/ax402-sdk/buyer");
+      const { buyerClientFromPrivateKey } = await import("@axlabs/launa-sdk/buyer");
       const buyer = await buyerClientFromPrivateKey(pk);
       const payResult = await buyer.pay({ url, method });
       const body = await payResult.response.text();

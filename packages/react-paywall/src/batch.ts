@@ -36,7 +36,7 @@ export type BatchPaywallOptions = {
 const DEFAULT_SALT =
   '0x0000000000000000000000000000000000000000000000000000000000000000' as const
 
-/** Align with @axlabs/ax402-sdk DEFAULT_BATCH_WITHDRAW_DELAY (3 days). */
+/** Align with @axlabs/launa-sdk DEFAULT_BATCH_WITHDRAW_DELAY (3 days). */
 export const DEFAULT_BATCH_WITHDRAW_DELAY_SECS = 259_200
 
 function hasUsableChannelBalance(ctx: Record<string, unknown> | undefined): boolean {
