@@ -15,7 +15,7 @@ describe("formatHumanOutput", () => {
           pay_to_mode: "user_wallet",
           pay_to_address: "0x6d5aB248dFB8074812d841B06DE7B3382230b4FF",
           pay_to_addresses: { "hedera:testnet": "0.0.1234" },
-          domains: [{ hostname: "my-api.ax402.io", is_primary: true, verified_at: "2026-01-01" }],
+          domains: [{ hostname: "my-api.launa.io", is_primary: true, verified_at: "2026-01-01" }],
         },
       ],
       "apis",
@@ -25,7 +25,7 @@ describe("formatHumanOutput", () => {
     expect(out).toContain("6a1def0956a1f09595ac6087");
     expect(out).toContain("Postman Echo");
     expect(out).toContain("Live");
-    expect(out).toContain("my-api.ax402.io");
+    expect(out).toContain("my-api.launa.io");
     expect(out).toContain("hedera:testnet");
     expect(out).not.toContain("[{");
   });

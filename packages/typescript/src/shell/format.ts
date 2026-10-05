@@ -1,4 +1,4 @@
-import { Ax402Error } from "../http.js";
+import { LaunaError } from "../http.js";
 import { formatHumanOutput } from "./format-human.js";
 import type { ShellResult } from "./types.js";
 
@@ -14,7 +14,7 @@ export function formatShellOutput(
 }
 
 export function shellErrorFromUnknown(err: unknown): ShellResult {
-  if (err instanceof Ax402Error) {
+  if (err instanceof LaunaError) {
     return {
       ok: false,
       error: `${err.status}: ${err.message}`,

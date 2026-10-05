@@ -15,8 +15,8 @@
     }
   },
   "platformConfig": {
-    "platform_domain": "ax402.io",
-    "gateway_cname_target": "gateway.ax402.io",
+    "platform_domain": "launa.io",
+    "gateway_cname_target": "gateway.launa.io",
     "gateway_port": 8090,
     "admin_host": "api.example.com"
   },
@@ -104,23 +104,23 @@
     "verification_token": "x402-token",
     "verification_record": "_x402-verify.api.example.com",
     "cname_record": "api",
-    "cname_target": "gateway.ax402.io",
+    "cname_target": "gateway.launa.io",
     "instructions": ["Add CNAME", "Add TXT", "Verify"]
   },
   "apiKey": {
     "id": "507f1f77bcf86cd799439016",
     "name": "ci",
-    "key_prefix": "ax402_live_ab",
+    "key_prefix": "launa_live_ab",
     "scopes": ["apis:read"],
     "created_at": "2026-01-01T00:00:00Z"
   },
   "createdApiKey": {
     "id": "507f1f77bcf86cd799439016",
     "name": "ci",
-    "key_prefix": "ax402_live_ab",
+    "key_prefix": "launa_live_ab",
     "scopes": ["apis:read"],
     "created_at": "2026-01-01T00:00:00Z",
-    "key": "ax402_live_abc123secret"
+    "key": "launa_live_abc123secret"
   },
   "scopes": {
     "scopes": ["apis:read", "apis:write", "endpoints:read", "endpoints:write"]
@@ -193,7 +193,7 @@
     "gateway_hostname": "x402.example.com",
     "upstream_base_url": "https://example.com/api",
     "cname_record": "x402",
-    "cname_target": "gateway.ax402.io",
+    "cname_target": "gateway.launa.io",
     "txt_record": "_x402-verify.x402.example.com"
   },
   "notificationPreferences": {
@@ -210,7 +210,7 @@
     "enabled": true,
     "chain_id": 845320402,
     "network": "eip155:845320402",
-    "network_name": "Ax402 Sandbox Fork",
+    "network_name": "Launa Sandbox Fork",
     "rpc_url": "http://127.0.0.1:18545",
     "native_symbol": "ETH",
     "faucet_enabled": true

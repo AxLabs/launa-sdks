@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   publish:
-    name: Publish @ax402 packages
+    name: Publish @launa packages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout tag
@@ -47,15 +47,15 @@ jobs:
           fi
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server --filter @ax402/react-paywall build
-      - run: pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server test
+      - run: pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server --filter @launa/react-paywall build
+      - run: pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server test
 
       - name: Publish packages to npm
         run: |
           pnpm publish -r \
-            --filter @ax402/sdk \
-            --filter @ax402/cli \
-            --filter @ax402/mcp-server \
-            --filter @ax402/react-paywall \
+            --filter @launa/sdk \
+            --filter @launa/cli \
+            --filter @launa/mcp-server \
+            --filter @launa/react-paywall \
             --access public \
             --no-git-checks

@@ -40,10 +40,10 @@ export type ShellResult =
   | { ok: false; error: string; kind?: "usage" | "api"; status?: number; data?: Record<string, unknown> };
 
 export type ShellExecuteContext = {
-  client: import("../client.js").Ax402Client;
+  client: import("../client.js").LaunaClient;
   /** Base URL for auth login (guest client) */
   baseUrl?: string;
-  /** Resolved sandbox mode (--sandbox or AX402_ENVIRONMENT/AX402_SANDBOX). */
+  /** Resolved sandbox mode (--sandbox or LAUNA_ENVIRONMENT/LAUNA_SANDBOX). */
   sandbox?: boolean;
   /** Read file path to string (Node CLI --file flags) */
   readFile?: (path: string) => Promise<string>;

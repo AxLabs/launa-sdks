@@ -1,4 +1,4 @@
-package ax402
+package launa
 
 import (
 	"context"
@@ -158,7 +158,7 @@ func TestCreateAPIInputEncodesEmptyPayToAddresses(t *testing.T) {
 func TestAllRoutes(t *testing.T) {
 	srv := newMockServer(t)
 	defer srv.Close()
-	cl := NewClient(srv.URL, Credentials{APIKey: "ax402_live_test"})
+	cl := NewClient(srv.URL, Credentials{APIKey: "launa_live_test"})
 	ctx := context.Background()
 
 	if _, err := cl.Signup(ctx, "a@b.com", "password1"); err != nil {
@@ -357,7 +357,7 @@ func TestErrorParsing(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	cl := NewClient(srv.URL, Credentials{APIKey: "ax402_live_test"})
+	cl := NewClient(srv.URL, Credentials{APIKey: "launa_live_test"})
 	_, err := cl.ListAPIs(context.Background())
 	if err == nil {
 		t.Fatal("expected error")
@@ -371,7 +371,7 @@ func TestErrorParsing(t *testing.T) {
 func TestEnvironmentHeader(t *testing.T) {
 	var gotEnv string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		gotEnv = r.Header.Get("X-Ax402-Environment")
+		gotEnv = r.Header.Get("X-Launa-Environment")
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"id":"1","email":"a@b.com"}`))
 	}))

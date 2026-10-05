@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
-import { Ax402Error } from "../http.js";
+import { LaunaError } from "../http.js";
 import { parseShellArgv } from "./parse.js";
 import { runShellCommand } from "./execute.js";
-import type { Ax402Client } from "../client.js";
+import type { LaunaClient } from "../client.js";
 
-function mockClient(overrides: Partial<Ax402Client> = {}): Ax402Client {
+function mockClient(overrides: Partial<LaunaClient> = {}): LaunaClient {
   return {
     apis: { list: vi.fn().mockResolvedValue([{ id: "1", name: "API" }]) },
     auth: { me: vi.fn().mockResolvedValue({ email: "a@b.com" }) },
     keys: { list: vi.fn().mockResolvedValue([]) },
     ...overrides,
-  } as unknown as Ax402Client;
+  } as unknown as LaunaClient;
 }
 
 describe("runShellCommand", () => {
@@ -33,7 +33,7 @@ describe("runShellCommand", () => {
       webhook_url: "https://app.example/hooks",
       webhook_configured: true,
     });
-    const client = mockClient({ apis: { update } } as Partial<Ax402Client>);
+    const client = mockClient({ apis: { update } } as Partial<LaunaClient>);
     const result = await runShellCommand(
       parseShellArgv([
         "apis",
@@ -59,12 +59,12 @@ describe("runShellCommand", () => {
     if (!result.ok) expect(result.kind).toBe("usage");
   });
 
-  it("maps Ax402Error", async () => {
+  it("maps LaunaError", async () => {
     const client = mockClient({
       apis: {
-        list: vi.fn().mockRejectedValue(new Ax402Error(403, "forbidden", { reason: "x" })),
+        list: vi.fn().mockRejectedValue(new LaunaError(403, "forbidden", { reason: "x" })),
       },
-    } as Partial<Ax402Client>);
+    } as Partial<LaunaClient>);
     const result = await runShellCommand(parseShellArgv(["apis", "list"]), { client });
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -103,7 +103,7 @@ describe("runShellCommand", () => {
   it("apis slug-check", async () => {
     const client = mockClient({
       apis: { checkSlugAvailability: vi.fn().mockResolvedValue({ available: true }) },
-    } as Partial<Ax402Client>);
+    } as Partial<LaunaClient>);
     const result = await runShellCommand(parseShellArgv(["apis", "slug-check", "--slug", "my-api"]), { client });
     expect(result.ok).toBe(true);
     expect(client.apis.checkSlugAvailability).toHaveBeenCalledWith("my-api", undefined);
@@ -111,7 +111,7 @@ describe("runShellCommand", () => {
 
   it("config billing without credentials", async () => {
     const billing = vi.fn().mockResolvedValue({ packages: [] });
-    const client = mockClient({ config: { billing } } as Partial<Ax402Client>);
+    const client = mockClient({ config: { billing } } as Partial<LaunaClient>);
     const result = await runShellCommand(parseShellArgv(["config", "billing"]), { client });
     expect(result.ok).toBe(true);
     expect(billing).toHaveBeenCalled();
@@ -121,7 +121,7 @@ describe("runShellCommand", () => {
     const create = vi.fn().mockResolvedValue({ id: "ep1" });
     const client = mockClient({
       endpoints: { create },
-    } as Partial<Ax402Client>);
+    } as Partial<LaunaClient>);
     const result = await runShellCommand(
       parseShellArgv(["--sandbox", "endpoints", "create", "--api-id", "api1", "--path", "/v1/*", "--price-usdc", "0.10"]),
       { client, sandbox: true },
@@ -161,7 +161,7 @@ describe("runShellCommand", () => {
     const client = mockClient({
       sandboxWallet: { get, reset: vi.fn() },
       config: { localDev: vi.fn(), devBalances, devFaucet: vi.fn() },
-    } as Partial<Ax402Client>);
+    } as Partial<LaunaClient>);
     const result = await runShellCommand(parseShellArgv(["--sandbox", "sandbox-wallet", "get", "--no-wait"]), {
       client,
       sandbox: true,
@@ -187,7 +187,7 @@ describe("runShellCommand", () => {
     const client = mockClient({
       sandboxWallet: { get, reset: vi.fn() },
       config: { localDev: vi.fn(), devBalances, devFaucet: vi.fn() },
-    } as Partial<Ax402Client>);
+    } as Partial<LaunaClient>);
     const result = await runShellCommand(
       parseShellArgv(["--json", "--sandbox", "sandbox-wallet", "get"]),
       { client, sandbox: true },
@@ -200,7 +200,7 @@ describe("runShellCommand", () => {
     const update = vi.fn().mockResolvedValue({ id: "ep1", accepts: [] });
     const client = mockClient({
       endpoints: { update },
-    } as Partial<Ax402Client>);
+    } as Partial<LaunaClient>);
     const result = await runShellCommand(
       parseShellArgv([
         "endpoints",
@@ -236,7 +236,7 @@ describe("runShellCommand", () => {
 
   it("endpoints update accepts JSON", async () => {
     const update = vi.fn().mockResolvedValue({ id: "ep1" });
-    const client = mockClient({ endpoints: { update } } as Partial<Ax402Client>);
+    const client = mockClient({ endpoints: { update } } as Partial<LaunaClient>);
     const accepts = JSON.stringify([
       {
         scheme: "exact",
@@ -267,7 +267,7 @@ describe("runShellCommand", () => {
 
   it("apis create includes discovery fields", async () => {
     const create = vi.fn().mockResolvedValue({ id: "api1" });
-    const client = mockClient({ apis: { create } } as Partial<Ax402Client>);
+    const client = mockClient({ apis: { create } } as Partial<LaunaClient>);
     const result = await runShellCommand(
       parseShellArgv([
         "apis",
@@ -305,7 +305,7 @@ describe("runShellCommand", () => {
 
   it("apis create includes pay_to_addresses", async () => {
     const create = vi.fn().mockResolvedValue({ id: "api1" });
-    const client = mockClient({ apis: { create } } as Partial<Ax402Client>);
+    const client = mockClient({ apis: { create } } as Partial<LaunaClient>);
     const result = await runShellCommand(
       parseShellArgv([
         "apis",
@@ -339,7 +339,7 @@ describe("runShellCommand", () => {
       openapi_url: "https://api.example.com/openapi.json",
       well_known_url: "https://api.example.com/.well-known/x402.json",
     });
-    const client = mockClient({ apis: { discovery } } as Partial<Ax402Client>);
+    const client = mockClient({ apis: { discovery } } as Partial<LaunaClient>);
     const result = await runShellCommand(parseShellArgv(["apis", "discovery", "--id", "api1"]), { client });
     expect(result.ok).toBe(true);
     expect(discovery).toHaveBeenCalledWith("api1");
@@ -347,7 +347,7 @@ describe("runShellCommand", () => {
 
   it("discovery urls", async () => {
     const discovery = vi.fn().mockResolvedValue({ openapi_url: "https://x/openapi.json" });
-    const client = mockClient({ apis: { discovery } } as Partial<Ax402Client>);
+    const client = mockClient({ apis: { discovery } } as Partial<LaunaClient>);
     const result = await runShellCommand(parseShellArgv(["discovery", "urls", "--api-id", "api1"]), { client });
     expect(result.ok).toBe(true);
     expect(discovery).toHaveBeenCalledWith("api1");
@@ -355,7 +355,7 @@ describe("runShellCommand", () => {
 
   it("apis update discovery fields", async () => {
     const update = vi.fn().mockResolvedValue({ id: "api1" });
-    const client = mockClient({ apis: { update } } as Partial<Ax402Client>);
+    const client = mockClient({ apis: { update } } as Partial<LaunaClient>);
     const result = await runShellCommand(
       parseShellArgv([
         "apis",
@@ -377,7 +377,7 @@ describe("runShellCommand", () => {
 
   it("apis update can clear pay_to_addresses", async () => {
     const update = vi.fn().mockResolvedValue({ id: "api1" });
-    const client = mockClient({ apis: { update } } as Partial<Ax402Client>);
+    const client = mockClient({ apis: { update } } as Partial<LaunaClient>);
     const result = await runShellCommand(
       parseShellArgv(["apis", "update", "api1", "--pay-to-addresses", "{}"]),
       { client },
@@ -389,7 +389,7 @@ describe("runShellCommand", () => {
   it("billing overview", async () => {
     const client = mockClient({
       billing: { overview: vi.fn().mockResolvedValue({ model: "payg" }) },
-    } as Partial<Ax402Client>);
+    } as Partial<LaunaClient>);
     const result = await runShellCommand(parseShellArgv(["billing", "overview"]), { client });
     expect(result.ok).toBe(true);
     expect(client.billing.overview).toHaveBeenCalled();

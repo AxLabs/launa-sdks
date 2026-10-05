@@ -1,10 +1,10 @@
 {
-  "name": "ax402-sdks",
+  "name": "launa-sdks",
   "private": true,
   "version": "0.0.5",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
-    "build": "pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server --filter @ax402/react-paywall build",
-    "test": "pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server test"
+    "build": "pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server --filter @launa/react-paywall build",
+    "test": "pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server test"
   }
 }

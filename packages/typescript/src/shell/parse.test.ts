@@ -44,15 +44,15 @@ describe("shell parse", () => {
   });
 
   it("envRequestsSandbox is case-insensitive", () => {
-    expect(envRequestsSandbox({ AX402_ENVIRONMENT: "Development" } as NodeJS.ProcessEnv)).toBe(true);
-    expect(envRequestsSandbox({ AX402_SANDBOX: "YES" } as NodeJS.ProcessEnv)).toBe(true);
-    expect(envRequestsSandbox({ AX402_ENVIRONMENT: "production" } as NodeJS.ProcessEnv)).toBe(false);
+    expect(envRequestsSandbox({ LAUNA_ENVIRONMENT: "Development" } as NodeJS.ProcessEnv)).toBe(true);
+    expect(envRequestsSandbox({ LAUNA_SANDBOX: "YES" } as NodeJS.ProcessEnv)).toBe(true);
+    expect(envRequestsSandbox({ LAUNA_ENVIRONMENT: "production" } as NodeJS.ProcessEnv)).toBe(false);
   });
 
   it("assertSandboxCredentials rejects live keys", () => {
-    expect(assertSandboxCredentials("ax402_live_abc", true)).toMatch(/ax402_test_/);
-    expect(assertSandboxCredentials("ax402_test_abc", true)).toBeUndefined();
-    expect(assertSandboxCredentials("ax402_live_abc", false)).toBeUndefined();
+    expect(assertSandboxCredentials("launa_live_abc", true)).toMatch(/launa_test_/);
+    expect(assertSandboxCredentials("launa_test_abc", true)).toBeUndefined();
+    expect(assertSandboxCredentials("launa_live_abc", false)).toBeUndefined();
   });
 
   it("parses flags", () => {

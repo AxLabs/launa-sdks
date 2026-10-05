@@ -1,6 +1,6 @@
-# Ax402 Python SDK
+# Launa Python SDK
 
-Control-plane and buyer client for the [Ax402](https://ax402.io) platform.
+Control-plane and buyer client for the [Launa](https://launa.io) platform.
 
 ## Install
 
@@ -12,18 +12,18 @@ pip install "ax402-sdk[buyer]"  # optional: pay gateway URLs
 ## Control plane
 
 ```python
-from ax402_sdk import Ax402Client
+from launa_sdk import LaunaClient
 
-client = Ax402Client.from_env()  # AX402_BASE_URL, AX402_API_KEY or AX402_JWT
+client = LaunaClient.from_env()  # LAUNA_BASE_URL, LAUNA_API_KEY or LAUNA_JWT
 apis = client.apis.list()
 ```
 
 ## Buyer
 
 ```python
-from ax402_sdk.buyer import BuyerClient
+from launa_sdk.buyer import BuyerClient
 
-result = BuyerClient.from_env().get("https://my-api.ax402.io/v1/foo")
+result = BuyerClient.from_env().get("https://my-api.launa.io/v1/foo")
 ```
 
 See [docs/sdks/python](../../docs/sdks/python/README.md).

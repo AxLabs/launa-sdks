@@ -1,16 +1,16 @@
 {
-  "name": "@ax402/cli",
+  "name": "@launa/cli",
   "version": "0.0.5",
-  "description": "Ax402 platform CLI",
+  "description": "Launa platform CLI",
   "type": "module",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AxLabs/ax402-sdks.git",
+    "url": "git+https://github.com/AxLabs/launa-sdks.git",
     "directory": "tools/cli"
   },
   "bin": {
-    "ax402": "./dist/index.js"
+    "launa": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -22,7 +22,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@ax402/sdk": "workspace:*"
+    "@launa/sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

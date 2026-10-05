@@ -142,19 +142,19 @@ export function shellCommandNeedsCredentials(parsed: ParsedShellCommand): boolea
   return true;
 }
 
-/** True when AX402_ENVIRONMENT=development or AX402_SANDBOX is truthy. */
+/** True when LAUNA_ENVIRONMENT=development or LAUNA_SANDBOX is truthy. */
 export function envRequestsSandbox(env: NodeJS.ProcessEnv = process.env): boolean {
-  const environment = (env.AX402_ENVIRONMENT ?? "").trim().toLowerCase();
+  const environment = (env.LAUNA_ENVIRONMENT ?? "").trim().toLowerCase();
   if (environment === "development") return true;
-  const sandbox = (env.AX402_SANDBOX ?? "").trim().toLowerCase();
+  const sandbox = (env.LAUNA_SANDBOX ?? "").trim().toLowerCase();
   return sandbox === "1" || sandbox === "true" || sandbox === "yes";
 }
 
 /** Reject live API keys when sandbox mode is requested. */
 export function assertSandboxCredentials(apiKey: string | undefined, sandbox: boolean): string | undefined {
   if (!sandbox || !apiKey) return undefined;
-  if (apiKey.startsWith("ax402_live_")) {
-    return "sandbox mode requires an ax402_test_… API key (or AX402_JWT); ax402_live_… keys are production-only";
+  if (apiKey.startsWith("launa_live_")) {
+    return "sandbox mode requires an launa_test_… API key (or LAUNA_JWT); launa_live_… keys are production-only";
   }
   return undefined;
 }

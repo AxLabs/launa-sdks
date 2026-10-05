@@ -1,37 +1,37 @@
 # MCP server
 
-Model Context Protocol server — published as `@ax402/mcp-server` on npm.
+Model Context Protocol server — published as `@launa/mcp-server` on npm.
 
 ## Install / run
 
 ```bash
-npx @ax402/mcp-server
+npx @launa/mcp-server
 ```
 
 Or from source:
 
 ```bash
-pnpm --filter @ax402/mcp-server build
+pnpm --filter @launa/mcp-server build
 
-AX402_API_KEY=ax402_live_... \
-AX402_BASE_URL=https://api.ax402.io \
+LAUNA_API_KEY=launa_live_... \
+LAUNA_BASE_URL=https://api.launa.io \
 node tools/mcp-server/dist/index.js
 ```
 
-Auth: `AX402_API_KEY` only (no JWT). For Sandbox / Test mode set `AX402_ENVIRONMENT=development` (or `AX402_SANDBOX=1`) and use an `ax402_test_...` key — default endpoint pricing uses the fork network. Sandbox wallet get/reset is CLI + JWT only.
+Auth: `LAUNA_API_KEY` only (no JWT). For Sandbox / Test mode set `LAUNA_ENVIRONMENT=development` (or `LAUNA_SANDBOX=1`) and use an `launa_test_...` key — default endpoint pricing uses the fork network. Sandbox wallet get/reset is CLI + JWT only.
 
 ## Cursor configuration
 
 ```json
 {
   "mcpServers": {
-    "ax402": {
+    "launa": {
       "command": "npx",
-      "args": ["-y", "@ax402/mcp-server"],
+      "args": ["-y", "@launa/mcp-server"],
       "env": {
-        "AX402_BASE_URL": "https://api.ax402.io",
-        "AX402_API_KEY": "ax402_live_...",
-        "AX402_EVM_PRIVATE_KEY": "0x..."
+        "LAUNA_BASE_URL": "https://api.launa.io",
+        "LAUNA_API_KEY": "launa_live_...",
+        "LAUNA_EVM_PRIVATE_KEY": "0x..."
       }
     }
   }
@@ -44,45 +44,45 @@ See [examples/agent-mcp/cursor-mcp.json.example](../../examples/agent-mcp/cursor
 
 | Tool | Scope |
 |------|-------|
-| `ax402_list_apis` | apis:read |
-| `ax402_get_api` | apis:read |
-| `ax402_discovery_urls` | apis:read — gateway `openapi.json` / `/.well-known/x402.json` URLs |
-| `ax402_set_discovery_guidance` | apis:write — guidance, contact email, openapi version |
-| `ax402_list_endpoints` | endpoints:read |
-| `ax402_update_endpoint_schemas` | endpoints:write — request/response JSON Schema |
-| `ax402_create_api` | apis:write + verified email — optional `pay_to_address` / `pay_to_addresses`, discovery fields |
-| `ax402_add_endpoint` | endpoints:write |
-| `ax402_import_openapi` | openapi:read — persists schemas from the spec when present |
-| `ax402_add_domain` | domains:write |
-| `ax402_list_domains` | domains:read |
-| `ax402_verify_domain` | domains:write |
-| `ax402_domain_suggest` | domains:read |
-| `ax402_stats_overview` | stats:read |
-| `ax402_stats_api` | stats:read |
-| `ax402_settlements_list` | settlements:read |
-| `ax402_settlements_export` | settlements:read |
-| `ax402_billing_overview` | billing:read |
-| `ax402_income_summary` | income:read |
-| `ax402_apis_slug_check` | apis:read |
-| `ax402_apis_probe_upstream` | apis:read |
-| `ax402_scopes_list` | JWT session |
-| `ax402_facilitator_stats` | authenticated |
-| `ax402_billing_catalog` | public billing catalog |
-| `ax402_inspect_url` | buyer (no wallet) |
-| `ax402_supported_networks` | authenticated |
-| `ax402_platform_config` | public |
-| `ax402_pay_url` | buyer (`AX402_EVM_PRIVATE_KEY` and/or Hedera keys) |
+| `launa_list_apis` | apis:read |
+| `launa_get_api` | apis:read |
+| `launa_discovery_urls` | apis:read — gateway `openapi.json` / `/.well-known/x402.json` URLs |
+| `launa_set_discovery_guidance` | apis:write — guidance, contact email, openapi version |
+| `launa_list_endpoints` | endpoints:read |
+| `launa_update_endpoint_schemas` | endpoints:write — request/response JSON Schema |
+| `launa_create_api` | apis:write + verified email — optional `pay_to_address` / `pay_to_addresses`, discovery fields |
+| `launa_add_endpoint` | endpoints:write |
+| `launa_import_openapi` | openapi:read — persists schemas from the spec when present |
+| `launa_add_domain` | domains:write |
+| `launa_list_domains` | domains:read |
+| `launa_verify_domain` | domains:write |
+| `launa_domain_suggest` | domains:read |
+| `launa_stats_overview` | stats:read |
+| `launa_stats_api` | stats:read |
+| `launa_settlements_list` | settlements:read |
+| `launa_settlements_export` | settlements:read |
+| `launa_billing_overview` | billing:read |
+| `launa_income_summary` | income:read |
+| `launa_apis_slug_check` | apis:read |
+| `launa_apis_probe_upstream` | apis:read |
+| `launa_scopes_list` | JWT session |
+| `launa_facilitator_stats` | authenticated |
+| `launa_billing_catalog` | public billing catalog |
+| `launa_inspect_url` | buyer (no wallet) |
+| `launa_supported_networks` | authenticated |
+| `launa_platform_config` | public |
+| `launa_pay_url` | buyer (`LAUNA_EVM_PRIVATE_KEY` and/or Hedera keys) |
 
 ## Environment
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `AX402_API_KEY` | Yes | Seller API key |
-| `AX402_BASE_URL` | No | API base URL (default `https://api.ax402.io`) |
-| `AX402_EVM_PRIVATE_KEY` | For `ax402_pay_url` | EVM signer |
-| `HEDERA_ACCOUNT_ID` | For `ax402_pay_url` | Hedera payer account |
-| `HEDERA_PRIVATE_KEY` | For `ax402_pay_url` | Hedera private key |
+| `LAUNA_API_KEY` | Yes | Seller API key |
+| `LAUNA_BASE_URL` | No | API base URL (default `https://api.launa.io`) |
+| `LAUNA_EVM_PRIVATE_KEY` | For `launa_pay_url` | EVM signer |
+| `HEDERA_ACCOUNT_ID` | For `launa_pay_url` | Hedera payer account |
+| `HEDERA_PRIVATE_KEY` | For `launa_pay_url` | Hedera private key |
 
-Discovery: [API discovery](https://ax402.io/docs/guides/discovery).
+Discovery: [API discovery](https://launa.io/docs/guides/discovery).
 
 See [agents](../agents/README.md). Publishing: [publishing](../publishing/README.md).

@@ -3,7 +3,7 @@
 ## Install
 
 ```bash
-pnpm add @ax402/react-paywall @x402/fetch @x402/evm viem react react-dom
+pnpm add @launa/react-paywall @x402/fetch @x402/evm viem react react-dom
 ```
 
 Peer dependencies: **React 18+** and a wallet (browser extension) or `privateKey` for headless signing.
@@ -13,7 +13,7 @@ Peer dependencies: **React 18+** and a wallet (browser extension) or `privateKey
 Default UI uses BEM classes and CSS variables. Import once at your app entry:
 
 ```tsx
-import '@ax402/react-paywall/styles.css'
+import '@launa/react-paywall/styles.css'
 ```
 
 You can skip this import only if you use `appearance.unstyled` and supply your own CSS for every slot (see [Custom UI](./custom-ui.md)).
@@ -25,7 +25,7 @@ You can skip this import only if you use `appearance.unstyled` and supply your o
 3. Wrap paid content in `PaywallGate` with the **same URL** your backend/gateway protects.
 
 ```tsx
-import { PaywallProvider, PaywallGate } from '@ax402/react-paywall'
+import { PaywallProvider, PaywallGate } from '@launa/react-paywall'
 
 export function ArticleRoute() {
   return (
@@ -37,7 +37,7 @@ export function ArticleRoute() {
       rpc={{ defaultUrl: 'https://mainnet.base.org' }}
     >
       <PaywallGate
-        resourceUrl="https://my-api.ax402.io/v1/echo?test=1"
+        resourceUrl="https://my-api.launa.io/v1/echo?test=1"
         title="Unlock full article"
         description="One-time micropayment via x402."
       >

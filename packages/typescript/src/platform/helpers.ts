@@ -1,5 +1,5 @@
 import type { AcceptOption, CreateAPIInput, PaymentToken } from "../types.js";
-import type { Ax402Client } from "../client.js";
+import type { LaunaClient } from "../client.js";
 
 export const USDC_DECIMALS = 6;
 
@@ -200,7 +200,7 @@ export function gatewayURL(
   return `${base}${p}`;
 }
 
-export async function setupApiWithDefaultDomain(client: Ax402Client, input: CreateAPIInput) {
+export async function setupApiWithDefaultDomain(client: LaunaClient, input: CreateAPIInput) {
   const platform = await client.config.platform();
   const api = await client.apis.create(input);
   const host = `${input.slug}.${platform.platform_domain}`;
@@ -208,7 +208,7 @@ export async function setupApiWithDefaultDomain(client: Ax402Client, input: Crea
 }
 
 export async function wrapOpenAPI(
-  client: Ax402Client,
+  client: LaunaClient,
   apiId: string,
   spec: string,
   accepts: AcceptOption[],

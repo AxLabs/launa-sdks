@@ -32,7 +32,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
   upstream_base_url: "https://api.example.com",
   pay_to_address: "0x...",
   pay_to_addresses: { "hedera:testnet": "0.0.1234" },
-  webhook_url: "https://app.example/webhooks/ax402/settlement",
+  webhook_url: "https://app.example/webhooks/launa/settlement",
   webhook_secret: "whsec_...",
   discovery_guidance: "Use POST /search with a query field.",
 })`,
@@ -582,7 +582,7 @@ await client.sandboxWallet.reset();`,
         id: "presets",
         label: "Presets",
         flags: [],
-        sdkSnippet: "import { SCOPE_PRESETS } from '@ax402/sdk'",
+        sdkSnippet: "import { SCOPE_PRESETS } from '@launa/sdk'",
       },
       {
         id: "list",
@@ -625,7 +625,7 @@ await client.sandboxWallet.reset();`,
 ];
 
 export function shellUsageText(): string {
-  const lines = ["Usage: ax402 [--json] [--sandbox] <command> [options]", "", "Commands:"];
+  const lines = ["Usage: launa [--json] [--sandbox] <command> [options]", "", "Commands:"];
   for (const resource of SHELL_RESOURCES) {
     for (const method of resource.methods) {
       const flagParts = method.flags
@@ -643,7 +643,7 @@ export function shellUsageText(): string {
   lines.push("  pay url — gateway URL + EVM and/or Hedera buyer env (no API key)");
   lines.push("");
   lines.push(
-    "Env: AX402_API_KEY or AX402_JWT (control plane); --sandbox / AX402_ENVIRONMENT=development / AX402_SANDBOX=1 for Test mode; sandbox-wallet requires AX402_JWT; pay url: AX402_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
+    "Env: LAUNA_API_KEY or LAUNA_JWT (control plane); --sandbox / LAUNA_ENVIRONMENT=development / LAUNA_SANDBOX=1 for Test mode; sandbox-wallet requires LAUNA_JWT; pay url: LAUNA_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
   );
   return lines.join("\n");
 }

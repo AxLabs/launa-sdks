@@ -21,8 +21,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server build
-      - run: pnpm --filter @ax402/sdk --filter @ax402/cli --filter @ax402/mcp-server test
+      - run: pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server build
+      - run: pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server test
 
   go:
     name: Go

@@ -60,7 +60,7 @@ export function buildPaywallAgentManifest(opts: BuildAgentManifestOptions): Payw
       clientLibraries: [
         '@x402/fetch (TypeScript)',
         'github.com/x402-foundation/x402/go (Go)',
-        '@ax402/sdk buyer (TypeScript/Python)',
+        '@launa/sdk buyer (TypeScript/Python)',
       ],
       retryHeaders: ['PAYMENT-SIGNATURE', 'X-PAYMENT'],
     },

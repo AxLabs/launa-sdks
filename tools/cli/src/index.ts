@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Ax402Client } from "@ax402/sdk";
+import { LaunaClient } from "@launa/sdk";
 import {
   assertSandboxCredentials,
   envRequestsSandbox,
@@ -10,7 +10,7 @@ import {
   runShellCommand,
   shellCommandNeedsCredentials,
   shellUsageText,
-} from "@ax402/sdk/shell";
+} from "@launa/sdk/shell";
 
 function usage(msg?: string): never {
   if (msg) console.error(msg);
@@ -22,14 +22,14 @@ function resolveSandbox(parsedSandbox: boolean): boolean {
   return parsedSandbox || envRequestsSandbox();
 }
 
-function client(sandbox: boolean): Ax402Client {
-  const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
-  const apiKey = process.env.AX402_API_KEY;
-  const token = process.env.AX402_JWT;
-  if (!apiKey && !token) usage("AX402_API_KEY or AX402_JWT required");
+function client(sandbox: boolean): LaunaClient {
+  const baseUrl = process.env.LAUNA_BASE_URL ?? "https://api.launa.io";
+  const apiKey = process.env.LAUNA_API_KEY;
+  const token = process.env.LAUNA_JWT;
+  if (!apiKey && !token) usage("LAUNA_API_KEY or LAUNA_JWT required");
   const credErr = assertSandboxCredentials(apiKey, sandbox);
   if (credErr) usage(credErr);
-  return new Ax402Client({
+  return new LaunaClient({
     baseUrl,
     apiKey,
     token,
@@ -43,18 +43,18 @@ async function main() {
 
   const json = parsed.json;
   const sandbox = resolveSandbox(parsed.sandbox);
-  const baseUrl = process.env.AX402_BASE_URL ?? "https://api.ax402.io";
+  const baseUrl = process.env.LAUNA_BASE_URL ?? "https://api.launa.io";
 
   if (
     (parsed.cmd === "sandbox-wallet" || parsed.cmd === "sandbox_wallet") &&
-    !process.env.AX402_JWT
+    !process.env.LAUNA_JWT
   ) {
-    usage("sandbox-wallet requires AX402_JWT (session token from auth login)");
+    usage("sandbox-wallet requires LAUNA_JWT (session token from auth login)");
   }
 
   const c = shellCommandNeedsCredentials(parsed)
     ? client(sandbox)
-    : new Ax402Client({ baseUrl, environment: sandbox ? "development" : undefined });
+    : new LaunaClient({ baseUrl, environment: sandbox ? "development" : undefined });
 
   const result = await runShellCommand(parsed, {
     client: c,
@@ -66,7 +66,7 @@ async function main() {
     },
     runInspectUrl: inspectGatewayUrl,
     runPayUrl: async (url, method) => {
-      const { buyerClientFromEnv, BuyerDepsError } = await import("@ax402/sdk/buyer");
+      const { buyerClientFromEnv, BuyerDepsError } = await import("@launa/sdk/buyer");
       let buyer;
       try {
         buyer = await buyerClientFromEnv();

@@ -12,9 +12,9 @@ pip install "ax402-sdk[buyer]"  # x402 signing + eth-account
 ## Control plane
 
 ```python
-from ax402_sdk import Ax402Client
+from launa_sdk import LaunaClient
 
-client = Ax402Client.from_env()  # AX402_BASE_URL, AX402_API_KEY or AX402_JWT
+client = LaunaClient.from_env()  # LAUNA_BASE_URL, LAUNA_API_KEY or LAUNA_JWT
 
 apis = client.apis.list()
 api = client.apis.create({
@@ -35,7 +35,7 @@ api = client.apis.create({
     "upstream_base_url": "https://shopify-app.example",
     "pay_to_address": "0xYourWallet",
     "pay_to_addresses": {"hedera:testnet": "0.0.1234"},
-    "webhook_url": "https://shopify-app.example/webhooks/ax402/settlement",
+    "webhook_url": "https://shopify-app.example/webhooks/launa/settlement",
     "webhook_secret": "whsec_...",
 })
 deliveries = client.apis.list_webhook_deliveries(api.id)
@@ -58,7 +58,7 @@ client.endpoints.update(api.id, endpoint_id, {
 })
 ```
 
-Resource-style API includes `apis.discovery`. Flat back-compat aliases (`list_apis`, `stats_overview`, etc.) remain on `Ax402Client`.
+Resource-style API includes `apis.discovery`. Flat back-compat aliases (`list_apis`, `stats_overview`, etc.) remain on `LaunaClient`.
 
 Helpers: `gateway_url`, `gateway_base_url`, `wrap_openapi`, `setup_api_with_default_domain`, `SCOPE_PRESETS`, `usdc_to_atomic`, `build_usdc_accept`.
 
@@ -66,31 +66,31 @@ Helpers: `gateway_url`, `gateway_base_url`, `wrap_openapi`, `setup_api_with_defa
 
 Pay gateway URLs with EVM `exact` or `batch-settlement`. Full guide: [buyers](../buyers/README.md).
 
-Native Hedera (`hedera:*`) buyer signing is TypeScript-only (`@ax402/sdk/buyer`) until foundation ships a Python Hedera mechanism. Platform helpers expose `NETWORK_HEDERA_*` / `HBAR` / `USDC_HEDERA_*` for seller config.
+Native Hedera (`hedera:*`) buyer signing is TypeScript-only (`@launa/sdk/buyer`) until foundation ships a Python Hedera mechanism. Platform helpers expose `NETWORK_HEDERA_*` / `HBAR` / `USDC_HEDERA_*` for seller config.
 
 ```python
-from ax402_sdk.buyer import BuyerClient
+from launa_sdk.buyer import BuyerClient
 
-result = BuyerClient.from_env().get("https://my-api.ax402.io/v1/echo?test=1")
+result = BuyerClient.from_env().get("https://my-api.launa.io/v1/echo?test=1")
 print(result.status_code, result.settlement)
 ```
 
 Async:
 
 ```python
-from ax402_sdk.buyer import AsyncBuyerClient, evm_signer_from_private_key
+from launa_sdk.buyer import AsyncBuyerClient, evm_signer_from_private_key
 
 async with AsyncBuyerClient(evm_signer_from_private_key(key)) as client:
-    result = await client.get("https://my-api.ax402.io/v1/echo?test=1")
+    result = await client.get("https://my-api.launa.io/v1/echo?test=1")
 ```
 
 Batch-settlement gateways:
 
 ```python
-from ax402_sdk.buyer import BuyerClient, BatchBuyerOptions
+from launa_sdk.buyer import BuyerClient, BatchBuyerOptions
 
 result = BuyerClient.from_env(batch=BatchBuyerOptions(deposit_multiplier=5)).get(
-    "https://my-api.ax402.io/v1/echo?test=1"
+    "https://my-api.launa.io/v1/echo?test=1"
 )
 ```
 

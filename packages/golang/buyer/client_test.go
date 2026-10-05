@@ -42,7 +42,7 @@ func TestNewFromPrivateKeyInvalid(t *testing.T) {
 }
 
 func TestNewFromEnvHederaUnsupported(t *testing.T) {
-	t.Setenv("AX402_EVM_PRIVATE_KEY", "")
+	t.Setenv("LAUNA_EVM_PRIVATE_KEY", "")
 	t.Setenv("EVM_PRIVATE_KEY", "")
 	t.Setenv("HEDERA_ACCOUNT_ID", "0.0.1234")
 	t.Setenv("HEDERA_PRIVATE_KEY", "deadbeef")
@@ -53,7 +53,7 @@ func TestNewFromEnvHederaUnsupported(t *testing.T) {
 }
 
 func TestNewFromEnvMissing(t *testing.T) {
-	t.Setenv("AX402_EVM_PRIVATE_KEY", "")
+	t.Setenv("LAUNA_EVM_PRIVATE_KEY", "")
 	t.Setenv("EVM_PRIVATE_KEY", "")
 	t.Setenv("HEDERA_ACCOUNT_ID", "")
 	t.Setenv("HEDERA_PRIVATE_KEY", "")

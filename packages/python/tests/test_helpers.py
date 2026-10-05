@@ -1,4 +1,4 @@
-from ax402_sdk import (
+from launa_sdk import (
     HBAR,
     NETWORK_HEDERA_MAINNET,
     NETWORK_HEDERA_TESTNET,
@@ -10,7 +10,7 @@ from ax402_sdk import (
     gateway_url,
     usdc_to_atomic,
 )
-from ax402_sdk.platform.helpers import (
+from launa_sdk.platform.helpers import (
     DEFAULT_BATCH_WITHDRAW_DELAY,
     amount_to_atomic,
     atomic_to_display,
@@ -39,7 +39,7 @@ def test_build_batch_accept() -> None:
 
 
 def test_build_sandbox_accept() -> None:
-    from ax402_sdk import NETWORK_SANDBOX_FORK, USDC_BASE_MAINNET, build_sandbox_usdc_accept
+    from launa_sdk import NETWORK_SANDBOX_FORK, USDC_BASE_MAINNET, build_sandbox_usdc_accept
 
     a = build_sandbox_usdc_accept("1000")
     assert a["amount"] == "1000"

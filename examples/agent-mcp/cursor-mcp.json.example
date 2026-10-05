@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "ax402": {
+    "launa": {
       "command": "npx",
-      "args": ["-y", "@ax402/mcp-server"],
+      "args": ["-y", "@launa/mcp-server"],
       "env": {
-        "AX402_BASE_URL": "https://api.ax402.io",
-        "AX402_API_KEY": "ax402_live_your_key_here"
+        "LAUNA_BASE_URL": "https://api.launa.io",
+        "LAUNA_API_KEY": "launa_live_your_key_here"
       }
     }
   }
