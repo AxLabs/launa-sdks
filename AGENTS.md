@@ -192,19 +192,22 @@ Keep important engineering knowledge in Git and use this file as its concise ent
 
 Before changing architecture, ownership, compatibility, or established product behavior, read relevant records in `docs/decisions/` and follow its README; record only durable decisions.
 
+- Keep repository-specific context in this repository only when it is appropriate for the repository's intended visibility; current private visibility alone does not make internal project context repository-local.
+- Put durable context that spans repositories, or internal engineering context inappropriate for a potentially public repository, in the private project-context repository named in this file, when configured. Do not move repository-owned knowledge there.
+- Keep secrets out of both repositories, and do not treat temporary investigation notes or agent or personal memory as durable context by default.
 - Architecture documentation describes the current system.
 - Runbooks describe recurring operational procedures.
 - Release or deployment context records actions and compatibility concerns tied to delivery.
-- For work that crosses repository boundaries, consult the authoritative project-context repository named in this file, when configured.
 - Ordinary implementation changes usually require no durable documentation update.
 <!-- END AXLABS MANAGED: durable-context-guidance -->
 
 <!-- BEGIN AXLABS MANAGED: git-and-review-conventions -->
 ## Git and review conventions
 
-- Follow Conventional Commits for commit messages (for example, `feat: add user-provided metadata URI`). Describe the change rather than the tool that produced it, and keep each commit focused. https://www.conventionalcommits.org/en/v1.0.0/
+- Follow Conventional Commits for commit messages (for example, `feat: add user-provided metadata URI`). Describe the change rather than the tool that produced it, and keep each commit focused.
 - Name branches for the change. Prefer a concise prefix such as `feat/`, `fix/`, `docs/`, `refactor/`, or `chore/` (for example, `feat/user-provided-metadata-uri`). These prefixes are an AxLabs branch convention, not part of Conventional Commits. Do not put an AI assistant, IDE, or other tool name in branch names or commit messages.
-- Use the Git identity configured for the developer or autonomous worker performing the work. Do not substitute an AI assistant, IDE, or development tool as the Git author, committer, or co-author merely because it created or committed the change. Preserve legitimate human co-authorship and repository-required trailers such as `Signed-off-by` or `Change-Id`. Do not rewrite existing Git history to apply this policy.
-- When producing structured review feedback, use Conventional Comments (`label (decoration): summary`) and its standard vocabulary. Do not invent a repository-local review taxonomy unless the repository explicitly defines one. https://conventionalcomments.org/
+- The execution environment owns Git author, committer, and signing configuration. Use the identity and signing configuration it provides. Do not override author, committer, or signing configuration merely to change, remove, or work around coding-agent or IDE attribution. Do not invent or reconstruct a human identity when the environment is configured with a different identity. Do not disable signing merely because the configured signer belongs to the execution environment. Ordinary commits use `git commit` and leave identity and signing to that configuration. Do not rewrite existing Git history merely to apply this policy.
+- Keep repository artifacts free of coding-agent or tool-specific attribution and metadata. Do not voluntarily add agent identifiers, session links, generated tool footers, `Co-authored-by`, "Made with ...", or equivalent AI or IDE attribution unless explicitly requested. If tooling adds such metadata to an artifact, remove it before finalizing when that does not require changing Git identity, signing, or existing history. Preserve legitimate human attribution and repository-required metadata such as `Signed-off-by` or `Change-Id`.
+- When producing structured review feedback, use Conventional Comments (`label (decoration): summary`) and its standard vocabulary. Do not invent a repository-local review taxonomy unless the repository explicitly defines one.
 - Follow more specific repository-owned Git or review instructions where they do not conflict with these managed conventions.
 <!-- END AXLABS MANAGED: git-and-review-conventions -->

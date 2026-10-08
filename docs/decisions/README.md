@@ -4,7 +4,7 @@ Decision records preserve durable choices and their rationale so future contribu
 
 ## Scope and Authority
 
-Record decisions specific to this repository here. Decisions that establish architecture, interfaces, ownership, or behavior across multiple repositories belong in the authoritative project-context repository identified by the repository-owned `Project Context` section of `AGENTS.md`, when one is configured. Consult that authority when work crosses repository boundaries or depends on project-wide decisions. If none is configured, continue the repository work without inventing one.
+Record decisions specific to this repository here only when their contents are appropriate for the repository's intended visibility. Decisions that span repositories, or that contain durable internal engineering context inappropriate for this repository's intended visibility, belong in the authoritative private project-context repository identified by the repository-owned `Project Context` section of `AGENTS.md`, when one is configured. Consult that authority when work depends on those decisions. If none is configured, continue the repository work without inventing one.
 
 ## What to Record
 

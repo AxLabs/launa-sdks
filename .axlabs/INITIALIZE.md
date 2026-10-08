@@ -9,8 +9,9 @@ Follow this procedure only while `AGENTS.md` contains the `AXLABS INITIALIZATION
    - constraints and existing decisions that changes must preserve;
    - development, test, build, lint, typecheck, and other validation commands that repository evidence supports;
    - the authoritative project-context repository, when one is documented.
-3. Preserve existing repository instructions and documented decisions. Integrate useful context into the existing structure, keep repository-specific content outside `AXLABS MANAGED` blocks, and do not invent facts. Ask the developer only about material information that cannot reasonably be established from repository evidence.
-4. Confirm that every command and path you added exists or is supported by repository configuration. Remove placeholder sections that do not apply.
-5. Remove the `AXLABS INITIALIZATION: INCOMPLETE` marker from `AGENTS.md`. Leave Bootstrapr-managed blocks and this file unchanged, then run the same Bootstrapr package and version with `check`.
+3. Keep repository-specific context local only when it is appropriate for the repository's intended visibility. Current private visibility alone does not make internal project context repository-local. Route durable cross-repository or visibility-inappropriate internal engineering context to the documented private project-context repository; keep secrets out of both repositories, and omit ephemeral investigation notes and agent or personal memory.
+4. Preserve existing repository instructions and documented decisions. Integrate useful context into the existing structure, keep repository-specific content outside `AXLABS MANAGED` blocks, and do not invent facts. Ask the developer only about material information that cannot reasonably be established from repository evidence.
+5. Confirm that every command and path you added exists or is supported by repository configuration. Remove placeholder sections that do not apply.
+6. Remove the `AXLABS INITIALIZATION: INCOMPLETE` marker from `AGENTS.md`. Leave Bootstrapr-managed blocks and this file unchanged, then run the same Bootstrapr package and version with `check`.
 
 Initialization is complete when the marker is absent, repository-specific guidance is evidence-based and repository-owned, and `bootstrapr check` passes.

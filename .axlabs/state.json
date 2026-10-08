@@ -1,15 +1,16 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
+  "profile": "development",
   "managedFiles": {
-    ".axlabs/INITIALIZE.md": "sha256:2cde3ccc7bac3e42fc6f035dc524ee3fb3f622288975b1b61b75da09581deb82",
-    "docs/decisions/README.md": "sha256:df6b195675c38440ce0e2083d13b3dfd5b2cf2713ea42cbd9c4705e76e09046e",
+    ".axlabs/INITIALIZE.md": "sha256:561c89abcfa25dd78bd75553a5ce4f45ea59917292017e052db446ec5a75302f",
+    "docs/decisions/README.md": "sha256:ede93161d25bf6ec719376f74ced0dcd2bcc6177c933d0f0224acaec65a3e553",
     "docs/decisions/0000-template.md": "sha256:6dc9572066ca0a6cc50a7780e7bbe0b7b62c24d3fc4fd1d11010436612824ef7"
   },
   "managedBlocks": {
     "AGENTS.md": {
-      "durable-context-guidance": "sha256:6fb7cb6100e6700767ac4150ecdde0b8be85a92bff6ec9fef01be61b5d51a3c0",
+      "durable-context-guidance": "sha256:01e016094cf91ff9636d7c3d15b60cc39205158e0d62099d6ec545cdfb7727e2",
       "repository-initialization-guidance": "sha256:9e75ae102463e71150b3a9730a3e3b036ec4c233199e7a40389dc9689d5f9a3f",
-      "git-and-review-conventions": "sha256:2a7999e81e8c9a60473d43b1264a10d25c2e6ea23c9d2be0b32a317613b67775"
+      "git-and-review-conventions": "sha256:83c29539c114fc226a854192c55b30fd4ea52d5b0ec458f227bebb57f4dd5d0e"
     }
   }
 }
