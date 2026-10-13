@@ -1,13 +1,13 @@
-# @launa/cli
+# @launaio/cli
 
 Command-line client for the [Launa](https://launa.io) control plane — manage APIs, endpoints, domains, analytics, and x402 gateway payments from scripts and CI.
 
-Payment signing uses [x402](https://github.com/x402-foundation/x402) via `@launa/sdk/buyer`. This package covers **platform automation**, not the protocol itself.
+Payment signing uses [x402](https://github.com/x402-foundation/x402) via `@launaio/sdk/buyer`. This package covers **platform automation**, not the protocol itself.
 
 ## Install
 
 ```bash
-npm install -g @launa/cli
+npm install -g @launaio/cli
 ```
 
 ## Quick start
@@ -105,7 +105,7 @@ Exit codes: `0` success, `1` API error, `2` usage error.
 
 - [Full CLI docs](https://github.com/AxLabs/launa-sdks/blob/main/docs/cli/README.md)
 - [Launa docs](https://launa.io/docs/cli)
-- [TypeScript SDK](https://www.npmjs.com/package/@launa/sdk)
+- [TypeScript SDK](https://www.npmjs.com/package/@launaio/sdk)
 
 ## License
 

@@ -582,7 +582,7 @@ await client.sandboxWallet.reset();`,
         id: "presets",
         label: "Presets",
         flags: [],
-        sdkSnippet: "import { SCOPE_PRESETS } from '@launa/sdk'",
+        sdkSnippet: "import { SCOPE_PRESETS } from '@launaio/sdk'",
       },
       {
         id: "list",

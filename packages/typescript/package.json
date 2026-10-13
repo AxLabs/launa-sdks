@@ -1,6 +1,6 @@
 {
-  "name": "@launa/sdk",
-  "version": "0.0.6",
+  "name": "@launaio/sdk",
+  "version": "0.0.7",
   "description": "Launa platform control-plane SDK",
   "type": "module",
   "main": "./dist/index.js",

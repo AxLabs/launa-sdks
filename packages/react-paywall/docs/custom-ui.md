@@ -8,7 +8,7 @@ Every visual part has a slot in `PaywallClassNames`. Export `defaultPaywallClass
 import {
   PaywallProvider,
   defaultPaywallClassNames,
-} from '@launa/react-paywall'
+} from '@launaio/react-paywall'
 
 <PaywallProvider
   appearance={{

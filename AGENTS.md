@@ -23,7 +23,7 @@ Read `../SKILL.md` once if present. Work from this repository root, inspect `git
 Use the declared package manager/toolchains and preserve lockfiles. Run checks for every changed public surface:
 
 - From this root: `pnpm build` and `pnpm test`. Root tests cover the TS SDK, CLI and MCP server; they do **not** include React paywall tests.
-- For paywall changes: `pnpm --filter @launa/react-paywall test` and its build (also included by root `pnpm build`).
+- For paywall changes: `pnpm --filter @launaio/react-paywall test` and its build (also included by root `pnpm build`).
 - From `packages/golang/`: `go test ./...`; format changed Go files with `gofmt` and use `go vet ./...`/targeted race tests where relevant.
 - From `packages/python/`, in an isolated Python environment with `.[dev,buyer]` installed: `python -m pytest`. CI uses Python 3.12; see `pyproject.toml` for supported versions.
 
@@ -94,7 +94,7 @@ Optional on create/update: `discovery_guidance`, `discovery_contact_email`, `ope
 
 ## MCP tools
 
-Install: `npx @launa/mcp-server` (or build from repo). Example config: [examples/agent-mcp/cursor-mcp.json.example](./examples/agent-mcp/cursor-mcp.json.example).
+Install: `npx @launaio/mcp-server` (or build from repo). Example config: [examples/agent-mcp/cursor-mcp.json.example](./examples/agent-mcp/cursor-mcp.json.example).
 
 | Tool | Scope |
 |------|-------|
@@ -117,7 +117,7 @@ Install: `npx @launa/mcp-server` (or build from repo). Example config: [examples
 
 ## CLI
 
-Install: `npm install -g @launa/cli`
+Install: `npm install -g @launaio/cli`
 
 ```bash
 launa apis list --json
@@ -165,7 +165,7 @@ Pay **gateway URLs** (not the control plane) using the buyer subpackage:
 
 | SDK | Install | Usage |
 |-----|---------|-------|
-| TypeScript | `npm install @x402/fetch @x402/evm viem` | `import { BuyerClient, buyerClientFromEnv } from "@launa/sdk/buyer"` |
+| TypeScript | `npm install @x402/fetch @x402/evm viem` | `import { BuyerClient, buyerClientFromEnv } from "@launaio/sdk/buyer"` |
 | Go | `go get github.com/AxLabs/launa-sdks/go/buyer` | `buyer.NewFromPrivateKey(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))` |
 | Python | `pip install "launa-sdk[buyer]"` | `BuyerClient.from_env().get(gateway_url)` |
 

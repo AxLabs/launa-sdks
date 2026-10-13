@@ -44,7 +44,7 @@ Helpers: `launa.GatewayURL`, `launa.BuildUsdcAccept`, `launa.UsdcToAtomic`, `lau
 
 Pay gateway URLs with EVM `exact` and `batch-settlement`. Full guide: [buyers](../buyers/README.md).
 
-Native Hedera (`hedera:mainnet`) buyer signing is TypeScript-only (`@launa/sdk/buyer` + `@x402/hedera`) until foundation ships a Go Hedera client scheme. Platform helpers still expose `NetworkHedera*` / `HBAR` / `USDCHedera*` for seller config.
+Native Hedera (`hedera:mainnet`) buyer signing is TypeScript-only (`@launaio/sdk/buyer` + `@x402/hedera`) until foundation ships a Go Hedera client scheme. Platform helpers still expose `NetworkHedera*` / `HBAR` / `USDCHedera*` for seller config.
 
 ```go
 import "github.com/AxLabs/launa-sdks/go/buyer"

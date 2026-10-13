@@ -1,6 +1,6 @@
 {
-  "name": "@launa/cli",
-  "version": "0.0.6",
+  "name": "@launaio/cli",
+  "version": "0.0.7",
   "description": "Launa platform CLI",
   "type": "module",
   "license": "Apache-2.0",
@@ -22,7 +22,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@launa/sdk": "workspace:*"
+    "@launaio/sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

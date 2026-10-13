@@ -44,7 +44,7 @@ jobs:
             *-preview.*)
               SDK_VERSION="$(node -p "require('./packages/typescript/package.json').version")"
               if [ "$TAG" != "$SDK_VERSION" ]; then
-                echo "Tag v${TAG} does not match @launa/sdk version ${SDK_VERSION}"
+                echo "Tag v${TAG} does not match @launaio/sdk version ${SDK_VERSION}"
                 exit 1
               fi
               ;;
@@ -62,23 +62,23 @@ jobs:
           esac
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server --filter @launa/react-paywall build
-      - run: pnpm --filter @launa/sdk --filter @launa/cli --filter @launa/mcp-server test
+      - run: pnpm --filter @launaio/sdk --filter @launaio/cli --filter @launaio/mcp-server --filter @launaio/react-paywall build
+      - run: pnpm --filter @launaio/sdk --filter @launaio/cli --filter @launaio/mcp-server test
 
       - name: Publish packages to npm
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           if [[ "$TAG" == *-preview.* ]]; then
-            pnpm --filter @launa/sdk publish \
+            pnpm --filter @launaio/sdk publish \
               --access public \
               --tag preview \
               --no-git-checks
           else
             pnpm publish -r \
-              --filter @launa/sdk \
-              --filter @launa/cli \
-              --filter @launa/mcp-server \
-              --filter @launa/react-paywall \
+              --filter @launaio/sdk \
+              --filter @launaio/cli \
+              --filter @launaio/mcp-server \
+              --filter @launaio/react-paywall \
               --access public \
               --no-git-checks
           fi

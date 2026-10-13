@@ -89,7 +89,7 @@ func NewFromPrivateKey(privateKeyHex string, opts ...Options) (*Client, error) {
 
 // NewFromEnv builds a Client from LAUNA_EVM_PRIVATE_KEY (or EVM_PRIVATE_KEY).
 // Hedera buyer signing is not available in the Go SDK yet — use TypeScript
-// @launa/sdk/buyer with HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY.
+// @launaio/sdk/buyer with HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY.
 func NewFromEnv(opts ...Options) (*Client, error) {
 	key := strings.TrimSpace(os.Getenv("LAUNA_EVM_PRIVATE_KEY"))
 	if key == "" {
@@ -100,7 +100,7 @@ func NewFromEnv(opts ...Options) (*Client, error) {
 	}
 	if strings.TrimSpace(os.Getenv("HEDERA_ACCOUNT_ID")) != "" ||
 		strings.TrimSpace(os.Getenv("HEDERA_PRIVATE_KEY")) != "" {
-		return nil, fmt.Errorf("hedera buyer signing is not supported in the Go SDK; use TypeScript @launa/sdk/buyer with HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY")
+		return nil, fmt.Errorf("hedera buyer signing is not supported in the Go SDK; use TypeScript @launaio/sdk/buyer with HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY")
 	}
 	return nil, fmt.Errorf("LAUNA_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required")
 }

@@ -2,8 +2,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { LaunaClient } from "@launa/sdk";
-import { assertSandboxCredentials, envRequestsSandbox } from "@launa/sdk/shell";
+import { LaunaClient } from "@launaio/sdk";
+import { assertSandboxCredentials, envRequestsSandbox } from "@launaio/sdk/shell";
 import { createToolHandlers } from "./tools.js";
 
 function client(): LaunaClient {
@@ -21,11 +21,57 @@ function client(): LaunaClient {
 }
 
 const handlers = createToolHandlers(client);
-const server = new McpServer({ name: "launa", version: "0.0.3" });
+const server = new McpServer({ name: "launa", version: "0.0.5" });
 
 function text(data: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] };
 }
+
+const apiUpdateFields = {
+  name: z.string().optional(),
+  slug: z.string().optional(),
+  upstream_base_url: z.string().url().optional(),
+  pay_to_mode: z.enum(["user_wallet", "platform_wallet"]).optional(),
+  pay_to_address: z.string().optional(),
+  pay_to_addresses: z.record(z.string()).optional(),
+  accept_all_tokens: z.boolean().optional(),
+  accepted_token_ids: z.array(z.string()).optional(),
+  webhook_url: z.string().url().optional(),
+  webhook_secret: z.string().optional(),
+  clear_webhook: z.boolean().optional(),
+  proxy_unmatched: z.boolean().optional(),
+  discovery_guidance: z.string().optional(),
+  discovery_contact_email: z.string().email().optional(),
+  openapi_version: z.string().optional(),
+};
+
+const acceptSchema = z.object({
+  scheme: z.string(),
+  network: z.string(),
+  asset: z.string(),
+  amount: z.string(),
+  max_timeout_seconds: z.number().int().positive().optional(),
+  extra: z.record(z.unknown()).optional(),
+});
+
+const endpointFields = {
+  method: z.string().optional(),
+  path_pattern: z.string().optional(),
+  description: z.string().optional(),
+  enabled: z.boolean().optional(),
+  accepts: z.array(acceptSchema).min(1).optional(),
+  price: z.string().optional(),
+  price_usdc: z.string().optional(),
+  amount: z.string().regex(/^[1-9]\d*$/).optional(),
+  network: z.string().optional(),
+  asset: z.string().optional(),
+  decimals: z.number().int().min(0).max(18).optional(),
+  scheme: z.enum(["exact", "batch-settlement"]).optional(),
+  ttl: z.number().int().positive().optional(),
+  request_schema: z.record(z.unknown()).optional(),
+  response_schema: z.record(z.unknown()).optional(),
+  clear_schemas: z.boolean().optional(),
+};
 
 server.tool("launa_list_apis", "List wrapped APIs. Requires apis:read scope.", {}, async () =>
   text(await handlers.listApis()),
@@ -36,6 +82,82 @@ server.tool(
   "Get API by id. Requires apis:read.",
   { api_id: z.string() },
   async ({ api_id }) => text(await handlers.getApi(api_id)),
+);
+
+server.tool(
+  "launa_update_api",
+  "Update an API's name, slug, upstream, payout, webhook, token, proxy, or discovery settings. Requires apis:write.",
+  { api_id: z.string(), ...apiUpdateFields },
+  async ({ api_id, ...body }) => text(await handlers.updateApi(api_id, body)),
+);
+
+server.tool(
+  "launa_delete_api",
+  "Delete an API. Requires apis:write. Confirm with the user before calling.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.deleteApi(api_id)),
+);
+
+server.tool(
+  "launa_webhook_deliveries",
+  "List webhook delivery attempts for an API. Requires apis:read.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.listWebhookDeliveries(api_id)),
+);
+
+server.tool(
+  "launa_batch_overview",
+  "Get batch-settlement channels and timing settings for an API. Requires apis:read.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.batchOverview(api_id)),
+);
+
+server.tool(
+  "launa_update_batch_settings",
+  "Update batch claim, settle, and refund intervals for an API. Requires apis:write.",
+  {
+    api_id: z.string(),
+    claim_interval_secs: z.number().int().positive(),
+    settle_interval_secs: z.number().int().positive(),
+    refund_interval_secs: z.number().int().positive(),
+  },
+  async ({ api_id, claim_interval_secs, settle_interval_secs, refund_interval_secs }) =>
+    text(
+      await handlers.updateBatchSettings(
+        api_id,
+        claim_interval_secs,
+        settle_interval_secs,
+        refund_interval_secs,
+      ),
+    ),
+);
+
+server.tool(
+  "launa_get_cors",
+  "List allowed browser origins for an API. Requires apis:read.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.getCors(api_id)),
+);
+
+server.tool(
+  "launa_set_cors",
+  "Replace all allowed browser origins for an API. Requires apis:write.",
+  { api_id: z.string(), origins: z.array(z.string()) },
+  async ({ api_id, origins }) => text(await handlers.setCors(api_id, origins)),
+);
+
+server.tool(
+  "launa_add_cors_origin",
+  "Add one allowed browser origin to an API. Requires apis:write.",
+  { api_id: z.string(), origin: z.string().url() },
+  async ({ api_id, origin }) => text(await handlers.addCorsOrigin(api_id, origin)),
+);
+
+server.tool(
+  "launa_remove_cors_origin",
+  "Remove one allowed browser origin from an API. Requires apis:write. Confirm with the user before calling.",
+  { api_id: z.string(), origin: z.string().url() },
+  async ({ api_id, origin }) => text(await handlers.removeCorsOrigin(api_id, origin)),
 );
 
 server.tool(
@@ -106,6 +228,11 @@ server.tool(
     discovery_guidance: z.string().optional(),
     discovery_contact_email: z.string().email().optional(),
     openapi_version: z.string().optional(),
+    accept_all_tokens: z.boolean().optional(),
+    accepted_token_ids: z.array(z.string()).optional(),
+    webhook_url: z.string().url().optional(),
+    webhook_secret: z.string().optional(),
+    proxy_unmatched: z.boolean().optional(),
   },
   async ({
     name,
@@ -116,6 +243,11 @@ server.tool(
     discovery_guidance,
     discovery_contact_email,
     openapi_version,
+    accept_all_tokens,
+    accepted_token_ids,
+    webhook_url,
+    webhook_secret,
+    proxy_unmatched,
   }) =>
     text(
       await handlers.createApi({
@@ -128,32 +260,51 @@ server.tool(
         discovery_guidance,
         discovery_contact_email,
         openapi_version,
+        accept_all_tokens,
+        accepted_token_ids,
+        webhook_url,
+        webhook_secret,
+        proxy_unmatched,
       }),
     ),
 );
 
 server.tool(
   "launa_add_endpoint",
-  "Add paid endpoint. Requires endpoints:write. Optional ttl (seconds) for one-time/ephemeral routes.",
+  "Add a paid endpoint. Defaults to platform USDC; custom tokens require network, asset, and price or atomic amount. Requires endpoints:write.",
   {
     api_id: z.string(),
+    ...endpointFields,
     method: z.string(),
     path_pattern: z.string(),
-    price_usdc: z.string().default("0.10"),
-    scheme: z.enum(["exact", "batch-settlement"]).optional(),
-    ttl: z.number().int().positive().optional(),
   },
-  async (args) =>
-    text(
-      await handlers.addEndpoint(
-        args.api_id,
-        args.method,
-        args.path_pattern,
-        args.price_usdc,
-        args.scheme ?? "exact",
-        args.ttl,
-      ),
-    ),
+  async ({ api_id, ...input }) => text(await handlers.addEndpoint(api_id, input)),
+);
+
+server.tool(
+  "launa_update_endpoint",
+  "Update endpoint state, route, pricing accepts, or schemas. Requires endpoints:write.",
+  {
+    api_id: z.string(),
+    endpoint_id: z.string(),
+    ...endpointFields,
+  },
+  async ({ api_id, endpoint_id, ...input }) =>
+    text(await handlers.updateEndpoint(api_id, endpoint_id, input)),
+);
+
+server.tool(
+  "launa_delete_endpoint",
+  "Delete an endpoint. Requires endpoints:write. Confirm with the user before calling.",
+  { api_id: z.string(), endpoint_id: z.string() },
+  async ({ api_id, endpoint_id }) => text(await handlers.deleteEndpoint(api_id, endpoint_id)),
+);
+
+server.tool(
+  "launa_parse_openapi",
+  "Parse OpenAPI YAML or JSON and return importable operations. Requires openapi:read.",
+  { spec: z.string() },
+  async ({ spec }) => text(await handlers.parseOpenapi(spec)),
 );
 
 server.tool(
@@ -189,10 +340,22 @@ server.tool(
 );
 
 server.tool(
+  "launa_delete_domain",
+  "Delete a custom domain. Requires domains:write. Confirm with the user before calling.",
+  { api_id: z.string(), domain_id: z.string() },
+  async ({ api_id, domain_id }) => text(await handlers.deleteDomain(api_id, domain_id)),
+);
+
+server.tool(
   "launa_domain_suggest",
   "Suggest gateway hostname plan. Requires domains:read.",
-  { apex: z.string() },
-  async ({ apex }) => text(await handlers.domainSuggest(apex)),
+  {
+    apex: z.string(),
+    prefix: z.string().optional(),
+    upstream_path: z.string().optional(),
+  },
+  async ({ apex, prefix, upstream_path }) =>
+    text(await handlers.domainSuggest(apex, prefix, upstream_path)),
 );
 
 server.tool(
@@ -214,6 +377,26 @@ server.tool(
   "List settlements for an API. Requires settlements:read.",
   { api_id: z.string() },
   async ({ api_id }) => text(await handlers.settlementsList(api_id)),
+);
+
+server.tool(
+  "launa_settlements_batch",
+  "List batch settlements for an API. Requires settlements:read.",
+  { api_id: z.string() },
+  async ({ api_id }) => text(await handlers.settlementsBatch(api_id)),
+);
+
+server.tool(
+  "launa_settlements_history",
+  "List paginated settlement history across APIs. Requires settlements:read.",
+  {
+    days: z.number().int().min(0).optional(),
+    limit: z.number().int().positive().optional(),
+    offset: z.number().int().min(0).optional(),
+    api_id: z.string().optional(),
+  },
+  async ({ days, limit, offset, api_id }) =>
+    text(await handlers.settlementsHistory(days ?? 30, limit, offset, api_id)),
 );
 
 server.tool(
@@ -242,6 +425,26 @@ server.tool(
 );
 
 server.tool(
+  "launa_income_ledger",
+  "List paginated seller income ledger entries. Requires income:read.",
+  {
+    limit: z.number().int().positive().optional(),
+    offset: z.number().int().min(0).optional(),
+    api_id: z.string().optional(),
+    network: z.string().optional(),
+  },
+  async ({ limit, offset, api_id, network }) =>
+    text(await handlers.incomeLedger(limit, offset, api_id, network)),
+);
+
+server.tool(
+  "launa_income_payout_requests",
+  "List seller payout requests. Requires income:read.",
+  {},
+  async () => text(await handlers.incomePayoutRequests()),
+);
+
+server.tool(
   "launa_apis_slug_check",
   "Check whether an API slug is available. Requires apis:read.",
   { slug: z.string(), exclude_api_id: z.string().optional() },
@@ -257,13 +460,6 @@ server.tool(
     path: z.string().optional(),
   },
   async ({ api_id, endpoint_id, path }) => text(await handlers.probeUpstream(api_id, endpoint_id, path)),
-);
-
-server.tool(
-  "launa_scopes_list",
-  "List assignable API key scopes. Requires JWT session.",
-  {},
-  async () => text(await handlers.listScopes()),
 );
 
 server.tool(

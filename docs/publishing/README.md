@@ -4,26 +4,26 @@ Published packages from this repository:
 
 | Package | Registry | Path |
 |---------|----------|------|
-| `@launa/sdk` | npm | `packages/typescript` |
-| `@launa/cli` | npm | `tools/cli` |
-| `@launa/mcp-server` | npm | `tools/mcp-server` |
-| `@launa/react-paywall` | npm | `packages/react-paywall` |
+| `@launaio/sdk` | npm | `packages/typescript` |
+| `@launaio/cli` | npm | `tools/cli` |
+| `@launaio/mcp-server` | npm | `tools/mcp-server` |
+| `@launaio/react-paywall` | npm | `packages/react-paywall` |
 | `launa-sdk` | PyPI (not live yet) | `packages/python` |
 | `github.com/AxLabs/launa-sdks/go` | Go module proxy | `packages/golang` |
 
 Go is consumed via subdirectory module tags on GitHub — no separate registry. Tag `go/v0.0.6` (matching semver). There are no `go/v*` tags yet; `v0.0.6` is the first Go release.
 
-Python version is already `0.0.6` in `pyproject.toml`. Do **not** enable tag-triggered PyPI until trusted publishing is configured. First upload is `workflow_dispatch` only.
+Python version is `0.0.7` in `pyproject.toml`. Do **not** enable tag-triggered PyPI until trusted publishing is configured. First upload is `workflow_dispatch` only.
 
 ## Trusted publishing
 
 Configure trusted publishers so tag releases do not need long-lived tokens. PyPI publishing is manual (`workflow_dispatch`) until trusted publishing is set up.
 
-### npm (`@launa` scope)
+### npm (`@launaio` scope)
 
-For each published package (`@launa/sdk`, `@launa/cli`, `@launa/mcp-server`, `@launa/react-paywall`):
+For each published package (`@launaio/sdk`, `@launaio/cli`, `@launaio/mcp-server`, `@launaio/react-paywall`):
 
-1. Open the package on [npmjs.com](https://www.npmjs.com/) → **Settings** → **Publishing access** → **Add GitHub Actions publisher** (or configure at the `@launa` org level if available).
+1. Open the package on [npmjs.com](https://www.npmjs.com/) → **Settings** → **Publishing access** → **Add GitHub Actions publisher**.
 2. Set:
    - **GitHub repository:** `AxLabs/launa-sdks`
    - **Workflow file:** `publish-npm.yml`
@@ -32,28 +32,28 @@ For each published package (`@launa/sdk`, `@launa/cli`, `@launa/mcp-server`, `@l
 
 ### Release (npm)
 
-1. Bump `version` in all publishable `package.json` files and `packages/python/pyproject.toml`. Keep them in sync (currently `0.0.6`).
-2. Commit and push to `main`.
+1. Bump `version` in all publishable `package.json` files and `packages/python/pyproject.toml`. Keep them in sync (currently `0.0.7`).
+2. Commit and push to `main` on `AxLabs/launa-sdks`.
 3. Create and push the npm tag manually — **the tag triggers npm publish**, not the other way around:
 
 ```bash
-git tag v0.0.6
-git push origin v0.0.6
+git tag v0.0.7
+git push launa v0.0.7
 ```
 
-The workflow checks out the tagged commit, verifies the tag matches `package.json` version, then publishes `@launa/sdk`, `@launa/cli`, `@launa/mcp-server`, and `@launa/react-paywall`.
+The workflow checks out the tagged commit, verifies the tag matches `package.json` version, then publishes `@launaio/sdk`, `@launaio/cli`, `@launaio/mcp-server`, and `@launaio/react-paywall`.
 
 For a TypeScript SDK preview, bump only `packages/typescript/package.json`, then push a matching
-`v<version>-preview.<number>` tag. The workflow publishes only `@launa/sdk` with the `preview`
+`v<version>-preview.<number>` tag. The workflow publishes only `@launaio/sdk` with the `preview`
 dist-tag; `latest` and the other packages remain unchanged.
 
 To move a tag after a fix:
 
 ```bash
-git push origin :refs/tags/v0.0.6
-git tag -d v0.0.6
-git tag v0.0.6
-git push origin v0.0.6
+git push launa :refs/tags/v0.0.7
+git tag -d v0.0.7
+git tag v0.0.7
+git push launa v0.0.7
 ```
 
 `v*` does **not** publish Go or PyPI.
@@ -71,7 +71,7 @@ Consumers: `go get github.com/AxLabs/launa-sdks/go@v0.0.6`. The proxy may take a
 
 ### PyPI (`launa-sdk`) — prepared, not published
 
-The package name is not on PyPI yet. Version is synced to `0.0.6`. `.github/workflows/publish-pypi.yml` is `workflow_dispatch` only (tag trigger stays commented out).
+The package name is not on PyPI yet. Version is synced to `0.0.7`. `.github/workflows/publish-pypi.yml` is `workflow_dispatch` only (tag trigger stays commented out).
 
 Before the first upload:
 
@@ -97,10 +97,10 @@ pip install "launa-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirecto
 pnpm install && pnpm build && pnpm test
 
 pnpm publish -r \
-  --filter @launa/sdk \
-  --filter @launa/cli \
-  --filter @launa/mcp-server \
-  --filter @launa/react-paywall \
+  --filter @launaio/sdk \
+  --filter @launaio/cli \
+  --filter @launaio/mcp-server \
+  --filter @launaio/react-paywall \
   --access public
 ```
 
@@ -113,9 +113,9 @@ twine upload dist/*
 ## Consumer install
 
 ```bash
-npm install @launa/sdk
-npm install -g @launa/cli
-npx @launa/mcp-server
+npm install @launaio/sdk
+npm install -g @launaio/cli
+npx @launaio/mcp-server
 
 # after first PyPI upload
 pip install launa-sdk

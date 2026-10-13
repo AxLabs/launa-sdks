@@ -9,7 +9,7 @@ pip install launa-sdk
 pip install "launa-sdk[buyer]"  # x402 signing + eth-account
 ```
 
-PyPI is not live yet (`0.0.6` is prepared). Until the first upload:
+PyPI is not live yet (`0.0.7` is prepared). Until the first upload:
 
 ```bash
 pip install "launa-sdk @ git+https://github.com/AxLabs/launa-sdks.git#subdirectory=packages/python"
@@ -72,7 +72,7 @@ Helpers: `gateway_url`, `gateway_base_url`, `wrap_openapi`, `setup_api_with_defa
 
 Pay gateway URLs with EVM `exact` or `batch-settlement`. Full guide: [buyers](../buyers/README.md).
 
-Native Hedera (`hedera:*`) buyer signing is TypeScript-only (`@launa/sdk/buyer`) until foundation ships a Python Hedera mechanism. Platform helpers expose `NETWORK_HEDERA_*` / `HBAR` / `USDC_HEDERA_*` for seller config.
+Native Hedera (`hedera:*`) buyer signing is TypeScript-only (`@launaio/sdk/buyer`) until foundation ships a Python Hedera mechanism. Platform helpers expose `NETWORK_HEDERA_*` / `HBAR` / `USDC_HEDERA_*` for seller config.
 
 ```python
 from launa_sdk.buyer import BuyerClient

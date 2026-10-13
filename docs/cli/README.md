@@ -1,18 +1,18 @@
 # CLI
 
-Binary: `launa` — published as `@launa/cli` on npm.
+Binary: `launa` — published as `@launaio/cli` on npm.
 
 ## Install
 
 ```bash
-npm install -g @launa/cli
+npm install -g @launaio/cli
 launa apis list --json
 ```
 
 Or from source:
 
 ```bash
-pnpm --filter @launa/cli build
+pnpm --filter @launaio/cli build
 node tools/cli/dist/index.js apis list --json
 ```
 

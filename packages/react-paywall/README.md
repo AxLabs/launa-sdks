@@ -7,13 +7,13 @@ Docs: [getting started](./getting-started.md) · [examples](./examples.md) · [l
 ## Install
 
 ```bash
-pnpm add @launa/react-paywall @x402/fetch @x402/evm viem
+pnpm add @launaio/react-paywall @x402/fetch @x402/evm viem
 ```
 
 ## Minimal usage
 
 ```tsx
-import { PaywallProvider, PaywallGate } from "@launa/react-paywall";
+import { PaywallProvider, PaywallGate } from "@launaio/react-paywall";
 
 export function App() {
   return (
@@ -30,5 +30,5 @@ export function App() {
 ## Dev
 
 ```bash
-pnpm --filter @launa/react-paywall build
+pnpm --filter @launaio/react-paywall build
 ```

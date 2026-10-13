@@ -1,17 +1,17 @@
 # MCP server
 
-Model Context Protocol server — published as `@launa/mcp-server` on npm.
+Model Context Protocol server — published as `@launaio/mcp-server` on npm.
 
 ## Install / run
 
 ```bash
-npx @launa/mcp-server
+npx @launaio/mcp-server
 ```
 
 Or from source:
 
 ```bash
-pnpm --filter @launa/mcp-server build
+pnpm --filter @launaio/mcp-server build
 
 LAUNA_API_KEY=launa_live_... \
 LAUNA_BASE_URL=https://api.launa.io \
@@ -27,7 +27,7 @@ Auth: `LAUNA_API_KEY` only (no JWT). An `launa_sandbox_...` key selects Sandbox 
   "mcpServers": {
     "launa": {
       "command": "npx",
-      "args": ["-y", "@launa/mcp-server"],
+      "args": ["-y", "@launaio/mcp-server"],
       "env": {
         "LAUNA_BASE_URL": "https://api.launa.io",
         "LAUNA_API_KEY": "launa_live_...",

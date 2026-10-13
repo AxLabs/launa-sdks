@@ -1,6 +1,6 @@
 # React paywall docs
 
-Package: `@launa/react-paywall`.
+Package: `@launaio/react-paywall`.
 
 - [Getting started](./getting-started.md)
 - [Examples](./examples.md)

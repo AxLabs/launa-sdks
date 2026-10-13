@@ -1,13 +1,13 @@
 # TypeScript SDK
 
-Package: `@launa/sdk` in `packages/typescript/`.
+Package: `@launaio/sdk` in `packages/typescript/`.
 
 Subpaths: main entry, `/buyer`, `/platform`.
 
 ## Install
 
 ```bash
-pnpm add @launa/sdk
+pnpm add @launaio/sdk
 # Buyer (optional)
 pnpm add @x402/fetch @x402/evm viem
 # Hedera buyer (optional)
@@ -17,7 +17,7 @@ pnpm add @x402/hedera
 ## Control plane
 
 ```typescript
-import { LaunaClient, buildUsdcAccept, usdcToAtomic } from "@launa/sdk";
+import { LaunaClient, buildUsdcAccept, usdcToAtomic } from "@launaio/sdk";
 
 const client = new LaunaClient({
   baseUrl: process.env.LAUNA_BASE_URL!,
@@ -69,7 +69,7 @@ Gateway hosts also serve unpaid `GET /openapi.json` and `GET /.well-known/x402.j
 Pay gateway URLs — not the control plane. Full guide: [buyers](../buyers/README.md).
 
 ```typescript
-import { buyerClientFromEnv } from "@launa/sdk/buyer";
+import { buyerClientFromEnv } from "@launaio/sdk/buyer";
 
 const client = await buyerClientFromEnv();
 const { response, payment } = await client.pay({
@@ -94,7 +94,7 @@ export HEDERA_PRIVATE_KEY=0x...   # ECDSA preferred
 ```
 
 ```typescript
-import { buyerClientFromHederaCredentials, BuyerClient } from "@launa/sdk/buyer";
+import { buyerClientFromHederaCredentials, BuyerClient } from "@launaio/sdk/buyer";
 
 const client = await buyerClientFromHederaCredentials({
   accountId: process.env.HEDERA_ACCOUNT_ID!,
@@ -113,8 +113,8 @@ Sellers must use `user_wallet` with a Hedera `0.0.x` payTo (associate HTS USDC).
 ## Build & test
 
 ```bash
-pnpm --filter @launa/sdk build
-pnpm --filter @launa/sdk test
+pnpm --filter @launaio/sdk build
+pnpm --filter @launaio/sdk test
 ```
 
 ## Examples

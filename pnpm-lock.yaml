@@ -75,7 +75,7 @@ importers:
 
   tools/cli:
     dependencies:
-      '@launa/sdk':
+      '@launaio/sdk':
         specifier: workspace:*
         version: link:../../packages/typescript
     devDependencies:
@@ -91,7 +91,7 @@ importers:
 
   tools/mcp-server:
     dependencies:
-      '@launa/sdk':
+      '@launaio/sdk':
         specifier: workspace:*
         version: link:../../packages/typescript
       '@modelcontextprotocol/sdk':

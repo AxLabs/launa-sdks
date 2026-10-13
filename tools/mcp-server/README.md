@@ -1,13 +1,13 @@
-# @launa/mcp-server
+# @launaio/mcp-server
 
 [Model Context Protocol](https://modelcontextprotocol.io/) server for the [Launa](https://launa.io) platform. Exposes seller control-plane operations and x402 buyer helpers as MCP tools for Cursor, Claude Desktop, and other MCP clients.
 
-Runs over **stdio**. Uses `@launa/sdk` under the hood.
+Runs over **stdio**. Uses `@launaio/sdk` under the hood.
 
 ## Install / run
 
 ```bash
-npx @launa/mcp-server
+npx @launaio/mcp-server
 ```
 
 Requires Node.js 18+.
@@ -25,7 +25,7 @@ Add to `.cursor/mcp.json` or Cursor MCP settings:
   "mcpServers": {
     "launa": {
       "command": "npx",
-      "args": ["-y", "@launa/mcp-server"],
+      "args": ["-y", "@launaio/mcp-server"],
       "env": {
         "LAUNA_BASE_URL": "https://api.launa.io",
         "LAUNA_API_KEY": "launa_live_..."
@@ -92,7 +92,7 @@ Sandbox wallet retrieval is CLI + JWT only (`launa --sandbox sandbox-wallet get`
 
 - [Full MCP docs](https://github.com/AxLabs/launa-sdks/blob/main/docs/mcp/README.md)
 - [Agent guide](https://github.com/AxLabs/launa-sdks/blob/main/docs/agents/README.md)
-- [CLI alternative](https://www.npmjs.com/package/@launa/cli)
+- [CLI alternative](https://www.npmjs.com/package/@launaio/cli)
 
 ## License
 

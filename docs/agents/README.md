@@ -7,7 +7,7 @@ Dashboard guide (gateway, MCP setup): [launa.io/docs/agents](https://launa.io/do
 ## MCP server
 
 ```bash
-npx @launa/mcp-server
+npx @launaio/mcp-server
 ```
 
 Full tool list: [../mcp/README.md](../mcp/README.md).
@@ -15,7 +15,7 @@ Full tool list: [../mcp/README.md](../mcp/README.md).
 ## CLI
 
 ```bash
-npm install -g @launa/cli
+npm install -g @launaio/cli
 export LAUNA_API_KEY=launa_live_...
 launa apis list --json
 launa apis create --name "My API" --slug my-api --upstream https://api.example.com \

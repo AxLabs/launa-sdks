@@ -5,7 +5,7 @@
  *   export LAUNA_API_KEY=launa_live_...
  *   npx tsx examples/typescript/stats-overview.ts [days]
  */
-import { LaunaClient } from "@launa/sdk";
+import { LaunaClient } from "@launaio/sdk";
 
 const days = Number.parseInt(process.argv[2] ?? "30", 10);
 

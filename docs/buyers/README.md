@@ -2,7 +2,7 @@
 
 Pay **gateway hostnames** with automatic HTTP 402 handling and x402 signing. Buyer clients do not call the control plane — they talk to seller gateway URLs (`https://{slug}.{platform_domain}/...` or custom domains).
 
-For in-browser humans, use [`@launa/react-paywall`](../packages/react-paywall/docs/README.md) instead.
+For in-browser humans, use [`@launaio/react-paywall`](../packages/react-paywall/docs/README.md) instead.
 
 ## How it works
 
@@ -50,7 +50,7 @@ Control-plane clients (seller automation) are documented per language in [sdks/]
 Install buyer deps (optional extras on the main package):
 
 ```bash
-pnpm add @launa/sdk @x402/fetch @x402/evm viem
+pnpm add @launaio/sdk @x402/fetch @x402/evm viem
 # optional Hedera:
 pnpm add @x402/hedera
 ```
@@ -58,7 +58,7 @@ pnpm add @x402/hedera
 ### Private key (scripts, CI, agents)
 
 ```typescript
-import { buyerClientFromEnv } from "@launa/sdk/buyer";
+import { buyerClientFromEnv } from "@launaio/sdk/buyer";
 
 const client = await buyerClientFromEnv();
 const result = await client.pay({ url: "https://my-api.launa.io/v1/echo?test=1" });
@@ -69,7 +69,7 @@ console.log(result.response.status, body, result.payment);
 ### One-shot fetch
 
 ```typescript
-import { payAndFetch, createEvmSignerFromPrivateKey } from "@launa/sdk/buyer";
+import { payAndFetch, createEvmSignerFromPrivateKey } from "@launaio/sdk/buyer";
 
 const signer = await createEvmSignerFromPrivateKey(process.env.LAUNA_EVM_PRIVATE_KEY!);
 const res = await payAndFetch(signer, {
@@ -80,7 +80,7 @@ const res = await payAndFetch(signer, {
 ### Reusable payment fetch
 
 ```typescript
-import { createPaymentFetch, createEvmSignerFromPrivateKey } from "@launa/sdk/buyer";
+import { createPaymentFetch, createEvmSignerFromPrivateKey } from "@launaio/sdk/buyer";
 
 const signer = await createEvmSignerFromPrivateKey(process.env.LAUNA_EVM_PRIVATE_KEY!);
 const fetchWithPay = await createPaymentFetch(signer);
@@ -92,7 +92,7 @@ const res = await fetchWithPay("https://myapi.example.com/v1/data");
 When the gateway endpoint accepts `batch-settlement`, register the batch scheme alongside `exact`:
 
 ```typescript
-import { buyerClientFromEnv } from "@launa/sdk/buyer";
+import { buyerClientFromEnv } from "@launaio/sdk/buyer";
 
 const client = await buyerClientFromEnv({
   batch: {
@@ -106,7 +106,7 @@ const result = await client.pay({ url: "https://my-api.launa.io/v1/echo?test=1" 
 ### Browser wallet (extension)
 
 ```typescript
-import { createEvmSignerFromBrowserProvider, BuyerClient } from "@launa/sdk/buyer";
+import { createEvmSignerFromBrowserProvider, BuyerClient } from "@launaio/sdk/buyer";
 
 const signer = await createEvmSignerFromBrowserProvider(); // window.ethereum
 const client = await BuyerClient.create(signer);
@@ -196,10 +196,10 @@ MCP tool `launa_pay_url` uses the same buyer env vars. See [mcp](../mcp/README.m
 
 | Runtime | Recommendation |
 |---------|----------------|
-| Node / TS agent or backend | `@launa/sdk/buyer` (EVM + Hedera) |
+| Node / TS agent or backend | `@launaio/sdk/buyer` (EVM + Hedera) |
 | Go service or CI | `go/buyer` (EVM; Hedera via TypeScript) |
 | Python script or async service | `launa_sdk.buyer` (EVM; Hedera via TypeScript) |
-| Browser SPA with wallet UI | `@launa/react-paywall` |
+| Browser SPA with wallet UI | `@launaio/react-paywall` |
 | Shell / Cursor agent | `launa pay url` or MCP `launa_pay_url` |
 
 ## Protocol reference

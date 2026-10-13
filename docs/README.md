@@ -1,6 +1,6 @@
 # Launa SDK documentation
 
-Docs for **@launa/sdk** and related automation tools (CLI, MCP).
+Docs for **@launaio/sdk** and related automation tools (CLI, MCP).
 
 Payment protocol (402, signing, facilitator) is defined by [x402-foundation/x402](https://github.com/x402-foundation/x402).
 
@@ -11,14 +11,14 @@ Dashboard guides (gateway setup, DNS, domains, billing): [launa.io/docs](https:/
 | Language / tool | Guide | Package |
 |-----------------|-------|---------|
 | **Buyers** | **[buyers](./buyers/README.md)** | Pay gateway URLs (start here for consumers) |
-| TypeScript | [sdks/typescript](./sdks/typescript/README.md) | `@launa/sdk` + `/buyer` |
+| TypeScript | [sdks/typescript](./sdks/typescript/README.md) | `@launaio/sdk` + `/buyer` |
 | Go | [sdks/go](./sdks/go/README.md) | `github.com/AxLabs/launa-sdks/go` |
 | Python | [sdks/python](./sdks/python/README.md) | `launa-sdk` (PyPI, first upload pending) |
-| CLI | [cli](./cli/README.md) | `@launa/cli` |
-| MCP | [mcp](./mcp/README.md) | `@launa/mcp-server` |
+| CLI | [cli](./cli/README.md) | `@launaio/cli` |
+| MCP | [mcp](./mcp/README.md) | `@launaio/mcp-server` |
 | Agents | [agents](./agents/README.md) | CLI + MCP recipes |
 | Publishing | [publishing](./publishing/README.md) | npm + Go tags + PyPI (dispatch) |
-| React paywall | [packages/react-paywall/docs](../packages/react-paywall/docs/README.md) | `@launa/react-paywall` |
+| React paywall | [packages/react-paywall/docs](../packages/react-paywall/docs/README.md) | `@launaio/react-paywall` |
 
 ## Integration
 

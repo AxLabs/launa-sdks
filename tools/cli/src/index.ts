@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { LaunaClient } from "@launa/sdk";
+import { LaunaClient } from "@launaio/sdk";
 import {
   assertSandboxCredentials,
   envRequestsSandbox,
@@ -10,7 +10,7 @@ import {
   runShellCommand,
   shellCommandNeedsCredentials,
   shellUsageText,
-} from "@launa/sdk/shell";
+} from "@launaio/sdk/shell";
 
 function usage(msg?: string): never {
   if (msg) console.error(msg);
@@ -74,7 +74,7 @@ async function main() {
     },
     runInspectUrl: inspectGatewayUrl,
     runPayUrl: async (url, method) => {
-      const { buyerClientFromEnv, BuyerDepsError } = await import("@launa/sdk/buyer");
+      const { buyerClientFromEnv, BuyerDepsError } = await import("@launaio/sdk/buyer");
       let buyer;
       try {
         buyer = await buyerClientFromEnv();

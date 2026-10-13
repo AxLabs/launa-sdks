@@ -8,21 +8,21 @@ Official SDKs and tools for the [Launa](https://launa.io) platform — control-p
 
 | Task | Package |
 |------|---------|
-| Manage APIs/endpoints/domains from Node/TS | `@launa/sdk` |
+| Manage APIs/endpoints/domains from Node/TS | `@launaio/sdk` |
 | CI/CD automation (Go) | `github.com/AxLabs/launa-sdks/go` |
 | AI agents (Python) | `launa-sdk` (PyPI pending; install from git until then) |
-| CLI / shell scripts | `@launa/cli` |
-| Cursor / Claude MCP tools | `@launa/mcp-server` |
-| Pay a wrapped API (buyer) | `@launa/sdk/buyer` (`BuyerClient`, `payAndFetch`) |
+| CLI / shell scripts | `@launaio/cli` |
+| Cursor / Claude MCP tools | `@launaio/mcp-server` |
+| Pay a wrapped API (buyer) | `@launaio/sdk/buyer` (`BuyerClient`, `payAndFetch`) |
 
 ## Quick start (TypeScript)
 
 ```bash
-npm install @launa/sdk
+npm install @launaio/sdk
 ```
 
 ```typescript
-import { LaunaClient } from "@launa/sdk";
+import { LaunaClient } from "@launaio/sdk";
 
 const client = new LaunaClient({
   baseUrl: process.env.LAUNA_BASE_URL!,

@@ -1,13 +1,13 @@
-# @launa/sdk
+# @launaio/sdk
 
 TypeScript client for the [Launa](https://launa.io) control plane — manage APIs, endpoints, domains, analytics, and gateway configuration from Node.js or the browser.
 
-Payment signing uses [x402](https://github.com/x402-foundation/x402) via optional `@launa/sdk/buyer`. This package covers **platform automation**, not the protocol itself.
+Payment signing uses [x402](https://github.com/x402-foundation/x402) via optional `@launaio/sdk/buyer`. This package covers **platform automation**, not the protocol itself.
 
 ## Install
 
 ```bash
-npm install @launa/sdk
+npm install @launaio/sdk
 ```
 
 Buyer helpers (optional):
@@ -21,7 +21,7 @@ npm install @x402/hedera
 ## Quick start
 
 ```typescript
-import { LaunaClient } from "@launa/sdk";
+import { LaunaClient } from "@launaio/sdk";
 
 const client = new LaunaClient({
   baseUrl: process.env.LAUNA_BASE_URL!,
@@ -37,18 +37,18 @@ Create an API key in the [Launa dashboard](https://launa.io).
 
 | Import | Purpose |
 |--------|---------|
-| `@launa/sdk` | Control-plane client + platform helpers |
-| `@launa/sdk/buyer` | Pay gateway URLs (`BuyerClient`, `payAndFetch`) |
-| `@launa/sdk/platform` | Token/network helpers (`buildUsdcAccept`, `gatewayURL`, …) |
-| `@launa/sdk/scopes` | API key scope presets |
-| `@launa/sdk/shell` | Shell-oriented helpers for CLI tooling |
+| `@launaio/sdk` | Control-plane client + platform helpers |
+| `@launaio/sdk/buyer` | Pay gateway URLs (`BuyerClient`, `payAndFetch`) |
+| `@launaio/sdk/platform` | Token/network helpers (`buildUsdcAccept`, `gatewayURL`, …) |
+| `@launaio/sdk/scopes` | API key scope presets |
+| `@launaio/sdk/shell` | Shell-oriented helpers for CLI tooling |
 
 ## Control plane
 
 Resources on `LaunaClient`: `auth`, `keys`, `apis`, `endpoints`, `domains`, `openapi`, `stats`, `settlements`, `billing`, `income`, `exchangeRates`, `config`.
 
 ```typescript
-import { buildUsdcAccept, usdcToAtomic } from "@launa/sdk";
+import { buildUsdcAccept, usdcToAtomic } from "@launaio/sdk";
 
 const accept = buildUsdcAccept({ priceUsdc: 0.1, payTo: "0xYourWallet" });
 ```
@@ -58,7 +58,7 @@ const accept = buildUsdcAccept({ priceUsdc: 0.1, payTo: "0xYourWallet" });
 Pay wrapped gateway URLs — not the control plane.
 
 ```typescript
-import { buyerClientFromEnv } from "@launa/sdk/buyer";
+import { buyerClientFromEnv } from "@launaio/sdk/buyer";
 
 const client = await buyerClientFromEnv();
 const { response, payment } = await client.pay({
@@ -83,7 +83,7 @@ Browser wallet: `createEvmSignerFromBrowserProvider()` + `BuyerClient.create(sig
 
 - [Full TypeScript SDK docs](https://github.com/AxLabs/launa-sdks/blob/main/docs/sdks/typescript/README.md)
 - [Buyer guide](https://github.com/AxLabs/launa-sdks/blob/main/docs/buyers/README.md)
-- [CLI](https://www.npmjs.com/package/@launa/cli) · [MCP server](https://www.npmjs.com/package/@launa/mcp-server)
+- [CLI](https://www.npmjs.com/package/@launaio/cli) · [MCP server](https://www.npmjs.com/package/@launaio/mcp-server)
 
 ## License
 

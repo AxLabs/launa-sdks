@@ -122,6 +122,6 @@ class BuyerClient:
         if os.environ.get("HEDERA_ACCOUNT_ID") or os.environ.get("HEDERA_PRIVATE_KEY"):
             raise BuyerDepsError(
                 "Hedera buyer signing is not supported in the Python SDK; "
-                "use TypeScript @launa/sdk/buyer with HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY"
+                "use TypeScript @launaio/sdk/buyer with HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY"
             )
         raise BuyerDepsError("LAUNA_EVM_PRIVATE_KEY or EVM_PRIVATE_KEY required")

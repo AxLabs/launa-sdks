@@ -6,13 +6,13 @@ Runnable scripts for control-plane automation (seller) and gateway payments (buy
 
 | Language | Install (published) | Install (from source) | Env vars |
 |----------|---------------------|----------------------|----------|
-| TypeScript | `npm install @launa/sdk` | `pnpm install && pnpm --filter @launa/sdk build` | `LAUNA_API_KEY`, `LAUNA_BASE_URL` (seller) · `LAUNA_EVM_PRIVATE_KEY` (buyer) |
+| TypeScript | `npm install @launaio/sdk` | `pnpm install && pnpm --filter @launaio/sdk build` | `LAUNA_API_KEY`, `LAUNA_BASE_URL` (seller) · `LAUNA_EVM_PRIVATE_KEY` (buyer) |
 | Python | `pip install "launa-sdk[buyer]"` | `pip install -e "packages/python[buyer,dev]"` | same |
 | Go | `go get github.com/AxLabs/launa-sdks/go@latest` | `cd examples/go && go mod tidy` (uses local `replace`) | same |
 
 ## TypeScript
 
-From repository root (source) or any project with `@launa/sdk` installed:
+From repository root (source) or any project with `@launaio/sdk` installed:
 
 ```bash
 # Create API + paid endpoint
@@ -62,7 +62,7 @@ Configure Cursor with the published MCP server — see [examples/agent-mcp/curso
   "mcpServers": {
     "launa": {
       "command": "npx",
-      "args": ["-y", "@launa/mcp-server"],
+      "args": ["-y", "@launaio/mcp-server"],
       "env": {
         "LAUNA_BASE_URL": "https://api.launa.io",
         "LAUNA_API_KEY": "launa_live_..."

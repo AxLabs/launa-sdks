@@ -4,7 +4,7 @@ Launa ships control-plane clients (seller automation) and buyer helpers (pay gat
 
 | Language | Package | Control plane | Buyer |
 |----------|---------|:-------------:|:-----:|
-| TypeScript | `@launa/sdk` | Core seller API | `exact` + `batch-settlement` |
+| TypeScript | `@launaio/sdk` | Core seller API | `exact` + `batch-settlement` |
 | Go | `github.com/AxLabs/launa-sdks/go` | Core seller API | `exact` + `batch-settlement` |
 | Python | `launa-sdk` | Core seller API | `exact` + `batch-settlement` (+ async) |
 
@@ -47,4 +47,4 @@ Start here if you consume paid APIs: **[buyers](../buyers/README.md)**.
 
 Buyer clients sign x402 payments against **gateway hostnames** — not `LAUNA_BASE_URL`. Use the same `LAUNA_EVM_PRIVATE_KEY` as `launa pay url` and MCP `launa_pay_url`.
 
-For browser SPAs, use [`@launa/react-paywall`](../packages/react-paywall/docs/README.md).
+For browser SPAs, use [`@launaio/react-paywall`](../packages/react-paywall/docs/README.md).
