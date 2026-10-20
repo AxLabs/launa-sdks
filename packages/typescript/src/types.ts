@@ -702,7 +702,18 @@ export type SellerCustodialAccount = {
 };
 
 export type IncomeSummary = {
-  lifetime_earnings_atomic: number;
+  /** Legacy sum of mixed token units; use earnings_by_asset for valuation. */
+  lifetime_earnings_atomic: string;
+  fiat_valuation_status?: "complete" | "partial" | "unavailable";
+  earnings_by_asset?: Array<{
+    network: string;
+    asset: string;
+    amount_atomic: string;
+    credits: number;
+    missing_fiat_snapshots: number;
+    symbol?: string;
+    decimals: number | null;
+  }>;
   lifetime_earnings_fiat?: string;
   display_currency?: string;
   custodial_balances: SellerCustodialAccount[];

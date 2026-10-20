@@ -11,11 +11,12 @@ import {
 } from "@launaio/sdk";
 import { amountToAtomic } from "@launaio/sdk/platform";
 import { envRequestsSandbox, inspectGatewayUrl } from "@launaio/sdk/shell";
+import { ToolInputError } from "./tool-errors.js";
 
 function defaultAccept(scheme: PaymentScheme, amountAtomic: string, sandbox: boolean) {
   if (sandbox) {
     if (scheme === "batch-settlement") {
-      throw new Error("sandbox fork supports exact scheme only");
+      throw new ToolInputError("sandbox fork supports exact scheme only");
     }
     return buildSandboxUsdcAccept(scheme, amountAtomic);
   }
@@ -55,10 +56,10 @@ function endpointAccepts(input: EndpointPricingInput, sandbox: boolean, defaultP
     return price == null ? undefined : [defaultAccept(scheme, usdcToAtomic(price), sandbox)];
   }
   if (!input.network || !input.asset) {
-    throw new Error("network and asset are required for custom token pricing");
+    throw new ToolInputError("network and asset are required for custom token pricing");
   }
   if (input.amount == null && price == null) {
-    throw new Error("price or amount is required for custom token pricing");
+    throw new ToolInputError("price or amount is required for custom token pricing");
   }
 
   return [{

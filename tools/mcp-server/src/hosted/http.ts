@@ -1,9 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { LaunaClient, LaunaError } from "@launaio/sdk";
+import { LaunaClient } from "@launaio/sdk";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 import { createMcpServer } from "../server.js";
 import { createToolHandlers, type ToolHandlers } from "../tools.js";
+import { publicToolError } from "../tool-errors.js";
 import { CONTROL_SCOPES, type HostedConfig } from "./config.js";
 import { backendFetch } from "./backend.js";
 import { authenticateCredential } from "./authentication.js";
@@ -50,12 +51,7 @@ function safeHandlers(handlers: ToolHandlers): ToolHandlers {
             ...args,
           );
         } catch (error) {
-          // Backend errors can contain request data; never echo them to a remote agent.
-          throw new Error(
-            error instanceof LaunaError
-              ? `Launa request rejected (${error.status})`
-              : "Launa request failed",
-          );
+          throw new Error(publicToolError(error));
         }
       },
     ]),

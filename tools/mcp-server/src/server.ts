@@ -229,11 +229,12 @@ export function createMcpServer(
 
   server.tool(
     "launa_create_api",
-    "Create API with default subdomain. Optional pay_to_address / pay_to_addresses (CAIP-2 → recipient) and discovery fields. Requires apis:write and verified email.",
+    "Create API with default subdomain. pay_to_mode defaults to user_wallet, which requires pay_to_address or pay_to_addresses (CAIP-2 → recipient). Select platform_wallet explicitly to use platform-managed payouts where supported. Requires apis:write and verified email.",
     {
       name: z.string(),
       slug: z.string(),
       upstream_base_url: z.string().url(),
+      pay_to_mode: z.enum(["user_wallet", "platform_wallet"]).optional(),
       pay_to_address: z.string().optional(),
       pay_to_addresses: z.record(z.string()).optional(),
       discovery_guidance: z.string().optional(),
@@ -249,6 +250,7 @@ export function createMcpServer(
       name,
       slug,
       upstream_base_url,
+      pay_to_mode,
       pay_to_address,
       pay_to_addresses,
       discovery_guidance,
@@ -265,8 +267,7 @@ export function createMcpServer(
           name,
           slug,
           upstream_base_url,
-          pay_to_mode:
-            pay_to_address || pay_to_addresses ? "user_wallet" : undefined,
+          pay_to_mode: pay_to_mode ?? (pay_to_address || pay_to_addresses ? "user_wallet" : undefined),
           pay_to_address,
           pay_to_addresses,
           discovery_guidance,

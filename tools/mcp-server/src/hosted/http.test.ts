@@ -50,6 +50,11 @@ describe("hosted MCP HTTP boundary", () => {
     }
     if (String(input).includes("secret-error"))
       return new Response("upstream secret test-only-key", { status: 403 });
+    if (init?.method === "POST" && String(input).endsWith("/apis")) {
+      const body = JSON.parse(String(init.body));
+      if (body.pay_to_mode === "platform_wallet") return Response.json(body);
+      return Response.json({ error: "pay_to_address or pay_to_addresses required for user_wallet mode" }, { status: 400 });
+    }
     return Response.json([{ owner: key }]);
   });
   let server: Server;
@@ -191,6 +196,25 @@ describe("hosted MCP HTTP boundary", () => {
       })
     ).json();
     expect(absent.error ?? absent.result?.isError).toBeTruthy();
+  });
+  it("returns actionable write errors and accepts explicit platform wallets", async () => {
+    const { tokens } = await f.connect("validation", "development");
+    const create = async (args: Record<string, unknown>) => (await rpc(tokens.access_token, "tools/call", {
+      name: "launa_create_api", arguments: { name: "Test", slug: "test", upstream_base_url: "https://example.com", ...args },
+    })).json();
+    const rejected = await create({});
+    expect(rejected.result.isError).toBe(true);
+    expect(rejected.result.content[0].text).toContain("pay_to_address or pay_to_addresses required for user_wallet mode");
+    const accepted = await create({ pay_to_mode: "platform_wallet" });
+    expect(accepted.result.isError).not.toBe(true);
+    expect(JSON.parse(accepted.result.content[0].text).pay_to_mode).toBe("platform_wallet");
+    const before = backendRequests.length;
+    const batch = await (await rpc(tokens.access_token, "tools/call", {
+      name: "launa_add_endpoint", arguments: { api_id: "api", method: "GET", path_pattern: "/status/200", scheme: "batch-settlement", price_usdc: "0.001" },
+    })).json();
+    expect(batch.result.isError).toBe(true);
+    expect(batch.result.content[0].text).toContain("sandbox fork supports exact scheme only");
+    expect(backendRequests.slice(before).filter((r) => r.url.includes("/endpoints"))).toEqual([]);
   });
   it("isolates simultaneous tenant and environment credentials, ignoring process globals", async () => {
     const alice = await f.connect("alice", "development");
