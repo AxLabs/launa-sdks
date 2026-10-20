@@ -17,6 +17,9 @@ import { fixture, config } from "./test-helpers.js";
 
 describe("hosted MCP HTTP boundary", () => {
   let f: ReturnType<typeof fixture>;
+  const testKey = `launa_sandbox_${"a".repeat(48)}`;
+  const liveKey = `launa_live_${"b".repeat(48)}`;
+  let revokedKey = false;
   const backendRequests: {
     url: string;
     key: string | null;
@@ -32,6 +35,19 @@ describe("hosted MCP HTTP boundary", () => {
       environment: headers.get("x-launa-environment"),
       body: init?.body && JSON.parse(String(init.body)),
     });
+    if (String(input).endsWith("/auth/api-key")) {
+      if (![testKey, liveKey].includes(key ?? "") || revokedKey)
+        return new Response("sensitive revoked key", { status: 401 });
+      return Response.json({
+        environment: key === testKey ? "development" : "production",
+        scopes: ["apis:read"],
+      });
+    }
+    if ([testKey, liveKey].includes(key ?? "")) {
+      if (init?.method && init.method !== "GET")
+        return new Response("sensitive scope error", { status: 403 });
+      return Response.json([{ name: key === testKey ? "test-api" : "live-api" }]);
+    }
     if (String(input).includes("secret-error"))
       return new Response("upstream secret test-only-key", { status: 403 });
     return Response.json([{ owner: key }]);
@@ -87,6 +103,36 @@ describe("hosted MCP HTTP boundary", () => {
     ).json();
     expect(metadata.code_challenge_methods_supported).toEqual(["S256"]);
     expect(metadata.registration_endpoint).toBe(base + "/oauth/register");
+  });
+  it("serves API-key clients, enforces scope denials, and revalidates revocation", async () => {
+    const results = await Promise.all([testKey, liveKey].map(async (key) => {
+      expect((await rpc(key, "tools/list")).status).toBe(200);
+      return (await rpc(key, "tools/call", { name: "launa_list_apis", arguments: {} })).json();
+    }));
+    expect(JSON.stringify(results[0])).toContain("test-api");
+    expect(JSON.stringify(results[0])).not.toContain("live-api");
+    expect(JSON.stringify(results[1])).toContain("live-api");
+    const denied = await (await rpc(testKey, "tools/call", {
+      name: "launa_create_api",
+      arguments: { name: "Forbidden", slug: "forbidden", upstream_base_url: "https://example.com" },
+    })).json();
+    expect(denied.result.isError).toBe(true);
+    expect(JSON.stringify(denied)).toContain("403");
+    expect(JSON.stringify(denied)).not.toContain("sensitive");
+    const keyed = await request("/mcp", {
+      method: "POST",
+      headers: { "X-API-Key": testKey, "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+    });
+    expect(keyed.status).toBe(200);
+    const calls = backendRequests.filter(r => [testKey, liveKey].includes(r.key ?? "") && !r.url.endsWith("/auth/api-key"));
+    expect(calls.every(r => r.environment === (r.key === testKey ? "development" : "production"))).toBe(true);
+    revokedKey = true;
+    try {
+      const rejected = await rpc(testKey, "tools/list");
+      expect(rejected.status).toBe(401);
+      expect(await rejected.text()).not.toContain("sensitive");
+    } finally { revokedKey = false; }
   });
   it("rejects DNS rebinding, untrusted origins, duplicate parameters and an untrusted consent bridge", async () => {
     const badHost = await new Promise<number | undefined>((resolve) => {

@@ -60,7 +60,7 @@ frontend login continues unchanged.
 Terminate TLS at the reverse proxy, **preserve Host**, and restrict direct access
 to the listener. Preserve Authorization and WWW-Authenticate. Disable caching and
 request/response body logging on all OAuth/MCP/consent paths; redact query strings,
-Cookie, Authorization, and X-Launa-MCP-Bridge in proxy/trace logs. Restrict the
+Cookie, Authorization, X-API-Key, and X-Launa-MCP-Bridge in proxy/trace logs. Restrict the
 consent bridge route to seller-app egress at the proxy as defense in depth.
 The service checks Host and Origin and bounds request bodies, connection headers,
 and backend timeouts. Its coarse 300 requests/minute/IP limit sees the actual
@@ -68,7 +68,32 @@ socket peer; with a shared proxy, configure a per-client limit at the edge and
 capacity-test this shared ceiling before rollout. Never trust arbitrary forwarded
 IP headers. Health checks must send the canonical Host to `/healthz`.
 
-## Authorization and isolation
+## API-key clients
+
+Clients without OAuth can use the same `/mcp` endpoint with a scoped seller API
+key. Set **one** header in the client's secure credential settings:
+
+```http
+Authorization: Bearer YOUR_LAUNA_API_KEY
+```
+
+Alternatively, use `X-API-Key: YOUR_LAUNA_API_KEY`. Do not send both headers,
+put keys in URLs, or put real keys into shared configuration or chat messages.
+OAuth remains the default for interactive clients and bundled plugins.
+
+`launa_sandbox_...` selects Test mode; `launa_live_...` selects Live mode. Each
+request validates the key against the configured control plane's
+`GET /auth/api-key` endpoint, including initialization and tool listing. Deploy
+that backend endpoint before this MCP version. Validation returns the stored key
+environment and scopes; the service rejects a prefix/environment mismatch.
+It never accepts a frontend JWT, forwards user-supplied environment headers, caches
+the validation, or stores a direct API key in the OAuth database. Backend operations
+recheck key revocation, account status, scopes, environment, and tenant ownership.
+Tools may be listed even when the key cannot invoke them; insufficient scope is
+denied by the backend. Direct keys last until revoked, independently of OAuth's
+30-day grant lifetime.
+
+## OAuth authorization and isolation
 
 1. The client discovers protected-resource and authorization-server metadata.
 2. Authorization requires a registered callback, exact resource audience and

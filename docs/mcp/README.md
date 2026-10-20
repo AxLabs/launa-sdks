@@ -2,6 +2,14 @@
 
 Model Context Protocol server — published as `@launaio/mcp-server` on npm.
 
+## Hosted connection
+
+The hosted `/mcp` service supports browser OAuth and scoped API keys.
+For clients without OAuth, send `Authorization: Bearer YOUR_LAUNA_API_KEY`
+or `X-API-Key: YOUR_LAUNA_API_KEY` (one header only). Test/Live mode comes from
+the key, and its existing scopes apply. See [hosted setup and security](../../tools/mcp-server/HOSTED.md#api-key-clients).
+The hosted service exposes developer control-plane tools; buyer tools remain local.
+
 ## Install / run
 
 ```bash

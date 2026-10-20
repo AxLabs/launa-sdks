@@ -6,6 +6,7 @@ import { createMcpServer } from "../server.js";
 import { createToolHandlers, type ToolHandlers } from "../tools.js";
 import { CONTROL_SCOPES, type HostedConfig } from "./config.js";
 import { backendFetch } from "./backend.js";
+import { authenticateCredential } from "./authentication.js";
 import { equal } from "./crypto.js";
 import { OAuthError } from "./errors.js";
 import type { OAuthService } from "./oauth.js";
@@ -165,10 +166,10 @@ async function handleConsent(
 async function authenticateMcp(
   req: IncomingMessage,
   res: ServerResponse,
-  { config, oauth }: Services,
+  { config, oauth, fetchFn }: Services,
 ) {
   try {
-    return await oauth.authenticate(bearer(req));
+    return await authenticateCredential(req, config, oauth, fetchFn);
   } catch {
     res.setHeader(
       "WWW-Authenticate",
@@ -182,7 +183,7 @@ async function handleMcp(
   res: ServerResponse,
   services: Services,
 ) {
-  const { grant, apiKey } = await authenticateMcp(req, res, services);
+  const { environment, apiKey } = await authenticateMcp(req, res, services);
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     throw new OAuthError(405, "method_not_allowed");
@@ -198,13 +199,13 @@ async function handleMcp(
   const client = new LaunaClient({
     baseUrl: services.config.backendUrl,
     apiKey,
-    environment: grant.environment,
+    environment,
     fetch: backendFetch(services.config, services.fetchFn),
   });
   const server = createMcpServer(
     safeHandlers(
       createToolHandlers(() => client, {
-        sandbox: grant.environment === "development",
+        sandbox: environment === "development",
       }),
     ),
     { buyerTools: false },
