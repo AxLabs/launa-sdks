@@ -12,8 +12,8 @@ import {
 import { amountToAtomic } from "@launaio/sdk/platform";
 import { envRequestsSandbox, inspectGatewayUrl } from "@launaio/sdk/shell";
 
-function defaultAccept(scheme: PaymentScheme, amountAtomic: string) {
-  if (envRequestsSandbox()) {
+function defaultAccept(scheme: PaymentScheme, amountAtomic: string, sandbox: boolean) {
+  if (sandbox) {
     if (scheme === "batch-settlement") {
       throw new Error("sandbox fork supports exact scheme only");
     }
@@ -44,7 +44,7 @@ type EndpointToolInput = EndpointPricingInput & {
   clear_schemas?: boolean;
 };
 
-function endpointAccepts(input: EndpointPricingInput, defaultPrice?: string): AcceptOption[] | undefined {
+function endpointAccepts(input: EndpointPricingInput, sandbox: boolean, defaultPrice?: string): AcceptOption[] | undefined {
   if (input.accepts) return input.accepts;
 
   const scheme = input.scheme ?? "exact";
@@ -52,7 +52,7 @@ function endpointAccepts(input: EndpointPricingInput, defaultPrice?: string): Ac
   const customToken = input.network != null || input.asset != null || input.amount != null;
 
   if (!customToken) {
-    return price == null ? undefined : [defaultAccept(scheme, usdcToAtomic(price))];
+    return price == null ? undefined : [defaultAccept(scheme, usdcToAtomic(price), sandbox)];
   }
   if (!input.network || !input.asset) {
     throw new Error("network and asset are required for custom token pricing");
@@ -70,8 +70,8 @@ function endpointAccepts(input: EndpointPricingInput, defaultPrice?: string): Ac
   }];
 }
 
-function endpointBody(input: EndpointToolInput, defaultPrice?: string): Partial<CreateEndpointInput> {
-  const accepts = endpointAccepts(input, defaultPrice);
+function endpointBody(input: EndpointToolInput, sandbox: boolean, defaultPrice?: string): Partial<CreateEndpointInput> {
+  const accepts = endpointAccepts(input, sandbox, defaultPrice);
   return {
     ...(input.method != null ? { method: input.method } : {}),
     ...(input.path_pattern != null ? { path_pattern: input.path_pattern } : {}),
@@ -136,16 +136,16 @@ function apiHandlers(getClient: GetClient) {
   };
 }
 
-function endpointHandlers(getClient: GetClient) {
+function endpointHandlers(getClient: GetClient, sandbox: boolean) {
   return {
     addEndpoint: async (api_id: string, input: EndpointToolInput) =>
       getClient().endpoints.create(
         api_id,
-        endpointBody(input, "0.10") as CreateEndpointInput,
+        endpointBody(input, sandbox, "0.10") as CreateEndpointInput,
       ),
     listEndpoints: async (api_id: string) => getClient().endpoints.list(api_id),
     updateEndpoint: async (api_id: string, endpoint_id: string, input: EndpointToolInput) =>
-      getClient().endpoints.update(api_id, endpoint_id, endpointBody(input)),
+      getClient().endpoints.update(api_id, endpoint_id, endpointBody(input, sandbox)),
     deleteEndpoint: async (api_id: string, endpoint_id: string) =>
       getClient().endpoints.delete(api_id, endpoint_id),
     updateEndpointSchemas: async (
@@ -162,7 +162,7 @@ function endpointHandlers(getClient: GetClient) {
       }),
     parseOpenapi: async (spec: string) => getClient().openapi.parseSpec(spec),
     importOpenapi: async (api_id: string, spec: string, price_usdc: string) =>
-      wrapOpenAPI(getClient(), api_id, spec, [defaultAccept("exact", usdcToAtomic(price_usdc))]),
+      wrapOpenAPI(getClient(), api_id, spec, [defaultAccept("exact", usdcToAtomic(price_usdc), sandbox)]),
   };
 }
 
@@ -234,10 +234,10 @@ function buyerHandlers() {
   };
 }
 
-export function createToolHandlers(getClient: GetClient) {
+export function createToolHandlers(getClient: GetClient, options: { sandbox?: boolean } = {}) {
   return {
     ...apiHandlers(getClient),
-    ...endpointHandlers(getClient),
+    ...endpointHandlers(getClient, options.sandbox ?? envRequestsSandbox()),
     ...domainHandlers(getClient),
     ...reportingHandlers(getClient),
     ...buyerHandlers(),

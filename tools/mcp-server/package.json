@@ -10,7 +10,8 @@
     "directory": "tools/mcp-server"
   },
   "bin": {
-    "launa-mcp": "./dist/index.js"
+    "launa-mcp": "./dist/index.js",
+    "launa-mcp-hosted": "./dist/hosted.js"
   },
   "files": [
     "dist"
@@ -19,17 +20,19 @@
     "build": "tsc",
     "test": "vitest run",
     "start": "node dist/index.js",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build",
+    "start:hosted": "node dist/hosted.js"
   },
   "dependencies": {
     "@launaio/sdk": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.12.0"
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "mongodb": "^6.20.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "typescript": "^5.7.2",
-    "vitest": "^3.0.0",
-    "zod": "^3.24.0"
+    "vitest": "^3.0.0"
   },
   "publishConfig": {
     "access": "public"
