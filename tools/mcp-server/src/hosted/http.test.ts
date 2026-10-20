@@ -1,5 +1,13 @@
 import { createServer, request as rawRequest, type Server } from "node:http";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import {
+  auth,
+  type OAuthClientProvider,
+} from "@modelcontextprotocol/sdk/client/auth.js";
+import type {
+  OAuthClientInformationMixed,
+  OAuthTokens,
+} from "@modelcontextprotocol/sdk/shared/auth.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { createMcpServer } from "../server.js";
@@ -78,7 +86,7 @@ describe("hosted MCP HTTP boundary", () => {
       await request("/.well-known/oauth-authorization-server")
     ).json();
     expect(metadata.code_challenge_methods_supported).toEqual(["S256"]);
-    expect(metadata.registration_endpoint).toBeUndefined();
+    expect(metadata.registration_endpoint).toBe(base + "/oauth/register");
   });
   it("rejects DNS rebinding, untrusted origins, duplicate parameters and an untrusted consent bridge", async () => {
     const badHost = await new Promise<number | undefined>((resolve) => {
@@ -210,5 +218,96 @@ describe("hosted MCP HTTP boundary", () => {
       new URLSearchParams({ client_id: "cursor", token: tokens.access_token }),
     );
     expect((await rpc(tokens.access_token, "tools/list")).status).toBe(401);
+  });
+
+  it("completes the MCP SDK discovery, DCR, consent and token flow", async () => {
+    let client: OAuthClientInformationMixed | undefined;
+    let tokens: OAuthTokens | undefined;
+    let verifier = "";
+    let authorizationUrl: URL | undefined;
+    const redirect = "http://127.0.0.1:54321/callback";
+    const provider: OAuthClientProvider = {
+      redirectUrl: redirect,
+      clientMetadata: {
+        client_name: "SDK client",
+        redirect_uris: [redirect],
+        token_endpoint_auth_method: "none",
+        grant_types: ["authorization_code", "refresh_token"],
+        response_types: ["code"],
+      },
+      clientInformation: () => client,
+      saveClientInformation: (value) => {
+        client = value;
+      },
+      tokens: () => tokens,
+      saveTokens: (value) => {
+        tokens = value;
+      },
+      saveCodeVerifier: (value) => {
+        verifier = value;
+      },
+      codeVerifier: () => verifier,
+      redirectToAuthorization: (url) => {
+        authorizationUrl = url;
+      },
+    };
+    expect(await auth(provider, { serverUrl: base + "/mcp" })).toBe("REDIRECT");
+    expect(client?.client_id).toMatch(/^dcr_/);
+    const response = await fetch(authorizationUrl!, { redirect: "manual" });
+    expect(response.status).toBe(302);
+    const requestId = new URL(
+      response.headers.get("location")!,
+    ).searchParams.get("request")!;
+    const info = await f.oauth.consentInfo(requestId, "sdk-user");
+    const callback = new URL(
+      await f.oauth.consent(
+        {
+          request: requestId,
+          consentToken: info.consentToken,
+          environment: "development",
+          approve: true,
+        },
+        "sdk-user",
+      ),
+    );
+    expect(
+      await auth(provider, {
+        serverUrl: base + "/mcp",
+        authorizationCode: callback.searchParams.get("code")!,
+      }),
+    ).toBe("AUTHORIZED");
+    expect((await rpc(tokens!.access_token, "tools/list")).status).toBe(200);
+    const refreshed = await f.oauth.token(
+      new URLSearchParams({
+        client_id: client!.client_id,
+        grant_type: "refresh_token",
+        refresh_token: tokens!.refresh_token!,
+        resource: base + "/mcp",
+      }),
+    );
+    expect((await rpc(refreshed.access_token, "tools/list")).status).toBe(200);
+  });
+  it("registers public clients over JSON and rate-limits registration floods", async () => {
+    const payload = JSON.stringify({
+      client_name: "Test client",
+      redirect_uris: ["http://127.0.0.1/callback"],
+    });
+    const register = () =>
+      request("/oauth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      });
+    const first = await register();
+    expect(first.status).toBe(201);
+    expect(first.headers.get("cache-control")).toBe("no-store");
+    const client = await first.json();
+    expect(client.client_id).toMatch(/^dcr_/);
+    expect(client.client_secret).toBeUndefined();
+    for (let i = 1; i < 20; i++)
+      expect([201, 429]).toContain((await register()).status);
+    const limited = await register();
+    expect(limited.status).toBe(429);
+    expect(limited.headers.get("retry-after")).toBe("60");
   });
 });

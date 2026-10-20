@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 0002-hosted-mcp-client-registration.md
 date: 2026-10-20
 ---
 

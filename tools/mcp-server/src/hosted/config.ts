@@ -18,6 +18,7 @@ export interface OAuthClient {
   id: string;
   name: string;
   redirectUris: string[];
+  dynamic?: boolean;
 }
 export interface HostedConfig {
   publicUrl: string;

@@ -12,6 +12,7 @@ export interface OAuthStore {
   get(id: string, kind: string): Promise<RecordValue | null>;
   consume(id: string, kind: string): Promise<RecordValue | null>;
   remove(id: string, kind: string): Promise<void>;
+  extendClient(id: string, expiresAt: Date): Promise<void>;
 }
 
 /** One-use codes and refresh tokens are claimed atomically across all service replicas. */
@@ -46,5 +47,12 @@ export class MongoOAuthStore implements OAuthStore {
   }
   async remove(id: string, kind: string) {
     await this.collection.deleteOne({ id, kind });
+  }
+  async extendClient(id: string, expiresAt: Date) {
+    // Never upsert: an expired/deleted registration must not be resurrected.
+    await this.collection.updateOne(
+      { id, kind: "client", expiresAt: { $gt: new Date() } },
+      { $max: { expiresAt } },
+    );
   }
 }

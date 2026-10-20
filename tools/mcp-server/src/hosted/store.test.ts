@@ -81,4 +81,31 @@ describe.skipIf(!local)("Mongo OAuth persistence", () => {
       await second.close();
     }
   });
+  it("renews only existing unexpired client registrations without reviving deleted IDs", async () => {
+    const expiresAt = new Date(Date.now() + 60_000);
+    await store.put({
+      id: "client-id",
+      kind: "client",
+      value: {},
+      used: false,
+      expiresAt,
+    });
+    const extended = new Date(Date.now() + 120_000);
+    await store.extendClient("client-id", extended);
+    expect((await store.get("client-id", "client"))?.expiresAt).toEqual(
+      extended,
+    );
+    await store.remove("client-id", "client");
+    await store.extendClient("client-id", extended);
+    expect(await store.get("client-id", "client")).toBeNull();
+    await store.put({
+      id: "expired-client",
+      kind: "client",
+      value: {},
+      used: false,
+      expiresAt: new Date(0),
+    });
+    await store.extendClient("expired-client", extended);
+    expect(await store.get("expired-client", "client")).toBeNull();
+  });
 });

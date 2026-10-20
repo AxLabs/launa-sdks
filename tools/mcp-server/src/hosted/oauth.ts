@@ -4,6 +4,7 @@ import {
   type HostedConfig,
   type Environment,
 } from "./config.js";
+import { matchesRedirect, OAuthClientRegistry } from "./registration.js";
 import { encrypt, decrypt, equal, hash, randomToken } from "./crypto.js";
 import { OAuthError } from "./errors.js";
 import type { OAuthStore } from "./store.js";
@@ -41,12 +42,18 @@ const invalid = () => new OAuthError(400, "invalid_grant");
 
 export class OAuthService {
   readonly resource: string;
+  private clients: OAuthClientRegistry;
   constructor(
     readonly config: HostedConfig,
     private store: OAuthStore,
     private backend: SellerBackend,
   ) {
     this.resource = `${config.publicUrl}/mcp`;
+    this.clients = new OAuthClientRegistry(
+      config.clients,
+      store,
+      this.resource,
+    );
   }
   private put(id: string, kind: string, value: unknown, expiresAt: number) {
     return this.store.put({
@@ -60,15 +67,13 @@ export class OAuthService {
   private validateResource(value: string | null) {
     if (value !== this.resource) throw new OAuthError(400, "invalid_target");
   }
-  private client(id: string | null) {
-    const client = this.config.clients.find((c) => c.id === id);
-    if (!client) throw new OAuthError(400, "invalid_client");
-    return client;
+  register(input: unknown) {
+    return this.clients.register(input);
   }
   async authorize(params: URLSearchParams) {
-    const client = this.client(params.get("client_id"));
+    const client = await this.clients.get(params.get("client_id"));
     const redirectUri = params.get("redirect_uri") ?? "";
-    if (!client.redirectUris.includes(redirectUri))
+    if (!matchesRedirect(client, redirectUri))
       throw new OAuthError(400, "invalid_request", "Unregistered redirect URI");
     this.validateResource(params.get("resource"));
     const challenge = params.get("code_challenge") ?? "";
@@ -125,7 +130,8 @@ export class OAuthService {
     const pending = await this.pending(requestId);
     const user = await this.backend.user(session);
     return {
-      client: this.client(pending.clientId).name,
+      client: (await this.clients.get(pending.clientId)).name,
+      redirectUri: pending.redirectUri,
       email: user.email,
       scopes: pending.scopes,
       consentToken: this.consentToken(requestId, user.id),
@@ -166,7 +172,7 @@ export class OAuthService {
       session,
       input.environment,
       pending.scopes,
-      `MCP: ${this.client(pending.clientId).name} (${grantId.slice(0, 8)})`,
+      `MCP: ${(await this.clients.get(pending.clientId)).name} (${grantId.slice(0, 8)})`,
     );
     try {
       const grant: Grant = {
@@ -244,7 +250,7 @@ export class OAuthService {
     }
   }
   async token(params: URLSearchParams) {
-    const client = this.client(params.get("client_id"));
+    const client = await this.clients.get(params.get("client_id"));
     this.validateResource(params.get("resource"));
     const type = params.get("grant_type");
     if (type === "authorization_code") {
@@ -302,7 +308,7 @@ export class OAuthService {
     }
   }
   async revoke(params: URLSearchParams) {
-    const client = this.client(params.get("client_id"));
+    const client = await this.clients.get(params.get("client_id"));
     const id = hash(params.get("token") ?? "");
     const record =
       (await this.store.get(id, "refresh")) ??

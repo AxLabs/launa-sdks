@@ -124,6 +124,7 @@ function metadata({ config, oauth }: Services) {
         issuer: config.publicUrl,
         authorization_endpoint: `${config.publicUrl}/oauth/authorize`,
         token_endpoint: `${config.publicUrl}/oauth/token`,
+        registration_endpoint: `${config.publicUrl}/oauth/register`,
         revocation_endpoint: `${config.publicUrl}/oauth/revoke`,
         response_types_supported: ["code"],
         grant_types_supported: ["authorization_code", "refresh_token"],
@@ -231,6 +232,14 @@ async function routeRequest(
   const publicResponse =
     req.method === "GET" ? metadata(services).get(path) : undefined;
   if (publicResponse) return json(res, 200, publicResponse);
+  if (req.method === "POST" && path === "/oauth/register") {
+    requireContentType(req, "application/json");
+    return json(
+      res,
+      201,
+      await oauth.register(JSON.parse(await body(req, 8192))),
+    );
+  }
   if (req.method === "GET" && path === "/oauth/authorize") {
     res.writeHead(302, {
       Location: await oauth.authorize(unique(url.searchParams)),
@@ -277,6 +286,7 @@ export function createHttpHandler(
 ) {
   const rates: Rates = new Map();
   const services = { config, oauth, fetchFn };
+  let registrations = { count: 0, reset: 0 };
   return async (req: IncomingMessage, res: ServerResponse) => {
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Pragma", "no-cache");
@@ -287,12 +297,15 @@ export function createHttpHandler(
       "default-src 'none'; frame-ancestors 'none'",
     );
     try {
-      await routeRequest(
-        req,
-        res,
-        validateRequest(req, config, rates),
-        services,
-      );
+      const url = validateRequest(req, config, rates);
+      if (req.method === "POST" && url.pathname === "/oauth/register") {
+        // A global per-process budget also bounds storage when behind a proxy.
+        if (registrations.reset <= Date.now())
+          registrations = { count: 0, reset: Date.now() + 60_000 };
+        if (++registrations.count > 20)
+          throw new OAuthError(429, "rate_limited");
+      }
+      await routeRequest(req, res, url, services);
     } catch (error) {
       errorResponse(res, error);
     }

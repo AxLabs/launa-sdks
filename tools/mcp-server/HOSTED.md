@@ -47,7 +47,8 @@ Required server configuration:
   with the seller BFF. Never expose either secret as `NEXT_PUBLIC_*`.
 - `MCP_OAUTH_CLIENTS`: JSON array of `{id, name, redirectUris}`. Only explicit,
   exact callbacks are allowed. The example registers Cursor's documented desktop
-  and cloud callbacks. No wildcard callbacks, client metadata fetch, or open DCR.
+  and cloud callbacks. Static registrations retain exact matching. Public dynamic
+  registration is available under the restricted policy below.
 - `HOST`, `PORT`: defaults `127.0.0.1:3001`; image binds `0.0.0.0` inside the container.
 
 On the seller app, set `MCP_SERVICE_URL` to the hosted public origin,
@@ -73,7 +74,7 @@ IP headers. Health checks must send the canonical Host to `/healthz`.
 2. Authorization requires a registered callback, exact resource audience and
    authorization-code PKCE with S256.
 3. The seller signs in through the existing login, including MFA/passkeys. The
-   consent page shows client name, account, scopes, and test/live selection.
+   consent page shows client name, callback address, account, scopes, and test/live selection.
 4. The authenticated BFF passes the session only to the trusted service. The
    service verifies it via `/auth/me`, then creates a scoped API key using the
    existing JWT-only API. The session JWT is never persisted or returned to MCP.
@@ -93,7 +94,7 @@ backend scopes enforce operations, including writes; tool visibility is shared.
 
 OAuth revocation immediately deletes the grant, making its access and refresh
 tokens unusable. The underlying key is never disclosed to the client and remains
-listed as `MCP: Cursor (...)` in the selected environment's API-key screen. Users
+listed as `MCP: <client> (...)` in the selected environment's API-key screen. Users
 can revoke that key to deny all backend operations immediately. Backend API keys
 currently have no expiry/self-revocation API: after expired/abandoned/OAuth-revoked
 grants, remove these unused named keys through the existing API-key UI. A failed
@@ -125,9 +126,43 @@ Before enabling Cursor: provision a staging host/database, set the registered
 origins/callbacks, complete a real Cursor OAuth connection, list a disposable
 seller's test APIs, exercise a configuration write, refresh, revoke the named API
 key, and verify denial. Repeat with a second tenant and separate live-mode consent.
-No paid requests are part of this developer MCP smoke test. Register other client
-IDs/callbacks explicitly before migrating their manifests. Client metadata/DCR
-and non-Cursor native marketplace onboarding are not implemented here.
+No paid requests are part of this developer MCP smoke test. Repeat native sign-in
+for Claude Code, Codex, Grok Build, and the advertised web/editor integrations.
+Automated protocol coverage is not evidence that every native client has passed.
 
 References: [MCP authorization](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization),
 [Cursor static OAuth configuration](https://cursor.com/docs/mcp).
+
+## Dynamic client registration
+
+`POST /oauth/register` accepts JSON public-client registrations. Metadata advertises
+this endpoint so Claude Code, Codex, Grok Build and other MCP clients can discover
+it. Portable OpenAI plugins declare `auth.type: oauth` and `client.mode: dcr`.
+Only authorization-code/refresh grants and `token_endpoint_auth_method: none` are
+accepted. PKCE S256, user consent and resource binding remain mandatory.
+
+Callbacks are restricted to HTTP loopback (`127.0.0.1`, `[::1]`, `localhost`) or
+reviewed exact HTTPS callbacks in `src/hosted/registration.ts`: Cursor web, Claude,
+ChatGPT with issuer-bound responses, and VS Code. No userinfo, fragment or query
+is allowed on loopback redirects. RFC 8252 permits the native loopback port to
+change at authorization; host and path stay bound, and the token exchange still
+requires the exact redirect used for that authorization. Static clients do not
+receive the variable-port exception. No arbitrary client metadata, logo, JWKS or
+redirect URI is fetched by the service. Client names are self-reported, not proof
+of a verified publisher; consent shows the actual callback address.
+
+Registrations persist in the dedicated Mongo collection, bound to the resource,
+and expire after 90 days without use. Active IDs renew at most once per day. A
+client retaining an expired ID must remove/re-add its connection. Registration
+bodies are limited to 8 KiB and 8 callbacks. A separate 20 attempts/minute global
+per-process ceiling bounds registrations in addition to the shared HTTP limit.
+Configure stricter abuse controls and shared limits at the edge before public
+rollout or adding replicas; restarting a process resets its local rate counter.
+CIMD is not advertised or fetched. Web callbacks outside the reviewed list need
+explicit review/registration; custom integrations are not a public directory listing.
+
+Client references: [OpenAI OAuth](https://developers.openai.com/plugins/build/auth),
+[Claude Code](https://code.claude.com/docs/en/mcp),
+[Grok Build](https://docs.x.ai/build/features/mcp-servers),
+[VS Code install links](https://code.visualstudio.com/api/extension-guides/ai/mcp),
+[Gemini CLI](https://geminicli.com/docs/tools/mcp-server/).

@@ -8,6 +8,8 @@ import type { SellerBackend } from "./backend.js";
 export class MemoryStore implements OAuthStore {
   records = new Map<string, RecordValue>();
   async put(record: RecordValue) {
+    if (this.records.has(`${record.kind}:${record.id}`))
+      throw new Error("Duplicate record");
     this.records.set(`${record.kind}:${record.id}`, structuredClone(record));
   }
   async get(id: string, kind: string) {
@@ -25,6 +27,13 @@ export class MemoryStore implements OAuthStore {
   }
   async remove(id: string, kind: string) {
     this.records.delete(`${kind}:${id}`);
+  }
+  async extendClient(id: string, expiresAt: Date) {
+    const record = this.records.get(`client:${id}`);
+    if (record && record.expiresAt.getTime() > Date.now())
+      record.expiresAt = new Date(
+        Math.max(record.expiresAt.getTime(), expiresAt.getTime()),
+      );
   }
 }
 export const config: HostedConfig = {
