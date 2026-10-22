@@ -84,14 +84,14 @@ export LAUNA_EVM_PRIVATE_KEY=$(launa --sandbox sandbox-wallet get --json --wait 
 launa pay url --url "https://demo.dev….launa.io/v1/hello"
 ```
 
-`sandbox-wallet get|reset` requires `LAUNA_JWT` and `--sandbox` (or `LAUNA_ENVIRONMENT=development`). Human output redacts the private key; `--json` includes the full key.
+`sandbox-wallet get` accepts a Sandbox API key with `sandbox:wallet`, or `LAUNA_JWT` with `--sandbox`. Reset still requires `LAUNA_JWT` and Sandbox. Human output redacts the private key; `--json` includes the full key.
 
 ## Authentication
 
 | Credential | Use for |
 |------------|---------|
 | `LAUNA_API_KEY` | Automation — most commands (apis, endpoints, domains, stats, settlements, billing, income, openapi, config billing) |
-| `LAUNA_JWT` | Interactive session — **required** for `keys list/create/revoke`, `auth me`, `scopes list`, and `sandbox-wallet` |
+| `LAUNA_JWT` | Interactive session — **required** for `keys list/create/revoke`, `auth me`, `scopes list`, and `sandbox-wallet reset` |
 
 Create keys in the dashboard or via `auth login` → `keys create`. Use `launa_sandbox_...` keys (created while in Sandbox) for Test mode. Scope presets: `launa scopes presets --json`. See [agents](../agents/README.md) for bootstrap flow.
 
@@ -134,7 +134,7 @@ launa keys list [--json]                              # JWT only
 launa keys create --name NAME --scopes apis:read,... [--json]  # JWT only
 launa keys revoke --id ID [--json]                    # JWT only
 
-launa --sandbox sandbox-wallet get [--wait|--no-wait] [--json]   # JWT only
+launa --sandbox sandbox-wallet get [--wait|--no-wait] [--json]   # JWT or sandbox:wallet Sandbox key
 launa --sandbox sandbox-wallet reset [--wait|--no-wait] [--json] # JWT only
 
 launa auth login --email EMAIL --password PASS [--json]
@@ -181,12 +181,9 @@ launa pay url --url GATEWAY_URL [--method GET] [--json]
 
 `apis create --pay-to` (or `--pay-to-addresses`) is required when the account uses `user_wallet` payout mode. `--pay-to-addresses` is a JSON object of CAIP-2 → recipient, or `network=address` pairs (`hedera:testnet=0.0.1234`). On update, `{}` clears the map (replace, not merge).
 
-Discovery: `apis discovery` / `discovery urls` return gateway OpenAPI and well-known URLs. Validate with AgentCash:
-
-```bash
-npx -y @agentcash/discovery@latest check "https://myapi.example.com/"
-npx -y @agentcash/discovery@latest discover "https://myapi.example.com/"
-```
+Discovery: `apis discovery` / `discovery urls` return gateway OpenAPI and well-known
+URLs. Fetch those public documents and compare methods, paths, schemas and payment
+terms with the configured API. No external checker is required.
 
 Exit codes: 0 success, 1 API error, 2 usage error.
 

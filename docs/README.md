@@ -27,7 +27,7 @@ Dashboard guides (gateway setup, DNS, domains, billing): [launa.io/docs](https:/
 | [gateway-wrap](./gateway-wrap/README.md) | Monetize an API through the hosted gateway |
 | [sdk-integration](./sdk-integration/README.md) | Automate APIs, endpoints, keys from code or CI |
 | [buyers](./buyers/README.md) | Sign and pay gateway URLs in-process |
-| Seller [API discovery](https://launa.io/docs/guides/discovery) | AgentCash OpenAPI + `/.well-known/x402.json` on gateway hosts |
+| Seller [API discovery](https://launa.io/docs/guides/discovery) | OpenAPI + `/.well-known/x402.json` on gateway hosts |
 
 ## Environment
 

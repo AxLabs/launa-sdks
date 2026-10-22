@@ -26,7 +26,7 @@ LAUNA_BASE_URL=https://api.launa.io \
 node tools/mcp-server/dist/index.js
 ```
 
-Auth: `LAUNA_API_KEY` only (no JWT). An `launa_sandbox_...` key selects Sandbox automatically — default endpoint pricing uses the fork network. `LAUNA_ENVIRONMENT=development` / `LAUNA_SANDBOX=1` still work with JWT. Sandbox wallet get/reset is CLI + JWT only.
+Auth: `LAUNA_API_KEY` only (no JWT). An `launa_sandbox_...` key selects Sandbox automatically — default endpoint pricing uses the fork network. `LAUNA_ENVIRONMENT=development` / `LAUNA_SANDBOX=1` still work with JWT. `launa_sandbox_wallet` retrieves the prepared Sandbox address and private key with `sandbox:wallet` permission. Reset remains CLI + JWT only.
 
 ## Cursor configuration
 

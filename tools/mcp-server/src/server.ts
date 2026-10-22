@@ -13,6 +13,14 @@ export function createMcpServer(
     };
   }
 
+  server.tool(
+    "launa_sandbox_wallet",
+    "Get or prepare the current user's dedicated Sandbox wallet, including its private key, public address and fork network. Requires sandbox:wallet and a Sandbox connection; unavailable in Live. May fund the wallet on the sandbox fork. Use the address for Sandbox API payouts and the key for explicitly authorized sandbox signing. Never echo the key into chat, logs or command arguments, commit it, or use it on another network. Does not reset the wallet or authorize payments.",
+    {},
+    { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    async () => text(await handlers.sandboxWallet()),
+  );
+
   const apiUpdateFields = {
     name: z.string().optional(),
     slug: z.string().optional(),
@@ -328,7 +336,7 @@ export function createMcpServer(
     {
       api_id: z.string(),
       spec: z.string(),
-      price_usdc: z.string().default("0.10"),
+      price_usdc: z.string().describe("User-approved per-endpoint USDC price; ask if missing"),
     },
     async (args) =>
       text(

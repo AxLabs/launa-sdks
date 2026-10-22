@@ -43,6 +43,12 @@ describe("hosted MCP HTTP boundary", () => {
         scopes: ["apis:read"],
       });
     }
+    if (String(input).endsWith("/sandbox-wallet")) {
+      if ([testKey, liveKey].includes(key ?? ""))
+        return Response.json({ error: "insufficient scope" }, { status: 403 });
+      return Response.json({ address: `0x${"1".repeat(40)}`, private_key: `0x${"2".repeat(64)}`,
+        private_key_redacted: "redacted", environment: "development", network: "eip155:845320402" });
+    }
     if ([testKey, liveKey].includes(key ?? "")) {
       if (init?.method && init.method !== "GET")
         return new Response("sensitive scope error", { status: 403 });
@@ -184,7 +190,7 @@ describe("hosted MCP HTTP boundary", () => {
         (t) => !["launa_inspect_url", "launa_pay_url"].includes(t.name),
       );
       expect(remote).toEqual(tools);
-      expect(remote).toHaveLength(42);
+      expect(remote).toHaveLength(43);
     } finally {
       await client.close();
       await local.close();
@@ -216,6 +222,26 @@ describe("hosted MCP HTTP boundary", () => {
     expect(batch.result.content[0].text).toContain("sandbox fork supports exact scheme only");
     expect(backendRequests.slice(before).filter((r) => r.url.includes("/endpoints"))).toEqual([]);
   });
+  it("exposes sandbox wallet credentials through authenticated MCP and rejects Live or unscoped keys", async () => {
+    const sandbox = await f.connect("wallet", "development");
+    const live = await f.connect("wallet-live", "production");
+    const call = async (token: string) => (await rpc(token, "tools/call", { name: "launa_sandbox_wallet", arguments: {} })).json();
+    const result = await call(sandbox.tokens.access_token);
+    expect(result.result.isError).not.toBe(true);
+    const wallet = JSON.parse(result.result.content[0].text);
+    expect(wallet.private_key).toBe(`0x${"2".repeat(64)}`);
+    expect(wallet.network).toBe("eip155:845320402");
+    const before = backendRequests.length;
+    const deniedLive = await call(live.tokens.access_token);
+    expect(deniedLive.result.isError).toBe(true);
+    expect(deniedLive.result.content[0].text).toContain("only available in Sandbox");
+    expect(backendRequests.slice(before).some(r => r.url.endsWith("/sandbox-wallet"))).toBe(false);
+    const deniedScope = await call(testKey);
+    expect(deniedScope.result.isError).toBe(true);
+    expect(deniedScope.result.content[0].text).toContain("insufficient scope");
+    expect(JSON.stringify(deniedScope)).not.toContain(wallet.private_key);
+  });
+
   it("isolates simultaneous tenant and environment credentials, ignoring process globals", async () => {
     const alice = await f.connect("alice", "development");
     const bob = await f.connect("bob", "production");

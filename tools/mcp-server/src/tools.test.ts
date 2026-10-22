@@ -3,6 +3,7 @@ import { createToolHandlers } from "./tools.js";
 
 describe("mcp tool handlers", () => {
   const mockClient = {
+    sandboxWallet: { get: vi.fn() },
     apis: {
       list: vi.fn(async () => [{ id: "1" }]),
       create: vi.fn(async (body) => body),
@@ -45,6 +46,29 @@ describe("mcp tool handlers", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("requires pricing instead of silently choosing a charge", async () => {
+    await expect(handlers.addEndpoint("api", { method: "GET", path_pattern: "/get" }))
+      .rejects.toThrow("endpoint pricing is required");
+    await expect(handlers.addEndpoint("api", { price: "1", network: "eip155:1", asset: "token" }))
+      .rejects.toThrow("decimals are required");
+    expect(mockClient.endpoints.create).not.toHaveBeenCalled();
+  });
+
+  it("returns the prepared sandbox key only in Sandbox and strips unrelated fields", async () => {
+    const wallet = { address: `0x${"1".repeat(40)}`, private_key: `0x${"2".repeat(64)}`,
+      private_key_redacted: "redacted", environment: "development", network: "eip155:845320402" };
+    mockClient.sandboxWallet.get.mockResolvedValue({ ...wallet, unrelated_secret: "must-not-return" });
+    const live = createToolHandlers(() => mockClient as never, { sandbox: false });
+    await expect(live.sandboxWallet()).rejects.toThrow("only available in Sandbox");
+    expect(mockClient.sandboxWallet.get).not.toHaveBeenCalled();
+    const sandbox = createToolHandlers(() => mockClient as never, { sandbox: true });
+    expect(await sandbox.sandboxWallet()).toEqual(wallet);
+    for (const invalid of [{ environment: "production" }, { network: "eip155:8453" }, { private_key: "invalid-secret" }]) {
+      mockClient.sandboxWallet.get.mockResolvedValue({ ...wallet, ...invalid });
+      await expect(sandbox.sandboxWallet()).rejects.toThrow(/^invalid sandbox wallet response$/);
+    }
   });
 
   it("lists apis", async () => {

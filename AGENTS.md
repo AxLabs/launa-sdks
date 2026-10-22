@@ -77,9 +77,8 @@ Seller control-plane reference for agents. API surface: public seller routes on 
 
 ```
 1. GET /apis/{id}/discovery → openapi_url, well_known_url for all verified hosts
-2. GET https://{host}/openapi.json  (AgentCash)
+2. GET https://{host}/openapi.json
 3. GET https://{host}/.well-known/x402.json
-4. npx -y @agentcash/discovery@latest check "https://{host}/"
 ```
 
 Optional on create/update: `discovery_guidance`, `discovery_contact_email`, `openapi_version`. Endpoint schemas: `request_schema`, `response_schema`.
@@ -113,6 +112,7 @@ Install: `npx @launaio/mcp-server` (or build from repo). Example config: [exampl
 | `launa_stats_overview` | `stats:read` |
 | `launa_supported_networks` | auth |
 | `launa_platform_config` | public |
+| `launa_sandbox_wallet` | `sandbox:wallet`; Sandbox-only prepared private key, not reset |
 | `launa_pay_url` | buyer (external wallet) |
 
 ## CLI
@@ -124,7 +124,7 @@ launa apis list --json
 launa --sandbox apis create --name "My API" --slug my-api --upstream https://api.example.com \
   --discovery-guidance "Use GET /v1/*." --json
 launa --sandbox endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json
-launa --sandbox sandbox-wallet get --json --wait   # JWT; export private_key for pay url
+launa --sandbox sandbox-wallet get --json --wait   # JWT or sandbox:wallet key; handle the returned key privately
 launa apis discovery --id ID --json
 launa discovery urls --api-id ID --json
 launa endpoints create --api-id ID --method GET --path "/v1/*" --price-usdc 0.10 --json
@@ -146,7 +146,7 @@ launa scopes presets --json
 launa pay url --url https://gateway.example/v1/foo --json
 ```
 
-`--sandbox` (or `LAUNA_ENVIRONMENT=development` / `LAUNA_SANDBOX=1` / an `launa_sandbox_...` key) targets Test mode: development APIs and fork USDC accepts (`eip155:845320402`). Do not use `launa_live_...` keys in Sandbox.
+`--sandbox` (or `LAUNA_ENVIRONMENT=development` / `LAUNA_SANDBOX=1` / an `launa_sandbox_...` key) targets Sandbox: development APIs and fork USDC accepts (`eip155:845320402`). Do not use `launa_live_...` keys in Sandbox.
 Exit codes: 0 success, 1 API error, 2 usage error.
 
 MCP uses `LAUNA_API_KEY` only (no JWT).

@@ -1,9 +1,12 @@
 # Hosted developer MCP
 
-The hosted server exposes all **42 control-plane tools** from the local MCP over
+The hosted server exposes all **43 control-plane tools** from the local MCP over
 stateless Streamable HTTP at `/mcp`. Registrations and schemas are shared with
 stdio. Local stdio retains its two buyer tools; the hosted server has no buyer
-inspection, wallet credentials, signing, payment approval, or arbitrary URL fetch.
+inspection, signing, payment approval, or arbitrary URL fetch. The dedicated
+`launa_sandbox_wallet` tool returns the prepared Sandbox private key to the AI
+client with explicit `sandbox:wallet` consent. Live access and wallet reset are
+not available. Treat that tool result as a secret, never telemetry.
 
 This is source prepared for deployment. It does not deploy anything or publish an
 npm package. `https://mcp.launa.io/mcp` is the intended plugin endpoint, not evidence
@@ -191,3 +194,16 @@ Client references: [OpenAI OAuth](https://developers.openai.com/plugins/build/au
 [Grok Build](https://docs.x.ai/build/features/mcp-servers),
 [VS Code install links](https://code.visualstudio.com/api/extension-guides/ai/mcp),
 [Gemini CLI](https://geminicli.com/docs/tools/mcp-server/).
+
+## Sandbox wallet permission
+
+Reconnect older OAuth grants to add `sandbox:wallet`; existing grants are not
+silently widened. API-key clients need an explicitly scoped Sandbox key. The
+backend enforces scope, account ownership and environment, and returns no-store
+responses. MCP also rejects Live before requesting the wallet and validates the
+fork network in the returned payload. The existing dashboard JWT flow remains
+supported; reset remains JWT-only. Preparing a wallet can fund it on the fork,
+so the MCP tool is not marked read-only. This does not authorize spending.
+
+Endpoint creation and OpenAPI import require explicit pricing. Agents should ask
+for missing business inputs instead of silently selecting a default charge.

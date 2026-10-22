@@ -1,4 +1,5 @@
 import type { LaunaClient } from "@launaio/sdk";
+import { z } from "zod";
 import {
   buildSandboxUsdcAccept,
   buildUsdcAccept,
@@ -45,11 +46,11 @@ type EndpointToolInput = EndpointPricingInput & {
   clear_schemas?: boolean;
 };
 
-function endpointAccepts(input: EndpointPricingInput, sandbox: boolean, defaultPrice?: string): AcceptOption[] | undefined {
+function endpointAccepts(input: EndpointPricingInput, sandbox: boolean): AcceptOption[] | undefined {
   if (input.accepts) return input.accepts;
 
   const scheme = input.scheme ?? "exact";
-  const price = input.price ?? input.price_usdc ?? defaultPrice;
+  const price = input.price ?? input.price_usdc;
   const customToken = input.network != null || input.asset != null || input.amount != null;
 
   if (!customToken) {
@@ -62,6 +63,9 @@ function endpointAccepts(input: EndpointPricingInput, sandbox: boolean, defaultP
     throw new ToolInputError("price or amount is required for custom token pricing");
   }
 
+  if (input.amount == null && input.decimals == null) {
+    throw new ToolInputError("decimals are required for custom token pricing");
+  }
   return [{
     scheme,
     network: input.network,
@@ -71,8 +75,8 @@ function endpointAccepts(input: EndpointPricingInput, sandbox: boolean, defaultP
   }];
 }
 
-function endpointBody(input: EndpointToolInput, sandbox: boolean, defaultPrice?: string): Partial<CreateEndpointInput> {
-  const accepts = endpointAccepts(input, sandbox, defaultPrice);
+function endpointBody(input: EndpointToolInput, sandbox: boolean): Partial<CreateEndpointInput> {
+  const accepts = endpointAccepts(input, sandbox);
   return {
     ...(input.method != null ? { method: input.method } : {}),
     ...(input.path_pattern != null ? { path_pattern: input.path_pattern } : {}),
@@ -139,11 +143,12 @@ function apiHandlers(getClient: GetClient) {
 
 function endpointHandlers(getClient: GetClient, sandbox: boolean) {
   return {
-    addEndpoint: async (api_id: string, input: EndpointToolInput) =>
-      getClient().endpoints.create(
-        api_id,
-        endpointBody(input, sandbox, "0.10") as CreateEndpointInput,
-      ),
+    addEndpoint: async (api_id: string, input: EndpointToolInput) => {
+      if (!input.accepts?.length && input.price == null && input.price_usdc == null && input.amount == null) {
+        throw new ToolInputError("endpoint pricing is required; ask the user for price and payment terms");
+      }
+      return getClient().endpoints.create(api_id, endpointBody(input, sandbox) as CreateEndpointInput);
+    },
     listEndpoints: async (api_id: string) => getClient().endpoints.list(api_id),
     updateEndpoint: async (api_id: string, endpoint_id: string, input: EndpointToolInput) =>
       getClient().endpoints.update(api_id, endpoint_id, endpointBody(input, sandbox)),
@@ -236,9 +241,24 @@ function buyerHandlers() {
 }
 
 export function createToolHandlers(getClient: GetClient, options: { sandbox?: boolean } = {}) {
+  const sandbox = options.sandbox ?? envRequestsSandbox();
   return {
+    sandboxWallet: async () => {
+      if (!sandbox) throw new ToolInputError("sandbox wallet is only available in Sandbox; reconnect with Sandbox access");
+      // Validate the backend's environment and expose only the intended wallet fields.
+      // The private key is deliberately available to the agent for sandbox signing.
+      const result = z.object({
+        address: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
+        private_key: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
+        private_key_redacted: z.string(),
+        environment: z.literal("development"),
+        network: z.literal("eip155:845320402"),
+      }).safeParse(await getClient().sandboxWallet.get());
+      if (!result.success) throw new Error("invalid sandbox wallet response");
+      return result.data;
+    },
     ...apiHandlers(getClient),
-    ...endpointHandlers(getClient, options.sandbox ?? envRequestsSandbox()),
+    ...endpointHandlers(getClient, sandbox),
     ...domainHandlers(getClient),
     ...reportingHandlers(getClient),
     ...buyerHandlers(),

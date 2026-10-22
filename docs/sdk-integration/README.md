@@ -79,4 +79,4 @@ client = LaunaClient.from_env()
 
 Same control-plane surface as [CLI](../cli/README.md) and [MCP](../mcp/README.md). Buyer parity: [buyers](../buyers/README.md).
 
-Gateway discovery (AgentCash OpenAPI + well-known): seller docs [API discovery](https://launa.io/docs/guides/discovery).
+Gateway discovery (OpenAPI + well-known): seller docs [API discovery](https://launa.io/docs/guides/discovery).

@@ -11,6 +11,7 @@ export const SCOPE_BILLING_READ = "billing:read";
 export const SCOPE_BILLING_WRITE = "billing:write";
 export const SCOPE_INCOME_READ = "income:read";
 export const SCOPE_INCOME_PAYOUT = "income:payout";
+export const SCOPE_SANDBOX_WALLET = "sandbox:wallet";
 
 export const ALL_SCOPES = [
   SCOPE_APIS_READ,
@@ -26,6 +27,7 @@ export const ALL_SCOPES = [
   SCOPE_BILLING_WRITE,
   SCOPE_INCOME_READ,
   SCOPE_INCOME_PAYOUT,
+  SCOPE_SANDBOX_WALLET,
 ] as const;
 
 export const SCOPE_PRESETS = {
@@ -72,6 +74,7 @@ export const SCOPE_LABELS: Record<string, string> = {
   [SCOPE_BILLING_WRITE]: "Manage billing",
   [SCOPE_INCOME_READ]: "Read income",
   [SCOPE_INCOME_PAYOUT]: "Request payouts",
+  [SCOPE_SANDBOX_WALLET]: "Access Sandbox wallet and private key (Sandbox only)",
 };
 
 export function scopeLabel(scope: string): string {

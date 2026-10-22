@@ -263,7 +263,7 @@ export const SHELL_RESOURCES: ShellResourceDef[] = [
     methods: [
       {
         id: "get",
-        label: "Get (JWT + --sandbox)",
+        label: "Get (Sandbox key + sandbox:wallet, or JWT + --sandbox)",
         flags: [
           { name: "--wait", required: false, type: "boolean" },
           { name: "--no-wait", required: false, type: "boolean" },
@@ -643,7 +643,7 @@ export function shellUsageText(): string {
   lines.push("  pay url — gateway URL + EVM and/or Hedera buyer env (no API key)");
   lines.push("");
   lines.push(
-    "Env: LAUNA_API_KEY or LAUNA_JWT (control plane); launa_sandbox_… keys select Sandbox; --sandbox / LAUNA_ENVIRONMENT=development / LAUNA_SANDBOX=1 also work; sandbox-wallet requires LAUNA_JWT; pay url: LAUNA_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
+    "Env: LAUNA_API_KEY or LAUNA_JWT (control plane); launa_sandbox_… keys select Sandbox; --sandbox / LAUNA_ENVIRONMENT=development / LAUNA_SANDBOX=1 also work; sandbox-wallet get accepts a sandbox:wallet Sandbox key or JWT; reset requires LAUNA_JWT; pay url: LAUNA_EVM_PRIVATE_KEY and/or HEDERA_ACCOUNT_ID + HEDERA_PRIVATE_KEY",
   );
   return lines.join("\n");
 }

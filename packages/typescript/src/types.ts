@@ -808,6 +808,8 @@ export type PlatformSandboxWallet = {
   address: string;
   private_key: string;
   private_key_redacted: string;
+  environment?: "development";
+  network?: "eip155:845320402";
 };
 
 export type NotificationPreferences = {

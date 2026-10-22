@@ -12,6 +12,7 @@ export const CONTROL_SCOPES = [
   "openapi:read",
   "billing:read",
   "income:read",
+  "sandbox:wallet",
 ] as const;
 export type Environment = "development" | "production";
 export interface OAuthClient {

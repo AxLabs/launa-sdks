@@ -14,7 +14,11 @@ const publicMessages = new Set([
   "name required",
   "slug already exists",
   "insufficient scope",
+  "endpoint pricing is required; ask the user for price and payment terms",
+  "decimals are required for custom token pricing",
   "email verification required",
+  "sandbox wallet is only available in Sandbox; reconnect with Sandbox access",
+  "sandbox wallet only available in development environment",
 ]);
 
 /** A validation failure authored locally, never an arbitrary upstream error. */
