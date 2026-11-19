@@ -178,3 +178,15 @@ completed purchase once. `gross_minor` and `refunded_minor` are USD minor units
 before Stripe fees, for purchases created within the selected period. Existing
 on-chain statistics retain their meaning. The recent payment list is limited to
 100 rows and must not be summed to derive totals.
+
+## Self-describing unpaid responses
+
+Card-capable gateway builds now add `payment_options` to initial JSON 402 responses.
+It lists crypto/x402, card/launa-checkout, or both from the endpoint configuration.
+Card offers include a versioned `card_payment_flow` describing the token, headers,
+checkout/status/resume operations, authorization and recovery. Inspect retains
+these fields in `body`; existing `paymentRequired` and `cardPayment` remain intact.
+No SDK upgrade is needed to read the raw response body. The x402 payment headers
+and existing body fields remain unchanged. Payment-attempt errors and recovery
+responses do not receive fresh-payment instructions. These are Launa discovery
+fields, not MPP, and discovery does not authorize or initiate a payment.

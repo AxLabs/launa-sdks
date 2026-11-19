@@ -53,21 +53,41 @@ describe("payment inspection", () => {
         },
       ],
     };
+    const discovery = {
+      error: "payment_required",
+      message: "Choose cryptocurrency via x402 or card via Stripe Checkout.",
+      payment_options: [
+        { id: "crypto", protocol: "x402", requirements_header: "PAYMENT-REQUIRED" },
+        { id: "card", protocol: "launa-checkout", flow_field: "card_payment_flow" },
+      ],
+      card_payment: card,
+      card_payment_flow: {
+        protocol: "launa-checkout",
+        version: 1,
+        operation_header: "Launa-Payment",
+        token_header: "Launa-Payment-Token",
+      },
+    };
+    const fetcher = vi.fn(async () =>
+      new Response(JSON.stringify(discovery), {
+        status: 402,
+        headers: {
+          "payment-required": Buffer.from(
+            JSON.stringify(paymentRequired),
+          ).toString("base64"),
+          "launa-card-payment": JSON.stringify(card),
+        },
+      }),
+    );
     const result = await inspectGatewayUrl(
       "https://example.com/get",
       "GET",
-      async () =>
-        new Response("", {
-          status: 402,
-          headers: {
-            "payment-required": Buffer.from(
-              JSON.stringify(paymentRequired),
-            ).toString("base64"),
-            "launa-card-payment": JSON.stringify(card),
-          },
-        }),
+      fetcher,
     );
     expect(result.paymentRequired).toEqual(paymentRequired);
     expect(result.cardPayment).toEqual(card);
+    expect(result.body).toEqual(discovery);
+    expect(result.paymentParseError).toBeUndefined();
+    expect(fetcher).toHaveBeenCalledTimes(1);
   });
 });
