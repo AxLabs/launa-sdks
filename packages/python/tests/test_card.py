@@ -42,3 +42,8 @@ def test_invalid_checkout_url():
 def test_unsafe_url_and_mixed_payment():
     with pytest.raises(ValueError): CardCheckout('http://gateway.example')
     with pytest.raises(ValueError): CardCheckout('https://gateway.example', headers={'X-PAYMENT': 'x'})
+
+@pytest.mark.parametrize("headers", [{"Authorization": "Payment fixture"}, {"Payment-Authorization": "Payment fixture"}])
+def test_checkout_rejects_mpp_credentials(headers):
+    with pytest.raises(ValueError, match="Choose one payment mechanism"):
+        CardCheckout("https://gateway.example/data", headers=headers)

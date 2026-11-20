@@ -5,23 +5,39 @@ import (
 	"net/http"
 )
 
+type MPPConfig struct {
+	Enabled   bool   `json:"enabled"`
+	BuyerAuth string `json:"buyer_auth"`
+}
+type MPPReadiness struct {
+	Ready          bool   `json:"ready"`
+	ProfileID      string `json:"profile_id,omitempty"`
+	DisabledReason string `json:"disabled_reason,omitempty"`
+	CheckedAt      string `json:"checked_at,omitempty"`
+}
 type CardPaymentConfig struct {
-	Enabled     bool   `json:"enabled"`
-	Currency    string `json:"currency"`
-	AmountMinor string `json:"amount_minor"`
+	MPP         *MPPConfig `json:"mpp,omitempty"`
+	Enabled     bool       `json:"enabled"`
+	Currency    string     `json:"currency"`
+	AmountMinor string     `json:"amount_minor"`
 }
 type StripeConnection struct {
-	StripeEnvironment string   `json:"stripe_environment,omitempty"`
-	Requirements      []string `json:"requirements,omitempty"`
-	DisabledReason    string   `json:"disabled_reason,omitempty"`
-	ID                string   `json:"id,omitempty"`
-	Available         *bool    `json:"available,omitempty"`
-	Connected         bool     `json:"connected"`
-	Ready             bool     `json:"ready"`
-	AccountID         string   `json:"account_id,omitempty"`
-	Environment       string   `json:"environment,omitempty"`
+	MPP               *MPPReadiness `json:"mpp,omitempty"`
+	StripeEnvironment string        `json:"stripe_environment,omitempty"`
+	Requirements      []string      `json:"requirements,omitempty"`
+	DisabledReason    string        `json:"disabled_reason,omitempty"`
+	ID                string        `json:"id,omitempty"`
+	Available         *bool         `json:"available,omitempty"`
+	Connected         bool          `json:"connected"`
+	Ready             bool          `json:"ready"`
+	AccountID         string        `json:"account_id,omitempty"`
+	Environment       string        `json:"environment,omitempty"`
 }
 type CardPayment struct {
+	EntryPoint          string `json:"entry_point,omitempty"`
+	SettledAt           string `json:"settled_at,omitempty"`
+	PaymentIntentID     string `json:"payment_intent_id,omitempty"`
+	CreatedAt           string `json:"created_at,omitempty"`
 	StripeEnvironment   string `json:"stripe_environment,omitempty"`
 	RefundedAmountMinor int64  `json:"refunded_amount_minor"`
 	ID                  string `json:"id"`

@@ -6,6 +6,8 @@ export type InspectGatewayResult = {
   body: unknown;
   paymentRequired?: unknown;
   cardPayment?: unknown;
+  /** Public challenge only; inspect does not issue tokens or authorize payment. */
+  mppChallenge?: string;
   paymentParseError?: string;
 };
 
@@ -32,6 +34,8 @@ export async function inspectGatewayUrl(
   };
 
   if (response.status === 402) {
+    const challenge = response.headers.get("WWW-Authenticate");
+    if (challenge && /^Payment\s/i.test(challenge)) result.mppChallenge = challenge;
     const cardHeader = response.headers.get("Launa-Card-Payment");
     try {
       result.cardPayment = cardHeader ? JSON.parse(cardHeader) : undefined;

@@ -51,3 +51,9 @@ def test_ephemeral_endpoint_model() -> None:
 
 def test_stats_overview_model() -> None:
     StatsOverview.model_validate(FIXTURES["statsOverview"])
+
+
+def test_card_config_preserves_mpp_opt_in():
+    from launa_sdk import CardPaymentConfig, MPPConfig
+    config = CardPaymentConfig(amount_minor="100", mpp=MPPConfig(enabled=True))
+    assert config.model_dump()["mpp"] == {"enabled": True, "buyer_auth": "none"}

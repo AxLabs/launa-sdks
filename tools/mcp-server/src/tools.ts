@@ -37,7 +37,7 @@ type EndpointPricingInput = {
 
 type EndpointToolInput = EndpointPricingInput & {
   method?: string;
-  card_payment?: { enabled: boolean; currency: "usd"; amount_minor: string } | null;
+  card_payment?: { enabled: boolean; currency: "usd"; amount_minor: string; mpp?: { enabled: boolean; buyer_auth: "none" } } | null;
   path_pattern?: string;
   description?: string;
   enabled?: boolean;

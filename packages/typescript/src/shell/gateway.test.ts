@@ -91,3 +91,13 @@ describe("payment inspection", () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
 });
+
+it("reports MPP separately without authorizing or retrying a payment", async () => {
+  const fetcher = vi.fn().mockResolvedValue(new Response("{}", { status: 402,
+    headers: { "WWW-Authenticate": 'Payment id="fixture", method="stripe", intent="charge"' } }));
+  const result = await inspectGatewayUrl("https://example.com/get", "GET", fetcher);
+  expect(result.mppChallenge).toContain('method="stripe"');
+  expect(result.paymentRequired).toBeUndefined();
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  expect(formatHumanOutput(result, "inspect", "url")).toContain("MPP payment challenge");
+});

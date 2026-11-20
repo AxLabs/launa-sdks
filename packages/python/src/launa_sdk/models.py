@@ -113,7 +113,13 @@ class WebhookDelivery(BaseModel):
     updated_at: str | None = None
 
 
+class MPPConfig(BaseModel):
+    enabled: bool = False
+    buyer_auth: str = "none"
+
+
 class CardPaymentConfig(BaseModel):
+    mpp: MPPConfig | None = None
     enabled: bool = True
     currency: str = "usd"
     amount_minor: str
@@ -205,6 +211,8 @@ class OpenAPIImportResult(BaseModel):
 
 
 class CardPaymentStats(BaseModel):
+    attempt_count: int | None = None
+    mpp_count: int = 0
     checkout_count: int = 0
     paid_count: int = 0
     delivered_count: int = 0
