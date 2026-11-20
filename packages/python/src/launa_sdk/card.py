@@ -17,7 +17,8 @@ class CardCheckout:
         if not re.fullmatch(r"[A-Za-z0-9_-]{43}", self.token):
             raise ValueError("Invalid card payment token")
         self.headers = dict(headers or {})
-        if {k.lower() for k in self.headers} & {"payment-signature", "x-payment"}:
+        if ({k.lower() for k in self.headers} & {"payment-signature", "x-payment", "payment-authorization"}
+                or any(k.lower() == "authorization" and v.lower().startswith("payment ") for k, v in self.headers.items())):
             raise ValueError("Choose one payment mechanism")
         self._client = client or httpx.Client(timeout=90)
         self._owns_client = client is None

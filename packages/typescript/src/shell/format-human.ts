@@ -473,6 +473,9 @@ function formatInspect(data: Record<string, unknown>): string {
     lines.push("Use CardCheckout to start checkout, retain the token, then check status and resume.");
     lines.push("This card offer is separate from x402 and is not an MPP challenge.");
   }
+  if (data.status === 402 && typeof data.mppChallenge === "string") {
+    lines.push("", "MPP payment challenge available (WWW-Authenticate).", "Inspect its terms with an MPP card client and obtain buyer approval. This inspect command does not pay.");
+  }
   if (typeof data.paymentParseError === "string") lines.push(data.paymentParseError);
   return lines.join("\n");
 }

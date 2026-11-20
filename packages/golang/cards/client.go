@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -44,7 +45,7 @@ func New(rawURL, token string) (*Client, error) {
 	return &Client{URL: rawURL, Token: token, Headers: make(http.Header), HTTP: &http.Client{Timeout: 90 * time.Second}}, nil
 }
 func (c *Client) request(ctx context.Context, action string) (*http.Response, error) {
-	if c.Headers.Get("PAYMENT-SIGNATURE") != "" || c.Headers.Get("X-PAYMENT") != "" {
+	if c.Headers.Get("PAYMENT-SIGNATURE") != "" || c.Headers.Get("X-PAYMENT") != "" || c.Headers.Get("Payment-Authorization") != "" || strings.HasPrefix(strings.ToLower(c.Headers.Get("Authorization")), "payment ") {
 		return nil, fmt.Errorf("choose one payment mechanism")
 	}
 	req, err := http.NewRequestWithContext(ctx, "GET", c.URL, nil)

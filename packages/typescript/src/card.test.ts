@@ -61,3 +61,7 @@ describe("hosted card payments", () => {
     await expect(client.start()).rejects.toThrow("Invalid Stripe");
   });
 });
+
+it.each([{ Authorization: "Payment credential" }, { "Payment-Authorization": "Payment credential" }])("rejects an MPP credential in hosted Checkout", (headers) => {
+  expect(() => new CardCheckout("https://gateway.example/data", { headers })).toThrow("Choose one payment method");
+});

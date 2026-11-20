@@ -190,3 +190,7 @@ No SDK upgrade is needed to read the raw response body. The x402 payment headers
 and existing body fields remain unchanged. Payment-attempt errors and recovery
 responses do not receive fresh-payment instructions. These are Launa discovery
 fields, not MPP, and discovery does not authorize or initiate a payment.
+
+
+The unreleased [MPP pilot](mpp.md) adds a separate native agent card path. Existing
+CardCheckout helpers remain hosted Checkout; inspect recognizes the MPP offer.

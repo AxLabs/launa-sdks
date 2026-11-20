@@ -59,3 +59,6 @@ See [AGENTS.md](./AGENTS.md) for AI-agent workflows.
 ## Card payments
 
 See [seller card acceptance and hosted Checkout](docs/card-payments.md) for configuration, buyer helpers and recovery (unreleased).
+
+See the unreleased [MPP card pilot](docs/mpp.md) for client selection, additive seller
+configuration and payment recovery boundaries.

@@ -58,3 +58,16 @@ func TestCardRejectsMixedPaymentAndUnsafeURL(t *testing.T) {
 		t.Fatal("mixed payment accepted")
 	}
 }
+
+func TestCheckoutRejectsMPPProof(t *testing.T) {
+	for _, header := range []string{"Authorization", "Payment-Authorization"} {
+		c, err := New("https://gateway.example/data", "")
+		if err != nil {
+			t.Fatal(err)
+		}
+		c.Headers.Set(header, "Payment fixture")
+		if _, err = c.Start(context.Background()); err == nil {
+			t.Fatal("mixed payment accepted")
+		}
+	}
+}

@@ -65,17 +65,18 @@ export function createMcpServer(handlers: ToolHandlers, options: { buyerTools?: 
         enabled: z.boolean(),
         currency: z.literal("usd"),
         amount_minor: z.string().regex(/^[1-9][0-9]*$/),
+        mpp: z.object({ enabled: z.boolean(), buyer_auth: z.literal("none") }).optional(),
       })
       .nullable()
       .optional()
       .describe(
-        "Card price in USD cents; requires a linked Stripe account and permanent read-only GET endpoint. Use accepts: [] for card-only pricing.",
+        "Card price in USD cents; requires a linked Stripe account and permanent read-only GET endpoint. Optional mpp requires separate profile readiness and a public resource (buyer_auth: none). Use accepts: [] for card-only pricing.",
       ),
     method: z.string().optional(),
     path_pattern: z.string().optional(),
     description: z.string().optional(),
     enabled: z.boolean().optional(),
-    accepts: z.array(acceptSchema).min(1).optional(),
+    accepts: z.array(acceptSchema).optional(),
     price: z.string().optional(),
     price_usdc: z.string().optional(),
     amount: z
@@ -293,7 +294,7 @@ export function createMcpServer(handlers: ToolHandlers, options: { buyerTools?: 
 
   server.tool(
     "launa_add_endpoint",
-    "Add a paid endpoint. card_payment configures hosted card acceptance through the seller’s linked Stripe account; accepts:[] selects cards only. Otherwise defaults to platform USDC; custom tokens require network, asset, and price or atomic amount. Requires endpoints:write.",
+    "Add a paid endpoint. card_payment configures card acceptance through the seller’s linked Stripe account, with optional MPP for ready public GET resources; accepts:[] selects cards only. Otherwise defaults to platform USDC; custom tokens require network, asset, and price or atomic amount. Requires endpoints:write.",
     {
       api_id: z.string(),
       ...endpointFields,

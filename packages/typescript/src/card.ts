@@ -1,7 +1,8 @@
 /** Hosted card acceptance for gateway GET endpoints. A token identifies one purchase;
  * retain it across retries and never create another token for an uncertain payment. */
-export type CardPaymentConfig = { enabled: boolean; currency: "usd"; amount_minor: string };
+export type CardPaymentConfig = { enabled: boolean; currency: "usd"; amount_minor: string; mpp?: { enabled: boolean; buyer_auth: "none" } };
 export type StripeConnection = {
+  mpp?: { ready: boolean; profile_id?: string; disabled_reason?: string; checked_at?: string };
   id?: string;
   available?: boolean;
   connected: boolean;
@@ -13,6 +14,9 @@ export type StripeConnection = {
   disabled_reason?: string;
 };
 export type CardPayment = {
+  entry_point?: "mpp" | "checkout";
+  settled_at?: string;
+  payment_intent_id?: string;
   stripe_environment?: string;
   refunded_amount_minor?: number;
   id: string;
@@ -58,7 +62,7 @@ export class CardCheckout {
     this.token = options.token ?? createCardPaymentToken();
     if (!/^[A-Za-z0-9_-]{43}$/.test(this.token)) throw new Error("Invalid card payment token");
     this.headers = new Headers(options.headers);
-    if (this.headers.has("PAYMENT-SIGNATURE") || this.headers.has("X-PAYMENT"))
+    if (this.headers.has("PAYMENT-SIGNATURE") || this.headers.has("X-PAYMENT") || this.headers.has("Payment-Authorization") || /^Payment(?:\s|$)/i.test(this.headers.get("Authorization") ?? ""))
       throw new Error("Choose one payment method per request");
     this.fetchFn = options.fetch ?? globalThis.fetch;
   }
@@ -115,6 +119,8 @@ export class CardCheckout {
 }
 
 export type CardPaymentStats = {
+ attempt_count?: number;
+ mpp_count?: number;
  checkout_count: number;
  paid_count: number;
  delivered_count: number;
