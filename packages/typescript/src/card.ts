@@ -65,7 +65,9 @@ export class CardCheckout {
     this.headers = new Headers(options.headers);
     if (this.headers.has("PAYMENT-SIGNATURE") || this.headers.has("X-PAYMENT") || this.headers.has("Payment-Authorization") || /^Payment(?:\s|$)/i.test(this.headers.get("Authorization") ?? ""))
       throw new Error("Choose one payment method per request");
-    this.fetchFn = options.fetch ?? globalThis.fetch;
+    // Browser fetch requires its global receiver; calling it as an instance
+    // property otherwise throws "Illegal invocation" before any request.
+    this.fetchFn = options.fetch ?? globalThis.fetch.bind(globalThis);
   }
   private request(
     action: "checkout" | "status" | "resume",

@@ -22,7 +22,7 @@ export class HttpClient {
   constructor(opts: ClientOptions) {
     this.baseUrl = opts.baseUrl.replace(/\/$/, "");
     this.credentials = opts.credentials;
-    this.fetchFn = opts.fetch ?? globalThis.fetch;
+    this.fetchFn = opts.fetch ?? globalThis.fetch.bind(globalThis);
     this.environment = opts.environment;
   }
 

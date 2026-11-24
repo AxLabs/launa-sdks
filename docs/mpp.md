@@ -29,6 +29,26 @@ credential and receipt exchange against Go `mpp-go v0.9.1`. An SDK is not a wall
 its Stripe client still needs a buyer-authorized token source. Never place a seller
 Stripe secret or a raw card in a client script.
 
+Staging interoperability was also exercised with `pympp 0.26.0` (native Stripe
+method) and `mpp-go v0.9.1` (official transport with a custom sandbox Stripe token
+adapter). That Go version does not provide a built-in Stripe wallet adapter.
+The tests used Stripe test-helper tokens; they do not establish wallet login,
+regional availability or ChatGPT Wallet compatibility. Link CLI 1.6.0 challenge
+decoding passed; its wallet payment remains untested.
+
+For a single approved payment attempt, set `maxPaymentRetries: 1` in mppx or
+`max_payment_retries=1` in pympp. In staging, mppx's default retries requested
+another token after a terminal decline and a fresh challenge. A retry limit is
+not a spending policy: validate the origin, amount, currency and recipient in
+the token callback, and require separate approval before replacing a declined
+payment method. Persist the credential securely before sending it so an uncertain
+response can be reconciled without minting another token.
+
+Retries must preserve the original request, including relevant forwarded headers.
+Changing HTTP stacks can change default headers (such as `Accept-Language`) and
+produce a request-binding conflict. Reuse the original client and explicit headers;
+do not resolve a conflict by authorizing another payment.
+
 ## Recovery and accounting
 
 Keep the original MPP credential securely until the attempt is resolved. Launa's

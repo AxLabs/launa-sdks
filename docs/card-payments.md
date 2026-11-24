@@ -150,6 +150,12 @@ remounting after reload. Restore the original request when URL or credentials
 change; an existing purchase cannot be reassigned. The existing x402 paywall
 components remain available alongside this button.
 
+Allow the embedding application's exact origin in the API's CORS configuration,
+including its port during local development. The gateway exposes
+`Launa-Payment-Receipt` to approved origins so the component can verify delivery.
+A blocked preflight is a configuration error, not evidence of a declined payment;
+keep the original token when retrying after correcting the origin.
+
 ## Recovery
 
 Gateway operations are GETs to the original resource with `Launa-Payment:

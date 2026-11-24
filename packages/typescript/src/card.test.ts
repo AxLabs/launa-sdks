@@ -1,8 +1,27 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { CardCheckout } from "./card.js";
 import { LaunaClient } from "./client.js";
 
 describe("hosted card payments", () => {
+  it("keeps the global receiver required by native browser fetch", async () => {
+    const receivers: unknown[] = [];
+    vi.stubGlobal("fetch", async function (this: unknown) {
+      receivers.push(this);
+      if (this !== globalThis) throw new TypeError("Illegal invocation");
+      return new Response(JSON.stringify({ status: "pending" }), { status: 202 });
+    });
+    try {
+      const client = new CardCheckout("https://gateway.example/data");
+      await client.start();
+      await client.status();
+      await client.resume();
+      const seller = new LaunaClient({ baseUrl: "https://control.example" });
+      await seller.cardPayments.connection();
+      expect(receivers).toEqual([globalThis, globalThis, globalThis, globalThis]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
   it("disconnects only the selected connection in the configured environment", async () => {
     const client = new LaunaClient({
       baseUrl: "https://control.example",
