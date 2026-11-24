@@ -14,6 +14,7 @@ export type StripeConnection = {
   disabled_reason?: string;
 };
 export type CardPayment = {
+  authentication_expires_at?: string;
   entry_point?: "mpp" | "checkout";
   settled_at?: string;
   payment_intent_id?: string;

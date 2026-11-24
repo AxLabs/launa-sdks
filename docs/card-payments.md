@@ -1,6 +1,6 @@
 # Card payments through a seller's Stripe account
 
-These APIs are part of the unreleased card-payments feature. Deploy the matching
+These card APIs are merged into staging. Package publication is separate; deploy the matching
 backend and rebuild/publish the SDK, CLI, MCP and paywall together before using
 them against a hosted service. Existing published 0.0.7 packages do not include
 this feature.
@@ -192,5 +192,15 @@ responses do not receive fresh-payment instructions. These are Launa discovery
 fields, not MPP, and discovery does not authorize or initiate a payment.
 
 
-The unreleased [MPP pilot](mpp.md) adds a separate native agent card path. Existing
+The opt-in [MPP pilot](mpp.md) adds a separate native agent card path. Existing
 CardCheckout helpers remain hosted Checkout; inspect recognizes the MPP offer.
+
+The [local MPP card lab](../examples/mpp-card-lab/README.md) tests sandbox cards,
+declines, issuer-side 3DS, failed-delivery refunds and disputes. The normal
+`CardCheckout` helpers remain hosted Checkout clients; they do not create SPTs.
+
+Seller payment list responses may include `authentication_expires_at` for MPP
+`action_required` purchases. It is the server continuation deadline, not a wallet
+token or proof of cancellation. After it passes, reconcile the original attempt.
+TypeScript and Go expose the optional field; Python preserves it in the response
+dictionary. This additive field requires the updated backend deployment.

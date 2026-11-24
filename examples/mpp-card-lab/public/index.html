@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Launa · MPP card lab</title><link rel="stylesheet" href="/style.css"><script src="https://js.stripe.com/v3/"></script><script type="module" src="/app.js"></script></head>
+<body><main>
+<header><a class="brand" href="/">launa<span>✳</span></a><span class="badge">LOCAL LAB · STRIPE SANDBOX</span></header>
+<section class="intro"><div class="eyebrow">PAYMENT PLAYGROUND</div><h1>A card. A challenge.<br>An API response.</h1><p id="test-scope">Exercise the real staging MPP flow with simulated cards. Each new payment is $1.00 USD, paid to the linked seller’s sandbox account.</p></section>
+<div class="layout"><section class="panel">
+<div class="section-label">01 / CHOOSE AN OUTCOME</div><div id="scenarios" class="scenarios"></div>
+<div class="test-card"><span>Card number for this scenario</span><button id="copy-card" class="number" title="Copy test card number"></button><small>Expiry 12/34 · CVC 123 · Any test postal code</small></div>
+<p id="expected" class="hint"></p><label>API gateway<input id="gateway" readonly></label>
+<button id="inspect" class="secondary">Inspect MPP offer</button>
+<hr><div class="section-label">02 / AUTHORIZE A TEST PAYMENT</div>
+<label>Enter a Stripe test card<div id="card-element"></div></label>
+<p id="card-error" role="alert"></p>
+<button id="pay" class="primary">Pay $1.00 with entered test card <span>↗</span></button>
+<button id="fixture" class="secondary">Run selected test-card fixture</button>
+<p class="hint">The fixture button simulates the selected card without typing. Card entry uses Stripe Elements. Both submit an MPP credential to the configured gateway.</p>
+</section><section class="panel result-panel">
+<div class="section-label">03 / OBSERVE & REPLAY</div><div class="status-line"><h2 id="status">Ready to test</h2><span id="http" class="badge">NO REQUEST</span></div>
+<p id="notice" role="status">Inspect the offer first, or submit a test payment to start.</p>
+<dl><div><dt>Payment method</dt><dd>MPP · Stripe card</dd></div><div><dt>Stripe payment</dt><dd id="pi">—</dd></div><div><dt>Provider status</dt><dd id="provider">—</dd></div><div><dt>Refunded</dt><dd id="refunded">—</dd></div></dl>
+<p id="issuer-mode" class="hint"></p><div class="actions"><button id="authenticate" class="primary" disabled>Authenticate test payment</button><button id="cancel-auth" class="secondary" disabled>Cancel pending authentication</button><button id="retry" class="secondary" disabled>Retry saved credential</button><button id="refresh" class="secondary" disabled>Refresh Stripe status</button><button id="partial" class="secondary" disabled>Refund $0.40</button><button id="refund" class="secondary" disabled>Refund remaining amount</button><button id="pending-refund" class="secondary" hidden>Reconcile pending refund</button></div>
+<p class="hint">Retries reuse the original credential and exact URL. Refunds and disputes can take a moment to reach Launa via webhook.</p>
+<h3>Payment receipt</h3><pre id="receipt">No receipt yet.</pre><h3>API response</h3><pre id="response">No response yet.</pre>
+<label>Previous attempts<select id="history"><option value="">Select an attempt</option></select></label>
+</section></div>
+<section class="panel debug"><div class="debug-heading"><div><div class="section-label">WIRE DEBUGGER</div><h2>Every response, in order.</h2></div><div class="actions"><button id="copy-debug" class="secondary">Copy trace</button><button id="download" class="secondary">Download JSON</button></div></div>
+<p class="hint">Gateway headers and bodies, decoded challenge, Stripe token creation, payment lookup, charge, refund and dispute responses. Secret keys, SPTs and authorization credentials are redacted. No automatic payment retries.</p>
+<div id="debug"><p class="empty">Responses appear here as you run a test.</p></div></section>
+<footer>Launa Live environment on staging · Stripe sandbox only · <a href="https://staging.launa.io/dashboard/income" target="_blank" rel="noreferrer">Open seller income ↗</a></footer>
+</main></body></html>

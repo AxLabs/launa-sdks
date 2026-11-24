@@ -34,20 +34,21 @@ type StripeConnection struct {
 	Environment       string        `json:"environment,omitempty"`
 }
 type CardPayment struct {
-	EntryPoint          string `json:"entry_point,omitempty"`
-	SettledAt           string `json:"settled_at,omitempty"`
-	PaymentIntentID     string `json:"payment_intent_id,omitempty"`
-	CreatedAt           string `json:"created_at,omitempty"`
-	StripeEnvironment   string `json:"stripe_environment,omitempty"`
-	RefundedAmountMinor int64  `json:"refunded_amount_minor"`
-	ID                  string `json:"id"`
-	APIID               string `json:"api_id"`
-	EndpointID          string `json:"endpoint_id"`
-	AccountID           string `json:"account_id"`
-	Currency            string `json:"currency"`
-	AmountMinor         int64  `json:"amount_minor"`
-	Status              string `json:"status"`
-	Delivery            string `json:"delivery"`
+	AuthenticationExpiresAt string `json:"authentication_expires_at,omitempty"`
+	EntryPoint              string `json:"entry_point,omitempty"`
+	SettledAt               string `json:"settled_at,omitempty"`
+	PaymentIntentID         string `json:"payment_intent_id,omitempty"`
+	CreatedAt               string `json:"created_at,omitempty"`
+	StripeEnvironment       string `json:"stripe_environment,omitempty"`
+	RefundedAmountMinor     int64  `json:"refunded_amount_minor"`
+	ID                      string `json:"id"`
+	APIID                   string `json:"api_id"`
+	EndpointID              string `json:"endpoint_id"`
+	AccountID               string `json:"account_id"`
+	Currency                string `json:"currency"`
+	AmountMinor             int64  `json:"amount_minor"`
+	Status                  string `json:"status"`
+	Delivery                string `json:"delivery"`
 }
 
 func (c *Client) StripeConnection(ctx context.Context) (*StripeConnection, error) {

@@ -2,6 +2,14 @@
 
 Runnable scripts for control-plane automation (seller) and gateway payments (buyer).
 
+## Local MPP card lab
+
+[MPP card lab](mpp-card-lab/README.md) provides a loopback-only browser page with
+Stripe test-card entry, success/decline/authentication/dispute/failure scenarios,
+refund controls, saved-credential replay and a redacted response debugger.
+It targets the configured staging seller's Stripe sandbox and requires no Link
+wallet. It is a standalone example with its own pinned dependencies.
+
 ## Prerequisites
 
 | Language | Install (published) | Install (from source) | Env vars |

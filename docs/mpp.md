@@ -1,6 +1,6 @@
-# MPP card pilot (unreleased)
+# MPP card pilot
 
-The `feat/mpp` backend/gateway build supports a disabled-by-default `stripe/charge`
+The staging backend/gateway supports a disabled-by-default `stripe/charge`
 MPP pilot. It reuses each seller's linked Stripe account and requires separate
 Stripe business profile readiness. Check the deployed version and
 `cardPayments.connection()` / `cards connection` / `launa_stripe_connection` before
@@ -33,9 +33,10 @@ Stripe secret or a raw card in a client script.
 
 Keep the original MPP credential securely until the attempt is resolved. Launa's
 503 without a fresh challenge means reconciliation; do not mint another SPT or
-switch to Checkout/x402 automatically. A decline or additional authentication is
-cancelled before a fresh challenge is offered; this pilot cannot fulfill interactive
-3DS. A successful response contains `Payment-Receipt`; refunded/disputed access is
+switch to Checkout/x402 automatically. Declines are cancelled before a fresh
+challenge is offered. The 3DS continuation build instead returns
+`payment_requires_action` while the token issuer authenticates the original SPT.
+Earlier builds cancel authentication-required payments. A successful response contains `Payment-Receipt`; refunded/disputed access is
 revoked. Recovery uses the original request URL/query/headers and credential.
 
 `entry_point: "mpp"` identifies MPP history. Absent entry_point means legacy
@@ -46,3 +47,63 @@ attempt_count field is missing. Raw tokens never belong in logs or public output
 
 MPP does not by itself establish ChatGPT Wallet compatibility. Browser Checkout,
 Link approval and actual ChatGPT Wallet acceptance are separate test tracks.
+
+## 3DS and token-issuer authentication
+
+The `feat/mpp-3ds` backend/gateway adds a Launa recovery extension. It must be
+rolled out on both services before clients rely on it; earlier staging builds
+cancel authentication-required PaymentIntents.
+
+A seller PaymentIntent created from an SPT can report `requires_action` with
+`next_action.type=shared_payment_token_action`. Its seller-side client secret is
+not a browser 3DS continuation. The wallet/agent that **issued** the SPT retrieves
+`/v1/shared_payment/issued_tokens/{id}` in its own Stripe account and handles
+`next_action.use_stripe_sdk.value` using Stripe.js
+`handleNextAction({hashedValue: value})`. The buyer completes the bank challenge.
+Launa holds no issuer credentials and never accepts a browser success flag as
+payment evidence. See [Stripe's issuer-side next-action flow](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens?agent-seller=agent#handle-next-actions).
+
+While authentication is pending, the original paid request returns:
+
+```json
+{
+  "type": "about:blank",
+  "title": "Authenticate this payment in the wallet that issued the token",
+  "status": 402,
+  "code": "payment_requires_action",
+  "authentication": {
+    "type": "stripe_spt",
+    "actor": "token_issuer",
+    "expires_at": "2026-11-24T12:15:00Z"
+  },
+  "detail": "The token issuer must handle Stripe SPT next_action. Then retry the exact request with the original credential. Do not create another token or switch payment methods while this attempt is pending.",
+  "cancel": {"header": "X-Launa-MPP-Operation", "value": "cancel"}
+}
+```
+
+There is no fresh `WWW-Authenticate` challenge and no `Payment-Receipt` in that
+response. It is not a portable MPP authentication standard: clients must recognize
+this Launa extension, or let their wallet handle SPT authentication independently.
+An HTTP 402 alone is not permission to create another token. Keep the exact URL,
+query, relevant headers and original credential, then retry after wallet completion.
+Launa verifies the original PaymentIntent on the original connected account/mode;
+only settled payment plus saved API delivery produces a receipt.
+
+To abandon authentication, explicitly retry the same request and credential with
+`X-Launa-MPP-Operation: cancel`. Cancellation cannot create a purchase, change the
+request binding or deliver the resource. Only confirmed provider cancellation can
+produce a new challenge. A timeout remains unresolved (503). A durable cancellation
+fence prevents delivery if authentication wins the race; a payment that settles
+after that fence is refunded through the existing engine. The server cancels a
+still-action-required payment after 15 minutes from purchase creation (or earlier
+purchase expiry), when polled or reconciled by its worker. SPT expiry can be earlier.
+Closing a browser window does not prove cancellation.
+
+Neither wallet authentication nor this extension is an automatic fallback to
+Checkout or x402. Hosted Checkout already owns its own interactive authentication
+and keeps its existing token/status/resume contract.
+
+## Local test client
+
+See [MPP card lab](../examples/mpp-card-lab/README.md) for test cards,
+issuer mode, saved retries, refunds and the redacted response debugger.
